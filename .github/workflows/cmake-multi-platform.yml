@@ -23,6 +23,9 @@ jobs:
       #
       # To add more build types (Release, Debug, RelWithDebInfo, etc.) customize the build_type list.
       matrix:
+        os: [ubuntu-latest, windows-latest]
+        preset: [wx64-debug, wx64-release, wx86-debug, wx86-release, lx64-debug, lx64-release lx86-debug, lx86-release]
+        c_compiler: [cl, clang]
         include:
           - os: windows-latest
             c_compiler: cl
