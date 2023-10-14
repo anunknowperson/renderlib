@@ -47,8 +47,10 @@ jobs:
     steps:
     - uses: actions/checkout@v3
 
-    - name: Setup vcpkg (it does not install any package yet)
+    - name: Restore from cache and setup vcpkg executable and data files.
       uses: lukka/run-vcpkg@v11
+      with:
+        vcpkgJsonGlob: 'vcpkg.json'
     
     - name: Setup Vulkan SDK
       # You may pin to the exact commit or the version.
