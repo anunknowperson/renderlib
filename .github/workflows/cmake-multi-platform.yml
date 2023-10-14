@@ -23,26 +23,39 @@ jobs:
       #
       # To add more build types (Release, Debug, RelWithDebInfo, etc.) customize the build_type list.
       matrix:
-        os: [ubuntu-latest, windows-latest]
-        preset: [x86-debug, x86-release]
-        c_compiler: [gcc, clang, cl]
         include:
           - os: windows-latest
             c_compiler: cl
-            cpp_compiler: cl
-          - os: ubuntu-latest
-            c_compiler: gcc
-            cpp_compiler: g++
-          - os: ubuntu-latest
-            c_compiler: clang
-            cpp_compiler: clang++
-        exclude:
+            preset: wx64-debug
           - os: windows-latest
-            c_compiler: gcc
-          - os: windows-latest
-            c_compiler: clang
-          - os: ubuntu-latest
             c_compiler: cl
+            preset: wx64-release
+          - os: windows-latest
+            c_compiler: cl
+            preset: wx86-debug
+          - os: windows-latest
+            c_compiler: cl
+            preset: wx86-release
+          - os: ubuntu-latest
+            c_compiler: clang
+            preset: lx64-debug
+          - os: ubuntu-latest
+            c_compiler: clang
+            preset: lx64-release
+          - os: ubuntu-latest
+            c_compiler: clang
+            preset: lx86-debug
+          - os: ubuntu-latest
+            c_compiler: clang
+            preset: lx86-release
+      
+      exclude:
+        - os: ubuntu-latest
+          c_compiler: cl
+        - os: windows-latest
+          c_compiler: gcc
+        - os: windows-latest
+          c_compiler: clang
 
     steps:
     - uses: actions/checkout@v3
