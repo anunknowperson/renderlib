@@ -57,6 +57,11 @@ jobs:
       with:
         submodules: true
 
+    - name: Update APT package list
+      if: startsWith(runner.os, 'Linux')
+      run: sudo apt-get update
+
+    
     - name: Install xorg-dev
       if: startsWith(runner.os, 'Linux')
       run: sudo apt-get install -y xorg-dev
