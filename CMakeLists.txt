@@ -25,7 +25,8 @@ if (CMAKE_VERSION VERSION_GREATER 3.12)
 endif()
 
 
-
+find_package(spdlog CONFIG REQUIRED)
+target_link_libraries(${PROJECT_NAME} PRIVATE spdlog::spdlog)
 
 find_package(glfw3 CONFIG REQUIRED)
 target_link_libraries(${PROJECT_NAME} PRIVATE glfw)
