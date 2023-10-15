@@ -8,8 +8,6 @@
 class VulkanInstance {
 
 private:
-	GLFWwindow* window;
-
 	VkInstance instance;
 		
 	VkApplicationInfo getAppInfo();
@@ -20,6 +18,6 @@ private:
 	void createInstance();
 
 public:
-	VulkanInstance(GLFWwindow* p_window);
+	VulkanInstance();
 	~VulkanInstance();
 };

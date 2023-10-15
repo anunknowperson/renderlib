@@ -2,10 +2,8 @@
 
 #include "internal/vulkan_instance.h"
 
-VulkanInstance::VulkanInstance(GLFWwindow* p_window)
+VulkanInstance::VulkanInstance()
 {
-	window = p_window;
-
     createInstance();
 }
 

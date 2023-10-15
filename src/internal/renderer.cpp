@@ -1,8 +1,10 @@
 #include "internal/renderer.h"
 
-void Renderer::init(GLFWwindow* window)
+void Renderer::init(GLFWwindow* p_window)
 {
-	vulkan_instance = new VulkanInstance(window);
+	window = p_window;
+
+	vulkan_instance = new VulkanInstance();
 }
 
 void Renderer::render()
