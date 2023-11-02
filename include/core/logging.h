@@ -15,5 +15,11 @@
 
 #define LOGI(...) spdlog::info(__VA_ARGS__);
 #define LOGW(...) spdlog::warn(__VA_ARGS__);
-#define LOGE(...) spdlog::error("[{}:{}] {}", __FILENAME__, __LINE__, fmt::format(__VA_ARGS__));
 #define LOGD(...) spdlog::debug(__VA_ARGS__);
+
+#define LOGIF(...) spdlog::info(fmt::format(__VA_ARGS__));
+#define LOGWF(...) spdlog::warn(fmt::format(__VA_ARGS__));
+#define LOGDf(...) spdlog::debug(fmt::format(__VA_ARGS__));
+
+
+#define LOGE(...) spdlog::error("[{}:{}] {}", __FILENAME__, __LINE__, fmt::format(__VA_ARGS__));
