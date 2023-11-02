@@ -4,6 +4,19 @@
 
 #include <string>
 
+namespace
+{
+#ifdef NDEBUG
+const bool enableValidationLayers = false;
+#else
+const bool enableValidationLayers = true;
+#endif
+
+const std::vector<const char*> validationLayers = {
+"VK_LAYER_KHRONOS_validation"
+};
+
+}
 VulkanInstance::VulkanInstance()
 {
     createInstance();
@@ -69,15 +82,7 @@ VkApplicationInfo VulkanInstance::getAppInfo()
 }
 
 
-void VulkanInstance::populateInstanceCreateInfo(VkInstanceCreateInfo& createInfo, VkApplicationInfo& appInfo)
-{
-    createInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
-    createInfo.pApplicationInfo = &appInfo;
 
-    auto extensions = getRequiredExtensions();
-    createInfo.enabledExtensionCount = static_cast<uint32_t>(extensions.size());
-    createInfo.ppEnabledExtensionNames = extensions.data();
-}
 
 
 
@@ -153,6 +158,16 @@ bool VulkanInstance::checkValidationLayerSupport()
     return true;
 }
 
+void VulkanInstance::populateInstanceCreateInfo(VkInstanceCreateInfo& createInfo, VkApplicationInfo& appInfo, std::vector<const char*>& extensions)
+{
+    createInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
+    createInfo.pApplicationInfo = &appInfo;
+
+    //auto extensions = getRequiredExtensions();
+    createInfo.enabledExtensionCount = static_cast<uint32_t>(extensions.size());
+    createInfo.ppEnabledExtensionNames = extensions.data();
+}
+
 void VulkanInstance::createInstance() {
 
     enumerateExtensions();
@@ -167,22 +182,10 @@ void VulkanInstance::createInstance() {
 
     VkApplicationInfo appInfo = getAppInfo();
 
-
-    // TODO: move to function
-    //VkInstanceCreateInfo createInfo{};
-    //populateInstanceCreateInfo(createInfo, appInfo);
-    //
-    //^
-    //|
-    //|
-    //
-    VkInstanceCreateInfo createInfo{};
-    createInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
-    createInfo.pApplicationInfo = &appInfo;
-
     auto extensions = getRequiredExtensions();
-    createInfo.enabledExtensionCount = static_cast<uint32_t>(extensions.size());
-    createInfo.ppEnabledExtensionNames = extensions.data();
+
+    VkInstanceCreateInfo createInfo{};
+    populateInstanceCreateInfo(createInfo, appInfo, extensions);
     //
 
     VkDebugUtilsMessengerCreateInfoEXT debugCreateInfo{};

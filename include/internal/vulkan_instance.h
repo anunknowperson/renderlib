@@ -9,24 +9,12 @@
 class VulkanInstance {
 
 private:
-	VkInstance instance;
+	
 
 	VkDebugUtilsMessengerEXT debugMessenger;
 
-#ifdef NDEBUG
-	const bool enableValidationLayers = false;
-#else
-	const bool enableValidationLayers = true;
-#endif
-
-	const std::vector<const char*> validationLayers = {
-	"VK_LAYER_KHRONOS_validation"
-	};
-
-
-
 	VkApplicationInfo getAppInfo();
-	void populateInstanceCreateInfo(VkInstanceCreateInfo& createInfo, VkApplicationInfo& appInfo);
+	void populateInstanceCreateInfo(VkInstanceCreateInfo& createInfo, VkApplicationInfo& appInfo, std::vector<const char*>& extensions);
 
 	void enumerateExtensions();
 
@@ -50,6 +38,8 @@ private:
 		void* pUserData);
 
 public:
+	VkInstance instance;
+
 	VulkanInstance();
 	~VulkanInstance();
 };

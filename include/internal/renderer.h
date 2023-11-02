@@ -1,9 +1,14 @@
 
 #pragma once
 
+#include <memory>
+
+#include <vulkan/vulkan.hpp>
+
 #include "GLFW/glfw3.h"
 
 #include "internal/vulkan_instance.h"
+#include "internal/vulkan_physical_device.h"
 
 // TODO: Remove GLFW dependency from Renderer
 
@@ -12,8 +17,9 @@ class Renderer {
 private:
 	GLFWwindow* window;
 
-	VulkanInstance* vulkan_instance;
+	std::shared_ptr<VulkanInstance> vulkan_instance;
 
+	VkPhysicalDevice vulkan_physical_device;
 
 
 public:
