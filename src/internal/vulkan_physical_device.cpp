@@ -4,19 +4,23 @@
 #include <string>
 #include <unordered_map>
 
-namespace {
-    const std::unordered_map<uint32_t, std::string_view> vendorNames = {
-        { 0x1002, "AMD" },
-        { 0x1010, "ImgTec" },
-        { 0x106B, "Apple" },
-        { 0x10DE, "NVIDIA" },
-        { 0x13B5, "ARM" },
-        { 0x5143, "Qualcomm" },
-        { 0x8086, "Intel" },
-    };
-}
+namespace
+{
 
-VkPhysicalDevice VulkanPhysicalDevice::pick(std::shared_ptr<VulkanInstance> p_instance) {
+const std::unordered_map<uint32_t, std::string_view> vendorNames =
+{
+    { 0x1002, "AMD" },
+    { 0x1010, "ImgTec" },
+    { 0x106B, "Apple" },
+    { 0x10DE, "NVIDIA" },
+    { 0x13B5, "ARM" },
+    { 0x5143, "Qualcomm" },
+    { 0x8086, "Intel" },
+};
+} // namespace
+
+VkPhysicalDevice VulkanPhysicalDevice::pick(std::shared_ptr<VulkanInstance> p_instance)
+{
     uint32_t deviceCount = 0;
     vkEnumeratePhysicalDevices(p_instance->instance, &deviceCount, nullptr);
 
@@ -62,7 +66,7 @@ void VulkanPhysicalDevice::logDeviceDetails(VkPhysicalDevice device, int score) 
 
     std::string deviceType;
     switch (deviceProperties.deviceType) {
-    case VK_PHYSICAL_DEVICE_TYPE_INTEGRATED_GPU: deviceType = "Integrated GPU"; break;
+        case VK_PHYSICAL_DEVICE_TYPE_INTEGRATED_GPU: deviceType = "Integrated GPU"; break;
     case VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU: deviceType = "Discrete GPU"; break;
     case VK_PHYSICAL_DEVICE_TYPE_VIRTUAL_GPU: deviceType = "Virtual GPU"; break;
     case VK_PHYSICAL_DEVICE_TYPE_CPU: deviceType = "CPU"; break;
