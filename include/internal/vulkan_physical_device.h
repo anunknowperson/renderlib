@@ -12,29 +12,26 @@
 #include "internal/vulkan_instance.h"
 #include <string>
 
-
+// TODO: Get rid of consts
 class VulkanPhysicalDevice {
 public:
-	static VkPhysicalDevice pick(std::shared_ptr<VulkanInstance> p_vulkan_instance);
-	
+    // TODO: Remove this
+    static const std::vector<const char*> deviceExtensions;
+
+	static VkPhysicalDevice pick(const std::shared_ptr<VulkanInstance>& p_vulkan_instance, VkSurfaceKHR p_surface);
+
+    struct QueueFamilyIndices {
+        std::optional<uint32_t> graphicsFamily;
+        std::optional<uint32_t> presentFamily;
+
+        [[nodiscard]] bool isComplete() const;
+    };
+
+    static QueueFamilyIndices findQueueFamilies(VkPhysicalDevice device, VkSurfaceKHR p_surface);
 
 private:
-	std::shared_ptr<VulkanInstance> vulkan_instance;
 
-	VkPhysicalDevice physicalDevice = VK_NULL_HANDLE;
-
-
-	static void logDeviceDetails(VkPhysicalDevice device, int score);
-	static int rateDeviceSuitability(VkPhysicalDevice device);
-
-	struct QueueFamilyIndices {
-		std::optional<uint32_t> graphicsFamily;
-
-		bool isComplete() {
-			return graphicsFamily.has_value();
-		}
-	};
-
-	static QueueFamilyIndices findQueueFamilies(VkPhysicalDevice device);
-
+	static void logDeviceDetails(VkPhysicalDevice device, uint32_t score);
+	static int rateDeviceSuitability(VkPhysicalDevice device, VkSurfaceKHR p_surface);
+    static bool checkDeviceExtensionSupport(VkPhysicalDevice device);
 };

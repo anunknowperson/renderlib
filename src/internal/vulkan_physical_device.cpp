@@ -3,6 +3,7 @@
 #include <map>
 #include <string>
 #include <unordered_map>
+#include <set>
 
 namespace {
     const std::unordered_map<uint32_t, std::string_view> vendorNames = {
@@ -14,9 +15,17 @@ namespace {
         { 0x5143, "Qualcomm" },
         { 0x8086, "Intel" },
     };
+
+
 }
 
-VkPhysicalDevice VulkanPhysicalDevice::pick(std::shared_ptr<VulkanInstance> p_instance) {
+// TODO: Move this
+const std::vector<const char*>  VulkanPhysicalDevice::deviceExtensions ({
+    VK_KHR_SWAPCHAIN_EXTENSION_NAME
+});
+
+
+VkPhysicalDevice VulkanPhysicalDevice::pick(const std::shared_ptr<VulkanInstance>& p_instance, VkSurfaceKHR p_surface) {
     uint32_t deviceCount = 0;
     vkEnumeratePhysicalDevices(p_instance->instance, &deviceCount, nullptr);
 
@@ -32,7 +41,7 @@ VkPhysicalDevice VulkanPhysicalDevice::pick(std::shared_ptr<VulkanInstance> p_in
 
     LOGI("Evaluating physical devices:");
     for (const auto& device : devices) {
-        int score = rateDeviceSuitability(device);
+        int score = rateDeviceSuitability(device, p_surface);
         if (score > 0) { // Only consider devices that have a positive score
             candidates.insert(std::make_pair(score, device));
         }
@@ -54,7 +63,7 @@ VkPhysicalDevice VulkanPhysicalDevice::pick(std::shared_ptr<VulkanInstance> p_in
     return selected_device;
 }
 
-void VulkanPhysicalDevice::logDeviceDetails(VkPhysicalDevice device, int score) {
+void VulkanPhysicalDevice::logDeviceDetails(VkPhysicalDevice device, uint32_t score) {
     VkPhysicalDeviceProperties deviceProperties;
     VkPhysicalDeviceFeatures deviceFeatures;
     vkGetPhysicalDeviceProperties(device, &deviceProperties);
@@ -92,7 +101,7 @@ void VulkanPhysicalDevice::logDeviceDetails(VkPhysicalDevice device, int score) 
     LOGIF("Device score: {}", score);
 }
 
-int VulkanPhysicalDevice::rateDeviceSuitability(VkPhysicalDevice device) {
+int VulkanPhysicalDevice::rateDeviceSuitability(VkPhysicalDevice device, VkSurfaceKHR p_surface) {
     VkPhysicalDeviceProperties deviceProperties;
     VkPhysicalDeviceFeatures deviceFeatures;
     vkGetPhysicalDeviceProperties(device, &deviceProperties);
@@ -108,9 +117,11 @@ int VulkanPhysicalDevice::rateDeviceSuitability(VkPhysicalDevice device) {
         return -1;
     }
 
-    QueueFamilyIndices indices = findQueueFamilies(device);
+    QueueFamilyIndices indices = findQueueFamilies(device, p_surface);
 
-    if (!indices.isComplete()) {
+    bool extensionsSupported = checkDeviceExtensionSupport(device);
+
+    if (!indices.isComplete() || !extensionsSupported) {
         return -1;
     }
 
@@ -124,7 +135,7 @@ int VulkanPhysicalDevice::rateDeviceSuitability(VkPhysicalDevice device) {
     return rating;
 }
 
-VulkanPhysicalDevice::QueueFamilyIndices VulkanPhysicalDevice::findQueueFamilies(VkPhysicalDevice device) {
+VulkanPhysicalDevice::QueueFamilyIndices VulkanPhysicalDevice::findQueueFamilies(VkPhysicalDevice device, VkSurfaceKHR p_surface) {
     QueueFamilyIndices indices{};
     
     uint32_t queueFamilyCount = 0;
@@ -139,6 +150,13 @@ VulkanPhysicalDevice::QueueFamilyIndices VulkanPhysicalDevice::findQueueFamilies
             indices.graphicsFamily = i;
         }
 
+        VkBool32 presentSupport = false;
+        vkGetPhysicalDeviceSurfaceSupportKHR(device, i, p_surface, &presentSupport);
+
+        if (presentSupport) {
+            indices.presentFamily = i;
+        }
+
         if (indices.isComplete()) {
             break;
         }
@@ -148,3 +166,26 @@ VulkanPhysicalDevice::QueueFamilyIndices VulkanPhysicalDevice::findQueueFamilies
 
     return indices;
 }
+
+bool VulkanPhysicalDevice::checkDeviceExtensionSupport(VkPhysicalDevice device) {
+    uint32_t extensionCount;
+    vkEnumerateDeviceExtensionProperties(device, nullptr, &extensionCount, nullptr);
+
+    std::vector<VkExtensionProperties> availableExtensions(extensionCount);
+    vkEnumerateDeviceExtensionProperties(device, nullptr, &extensionCount, availableExtensions.data());
+
+    std::set<std::string> requiredExtensions(deviceExtensions.begin(), deviceExtensions.end());
+
+    for (const auto& extension : availableExtensions) {
+        requiredExtensions.erase(extension.extensionName);
+    }
+
+    return requiredExtensions.empty();
+}
+
+bool VulkanPhysicalDevice::QueueFamilyIndices::isComplete() const {
+
+    return graphicsFamily.has_value() && presentFamily.has_value();
+
+}
+

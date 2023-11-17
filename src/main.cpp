@@ -19,6 +19,8 @@ int main() {
     // Create a GLFW window
     GLFWwindow* window = glfwCreateWindow(1280, 720, "Vulkan Test", nullptr, nullptr);
 
+    
+
     // Initialize the renderer
     r.init(window);
 
