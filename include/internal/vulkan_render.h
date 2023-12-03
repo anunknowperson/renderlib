@@ -22,7 +22,13 @@
 class VulkanRender {
 private:
 
+
+
+    uint32_t currentFrame = 0;
+
 public:
+    const int MAX_FRAMES_IN_FLIGHT = 2;
+
 	GLFWwindow* window;
 
 	std::shared_ptr<VulkanInstance> vulkan_instance;
@@ -35,6 +41,8 @@ public:
 
 	VkPhysicalDevice vulkan_physical_device;
 
+    static void framebufferResizeCallback(GLFWwindow* window, int width, int height);
+
 	void init(GLFWwindow* p_window);
 
 	void render();
@@ -43,9 +51,11 @@ public:
 
     void drawFrame();
 
-    VkSemaphore imageAvailableSemaphore;
-    VkSemaphore renderFinishedSemaphore;
-    VkFence inFlightFence;
+    std::vector<VkSemaphore> imageAvailableSemaphores;
+    std::vector<VkSemaphore> renderFinishedSemaphores;
+    std::vector<VkFence> inFlightFences;
+
+    bool framebufferResized = false;
 
 	VulkanRender();
 	~VulkanRender();

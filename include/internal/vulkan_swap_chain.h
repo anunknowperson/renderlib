@@ -38,8 +38,13 @@ public:
     std::vector<VkFramebuffer> swapChainFramebuffers;
 
 
+    void createSwapChain();
     void createImageViews();
     void create_framebuffers();
+
+    void cleanupSwapChain();
+
+    void recreate();
 
     VulkanSwapchain(VulkanRender* p_render);
     ~VulkanSwapchain();

@@ -12,75 +12,13 @@ VulkanSwapchain::VulkanSwapchain(VulkanRender* p_render) {
     render = p_render;
 
 
-    VulkanPhysicalDevice::SwapChainSupportDetails swapChainSupport = VulkanPhysicalDevice::querySwapChainSupport(render->vulkan_physical_device, render->vulkan_surface->surface);
-
-    VkSurfaceFormatKHR surfaceFormat = chooseSwapSurfaceFormat(swapChainSupport.formats);
-    VkPresentModeKHR presentMode = chooseSwapPresentMode(swapChainSupport.presentModes);
-    VkExtent2D extent = chooseSwapExtent(swapChainSupport.capabilities);
-
-    uint32_t imageCount = swapChainSupport.capabilities.minImageCount + 1;
-
-    if (swapChainSupport.capabilities.maxImageCount > 0 && imageCount > swapChainSupport.capabilities.maxImageCount) {
-        imageCount = swapChainSupport.capabilities.maxImageCount;
-    }
-
-    VkSwapchainCreateInfoKHR createInfo{};
-    createInfo.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
-    createInfo.surface = render->vulkan_surface->surface;
-
-    createInfo.minImageCount = imageCount;
-    createInfo.imageFormat = surfaceFormat.format;
-    createInfo.imageColorSpace = surfaceFormat.colorSpace;
-    createInfo.imageExtent = extent;
-    createInfo.imageArrayLayers = 1;
-    createInfo.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
-
-    VulkanPhysicalDevice::QueueFamilyIndices indices = VulkanPhysicalDevice::findQueueFamilies(render->vulkan_physical_device, render->vulkan_surface->surface);
-    uint32_t queueFamilyIndices[] = {indices.graphicsFamily.value(), indices.presentFamily.value()};
-
-    if (indices.graphicsFamily != indices.presentFamily) {
-        createInfo.imageSharingMode = VK_SHARING_MODE_CONCURRENT;
-        createInfo.queueFamilyIndexCount = 2;
-        createInfo.pQueueFamilyIndices = queueFamilyIndices;
-    } else {
-        createInfo.imageSharingMode = VK_SHARING_MODE_EXCLUSIVE;
-        createInfo.queueFamilyIndexCount = 0; // Optional
-        createInfo.pQueueFamilyIndices = nullptr; // Optional
-    }
-
-    createInfo.preTransform = swapChainSupport.capabilities.currentTransform;
-
-    createInfo.compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;
-
-    createInfo.presentMode = presentMode;
-    createInfo.clipped = VK_TRUE;
-
-    createInfo.oldSwapchain = VK_NULL_HANDLE;
-
-    if (vkCreateSwapchainKHR(render->vulkan_device->device, &createInfo, nullptr, &swap_chain) != VK_SUCCESS) {
-        LOGE("Failed to create swap chain!");
-    }
-
-    vkGetSwapchainImagesKHR(render->vulkan_device->device, swap_chain, &imageCount, nullptr);
-    swapChainImages.resize(imageCount);
-    vkGetSwapchainImagesKHR(render->vulkan_device->device, swap_chain, &imageCount, swapChainImages.data());
-
-    swapChainImageFormat = surfaceFormat.format;
-    swapChainExtent = extent;
+    createSwapChain();
 }
 
 
 VulkanSwapchain::~VulkanSwapchain()
 {
-    for (auto framebuffer : swapChainFramebuffers) {
-        vkDestroyFramebuffer(render->vulkan_device->device, framebuffer, nullptr);
-    }
-
-    for (auto imageView : swapChainImageViews) {
-        vkDestroyImageView(render->vulkan_device->device, imageView, nullptr);
-    }
-
-    vkDestroySwapchainKHR(render->vulkan_device->device, swap_chain, nullptr);
+    cleanupSwapChain();
 }
 
 VkSurfaceFormatKHR VulkanSwapchain::chooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR> &availableFormats) {
@@ -172,4 +110,91 @@ void VulkanSwapchain::create_framebuffers() {
             LOGE("Failed to create framebuffer.");
         }
     }
+}
+
+void VulkanSwapchain::recreate() {
+    int width = 0, height = 0;
+    glfwGetFramebufferSize(render->window, &width, &height);
+    while (width == 0 || height == 0) {
+        glfwGetFramebufferSize(render->window, &width, &height);
+        glfwWaitEvents();
+    }
+
+    vkDeviceWaitIdle(render->vulkan_device->device);
+
+    cleanupSwapChain();
+
+    createSwapChain();
+    createImageViews();
+    create_framebuffers();
+}
+
+void VulkanSwapchain::createSwapChain() {
+    VulkanPhysicalDevice::SwapChainSupportDetails swapChainSupport = VulkanPhysicalDevice::querySwapChainSupport(render->vulkan_physical_device, render->vulkan_surface->surface);
+
+    VkSurfaceFormatKHR surfaceFormat = chooseSwapSurfaceFormat(swapChainSupport.formats);
+    VkPresentModeKHR presentMode = chooseSwapPresentMode(swapChainSupport.presentModes);
+    VkExtent2D extent = chooseSwapExtent(swapChainSupport.capabilities);
+
+    uint32_t imageCount = swapChainSupport.capabilities.minImageCount + 1;
+
+    if (swapChainSupport.capabilities.maxImageCount > 0 && imageCount > swapChainSupport.capabilities.maxImageCount) {
+        imageCount = swapChainSupport.capabilities.maxImageCount;
+    }
+
+    VkSwapchainCreateInfoKHR createInfo{};
+    createInfo.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
+    createInfo.surface = render->vulkan_surface->surface;
+
+    createInfo.minImageCount = imageCount;
+    createInfo.imageFormat = surfaceFormat.format;
+    createInfo.imageColorSpace = surfaceFormat.colorSpace;
+    createInfo.imageExtent = extent;
+    createInfo.imageArrayLayers = 1;
+    createInfo.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
+
+    VulkanPhysicalDevice::QueueFamilyIndices indices = VulkanPhysicalDevice::findQueueFamilies(render->vulkan_physical_device, render->vulkan_surface->surface);
+    uint32_t queueFamilyIndices[] = {indices.graphicsFamily.value(), indices.presentFamily.value()};
+
+    if (indices.graphicsFamily != indices.presentFamily) {
+        createInfo.imageSharingMode = VK_SHARING_MODE_CONCURRENT;
+        createInfo.queueFamilyIndexCount = 2;
+        createInfo.pQueueFamilyIndices = queueFamilyIndices;
+    } else {
+        createInfo.imageSharingMode = VK_SHARING_MODE_EXCLUSIVE;
+        createInfo.queueFamilyIndexCount = 0; // Optional
+        createInfo.pQueueFamilyIndices = nullptr; // Optional
+    }
+
+    createInfo.preTransform = swapChainSupport.capabilities.currentTransform;
+
+    createInfo.compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;
+
+    createInfo.presentMode = presentMode;
+    createInfo.clipped = VK_TRUE;
+
+    createInfo.oldSwapchain = VK_NULL_HANDLE;
+
+    if (vkCreateSwapchainKHR(render->vulkan_device->device, &createInfo, nullptr, &swap_chain) != VK_SUCCESS) {
+        LOGE("Failed to create swap chain!");
+    }
+
+    vkGetSwapchainImagesKHR(render->vulkan_device->device, swap_chain, &imageCount, nullptr);
+    swapChainImages.resize(imageCount);
+    vkGetSwapchainImagesKHR(render->vulkan_device->device, swap_chain, &imageCount, swapChainImages.data());
+
+    swapChainImageFormat = surfaceFormat.format;
+    swapChainExtent = extent;
+}
+
+void VulkanSwapchain::cleanupSwapChain() {
+    for (auto framebuffer : swapChainFramebuffers) {
+        vkDestroyFramebuffer(render->vulkan_device->device, framebuffer, nullptr);
+    }
+
+    for (auto imageView : swapChainImageViews) {
+        vkDestroyImageView(render->vulkan_device->device, imageView, nullptr);
+    }
+
+    vkDestroySwapchainKHR(render->vulkan_device->device, swap_chain, nullptr);
 }
