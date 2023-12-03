@@ -2,16 +2,18 @@
 
 #include "internal/vulkan_device.h"
 
+#include "internal/vulkan_render.h"
+
 #include <set>
 
 
 
-VulkanDevice::VulkanDevice(std::shared_ptr<VulkanInstance> p_vulkan_instance, VkPhysicalDevice p_physical_device, VkSurfaceKHR p_surface)
+VulkanDevice::VulkanDevice(VulkanRender* p_render)
 {
-    vulkan_instance = p_vulkan_instance;
-    physical_device = p_physical_device;
+    render = p_render;
 
-    VulkanPhysicalDevice::QueueFamilyIndices indices = VulkanPhysicalDevice::findQueueFamilies(physical_device, p_surface);
+
+    VulkanPhysicalDevice::QueueFamilyIndices indices = VulkanPhysicalDevice::findQueueFamilies(render->vulkan_physical_device, render->vulkan_surface->surface);
 
     std::vector<VkDeviceQueueCreateInfo> queueCreateInfos;
     std::set<uint32_t> uniqueQueueFamilies = {indices.graphicsFamily.value(), indices.presentFamily.value()};
@@ -39,14 +41,14 @@ VulkanDevice::VulkanDevice(std::shared_ptr<VulkanInstance> p_vulkan_instance, Vk
     createInfo.enabledExtensionCount = static_cast<uint32_t>(VulkanPhysicalDevice::deviceExtensions.size());
     createInfo.ppEnabledExtensionNames = VulkanPhysicalDevice::deviceExtensions.data();
 
-    if (vulkan_instance->enableValidationLayers) {
-        createInfo.enabledLayerCount = static_cast<uint32_t>(vulkan_instance->validationLayers.size());
-        createInfo.ppEnabledLayerNames = vulkan_instance->validationLayers.data();
+    if (render->vulkan_instance->enableValidationLayers) {
+        createInfo.enabledLayerCount = static_cast<uint32_t>(render->vulkan_instance->validationLayers.size());
+        createInfo.ppEnabledLayerNames = render->vulkan_instance->validationLayers.data();
     } else {
         createInfo.enabledLayerCount = 0;
     }
 
-    if (vkCreateDevice(physical_device, &createInfo, nullptr, &device) != VK_SUCCESS) {
+    if (vkCreateDevice(render->vulkan_physical_device, &createInfo, nullptr, &device) != VK_SUCCESS) {
         LOGE("Failed to create vulkan logical device.");
     }
 

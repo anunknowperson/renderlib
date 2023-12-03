@@ -1,5 +1,6 @@
 #include "core/logging.h"
 #include "internal/vulkan_physical_device.h"
+#include "internal/vulkan_render.h"
 #include <map>
 #include <string>
 #include <unordered_map>
@@ -25,9 +26,9 @@ const std::vector<const char*>  VulkanPhysicalDevice::deviceExtensions ({
 });
 
 
-VkPhysicalDevice VulkanPhysicalDevice::pick(const std::shared_ptr<VulkanInstance>& p_instance, VkSurfaceKHR p_surface) {
+VkPhysicalDevice VulkanPhysicalDevice::pick(VulkanRender* p_render) {
     uint32_t deviceCount = 0;
-    vkEnumeratePhysicalDevices(p_instance->instance, &deviceCount, nullptr);
+    vkEnumeratePhysicalDevices(p_render->vulkan_instance->instance, &deviceCount, nullptr);
 
     if (deviceCount == 0) {
         LOGE("Failed to find GPUs with Vulkan support.");
@@ -35,13 +36,13 @@ VkPhysicalDevice VulkanPhysicalDevice::pick(const std::shared_ptr<VulkanInstance
     }
 
     std::vector<VkPhysicalDevice> devices(deviceCount);
-    vkEnumeratePhysicalDevices(p_instance->instance, &deviceCount, devices.data());
+    vkEnumeratePhysicalDevices(p_render->vulkan_instance->instance, &deviceCount, devices.data());
 
     std::multimap<int, VkPhysicalDevice> candidates;
 
     LOGI("Evaluating physical devices:");
     for (const auto& device : devices) {
-        int score = rateDeviceSuitability(device, p_surface);
+        int score = rateDeviceSuitability(device, p_render->vulkan_surface->surface);
         if (score > 0) { // Only consider devices that have a positive score
             candidates.insert(std::make_pair(score, device));
         }
@@ -125,6 +126,16 @@ int VulkanPhysicalDevice::rateDeviceSuitability(VkPhysicalDevice device, VkSurfa
         return -1;
     }
 
+    bool swapChainAdequate = false;
+    if (extensionsSupported) {
+        SwapChainSupportDetails swapChainSupport = querySwapChainSupport(device, p_surface);
+        swapChainAdequate = !swapChainSupport.formats.empty() && !swapChainSupport.presentModes.empty();
+    }
+
+    if (!swapChainAdequate) {
+        return -1;
+    }
+
     // Prefer discrete GPUs by multiplying the score by 2
     if (deviceProperties.deviceType == VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU) {
         rating *= 2;
@@ -181,6 +192,30 @@ bool VulkanPhysicalDevice::checkDeviceExtensionSupport(VkPhysicalDevice device) 
     }
 
     return requiredExtensions.empty();
+}
+
+VulkanPhysicalDevice::SwapChainSupportDetails VulkanPhysicalDevice::querySwapChainSupport(VkPhysicalDevice device, VkSurfaceKHR p_surface) {
+    SwapChainSupportDetails details;
+
+    vkGetPhysicalDeviceSurfaceCapabilitiesKHR(device, p_surface, &details.capabilities);
+
+    uint32_t formatCount;
+    vkGetPhysicalDeviceSurfaceFormatsKHR(device, p_surface, &formatCount, nullptr);
+
+    if (formatCount != 0) {
+        details.formats.resize(formatCount);
+        vkGetPhysicalDeviceSurfaceFormatsKHR(device, p_surface, &formatCount, details.formats.data());
+    }
+
+    uint32_t presentModeCount;
+    vkGetPhysicalDeviceSurfacePresentModesKHR(device, p_surface, &presentModeCount, nullptr);
+
+    if (presentModeCount != 0) {
+        details.presentModes.resize(presentModeCount);
+        vkGetPhysicalDeviceSurfacePresentModesKHR(device, p_surface, &presentModeCount, details.presentModes.data());
+    }
+
+    return details;
 }
 
 bool VulkanPhysicalDevice::QueueFamilyIndices::isComplete() const {

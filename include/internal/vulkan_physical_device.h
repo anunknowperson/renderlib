@@ -12,13 +12,14 @@
 #include "internal/vulkan_instance.h"
 #include <string>
 
+class VulkanRender;
 // TODO: Get rid of consts
 class VulkanPhysicalDevice {
 public:
     // TODO: Remove this
     static const std::vector<const char*> deviceExtensions;
 
-	static VkPhysicalDevice pick(const std::shared_ptr<VulkanInstance>& p_vulkan_instance, VkSurfaceKHR p_surface);
+	static VkPhysicalDevice pick(VulkanRender* p_render);
 
     struct QueueFamilyIndices {
         std::optional<uint32_t> graphicsFamily;
@@ -27,7 +28,14 @@ public:
         [[nodiscard]] bool isComplete() const;
     };
 
+    struct SwapChainSupportDetails {
+        VkSurfaceCapabilitiesKHR capabilities;
+        std::vector<VkSurfaceFormatKHR> formats;
+        std::vector<VkPresentModeKHR> presentModes;
+    };
+
     static QueueFamilyIndices findQueueFamilies(VkPhysicalDevice device, VkSurfaceKHR p_surface);
+    static SwapChainSupportDetails querySwapChainSupport(VkPhysicalDevice device, VkSurfaceKHR p_surface);
 
 private:
 
