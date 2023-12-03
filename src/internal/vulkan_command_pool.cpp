@@ -17,13 +17,16 @@ VulkanCommandPool::VulkanCommandPool(VulkanRender *p_render) {
         throw std::runtime_error("Failed to create command pool.");
     }
 
+    commandBuffers.resize(render->MAX_FRAMES_IN_FLIGHT);
+
     VkCommandBufferAllocateInfo allocInfo{};
     allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
     allocInfo.commandPool = commandPool;
     allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-    allocInfo.commandBufferCount = 1;
 
-    if (vkAllocateCommandBuffers(render->vulkan_device->device, &allocInfo, &commandBuffer) != VK_SUCCESS) {
+    allocInfo.commandBufferCount = (uint32_t) commandBuffers.size();
+
+    if (vkAllocateCommandBuffers(render->vulkan_device->device, &allocInfo, commandBuffers.data()) != VK_SUCCESS) {
         throw std::runtime_error("Failed to allocate command buffers.");
     }
 
