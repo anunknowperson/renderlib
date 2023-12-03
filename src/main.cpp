@@ -2,10 +2,10 @@
 
 #include "core/logging.h"
 
-#include "internal/renderer.h"
+#include "internal/vulkan_render.h"
 
 int main() {
-    Renderer r; // Only for testing purposes here
+    VulkanRender r; // Only for testing purposes here
 
     // Initialize GLFW
     if (!glfwInit()) {
