@@ -4,7 +4,13 @@
 #include <memory>
 
 #include <vulkan/vulkan.hpp>
+
+
+#define GLM_FORCE_RADIANS
+
 #include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <chrono>
 
 #include "GLFW/glfw3.h"
 
@@ -29,9 +35,8 @@ private:
     int nbFrames;
 
 
-    uint32_t currentFrame = 0;
-
 public:
+    VkDescriptorSetLayout descriptorSetLayout;
 
     struct Vertex {
         glm::vec2 pos;
@@ -75,6 +80,12 @@ public:
             0, 1, 2, 2, 3, 0
     };
 
+    struct UniformBufferObject {
+        glm::mat4 model;
+        glm::mat4 view;
+        glm::mat4 proj;
+    };
+
 
     uint32_t findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties);
 
@@ -82,6 +93,10 @@ public:
     VkDeviceMemory vertexBufferMemory;
     VkBuffer indexBuffer;
     VkDeviceMemory indexBufferMemory;
+
+    std::vector<VkBuffer> uniformBuffers;
+    std::vector<VkDeviceMemory> uniformBuffersMemory;
+    std::vector<void*> uniformBuffersMapped;
 
     const int MAX_FRAMES_IN_FLIGHT = 2;
 
@@ -95,6 +110,9 @@ public:
     std::shared_ptr<VulkanRenderPass> vulkan_render_pass;
     std::shared_ptr<VulkanCommandPool> vulkan_command_pool;
 
+    VkDescriptorPool descriptorPool;
+    std::vector<VkDescriptorSet> descriptorSets;
+
 	VkPhysicalDevice vulkan_physical_device;
 
     static void framebufferResizeCallback(GLFWwindow* window, int width, int height);
@@ -103,10 +121,21 @@ public:
 
 	void render();
 
+    void createDescriptorSetLayout();
+
     void createSyncObjects();
 
     void createVertexBuffer();
     void createIndexBuffer();
+
+    void createUniformBuffers();
+
+    void createDescriptorPool();
+
+    void createDescriptorSets();
+
+
+    void updateUniformBuffer(uint32_t currentImage);
 
     void createBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties, VkBuffer& buffer, VkDeviceMemory& bufferMemory);
 
@@ -122,4 +151,6 @@ public:
 
 	VulkanRender();
 	~VulkanRender();
+
+    uint32_t currentFrame = 0;
 };

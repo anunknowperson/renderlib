@@ -82,6 +82,8 @@ void VulkanCommandPool::recordCommandBuffer(VkCommandBuffer commandBuffer, uint3
         vkCmdBindVertexBuffers(commandBuffer, 0, 1, vertexBuffers, offsets);
         vkCmdBindIndexBuffer(commandBuffer, render->indexBuffer, 0, VK_INDEX_TYPE_UINT16);
 
+        vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, render->vulkan_graphics_pipeline->pipelineLayout, 0, 1, &render->descriptorSets[render->currentFrame], 0, nullptr);
+
         vkCmdDrawIndexed(commandBuffer, static_cast<uint32_t>(render->indices.size()), 1, 0, 0, 0);
 
 
