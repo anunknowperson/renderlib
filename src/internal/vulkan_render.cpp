@@ -3,6 +3,7 @@
 #include "core/logging.h"
 
 
+
 void VulkanRender::init(GLFWwindow* p_window)
 {
     lastTime = glfwGetTime();
@@ -27,6 +28,8 @@ void VulkanRender::init(GLFWwindow* p_window)
 
     vulkan_render_pass = std::make_shared<VulkanRenderPass>(this);
 
+    createDescriptorSetLayout();
+
     vulkan_graphics_pipeline = std::make_shared<VulkanGraphicsPipeline>(this);
 
     vulkan_swap_chain->create_framebuffers();
@@ -35,7 +38,9 @@ void VulkanRender::init(GLFWwindow* p_window)
 
     createVertexBuffer();
     createIndexBuffer();
-
+    createUniformBuffers();
+    createDescriptorPool();
+    createDescriptorSets();
 
     createSyncObjects();
 }
@@ -53,6 +58,8 @@ void VulkanRender::drawFrame() {
     } else if (result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR) {
         LOGE("Failed to acquire swap chain image.");
     }
+
+    updateUniformBuffer(currentFrame);
 
     vkResetFences(vulkan_device->device, 1, &inFlightFences[currentFrame]);
 
@@ -124,6 +131,16 @@ VulkanRender::VulkanRender()
 
 VulkanRender::~VulkanRender()
 {
+
+
+    for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
+        vkDestroyBuffer(vulkan_device->device, uniformBuffers[i], nullptr);
+        vkFreeMemory(vulkan_device->device, uniformBuffersMemory[i], nullptr);
+    }
+
+    vkDestroyDescriptorPool(vulkan_device->device, descriptorPool, nullptr);
+
+    vkDestroyDescriptorSetLayout(vulkan_device->device, descriptorSetLayout, nullptr);
 
     vkDestroyBuffer(vulkan_device->device, indexBuffer, nullptr);
     vkFreeMemory(vulkan_device->device, indexBufferMemory, nullptr);
@@ -282,4 +299,109 @@ void VulkanRender::createIndexBuffer() {
 
     vkDestroyBuffer(vulkan_device->device, stagingBuffer, nullptr);
     vkFreeMemory(vulkan_device->device, stagingBufferMemory, nullptr);
+}
+
+void VulkanRender::createDescriptorSetLayout() {
+    VkDescriptorSetLayoutBinding uboLayoutBinding{};
+    uboLayoutBinding.binding = 0;
+    uboLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+    uboLayoutBinding.descriptorCount = 1;
+
+    uboLayoutBinding.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
+
+    uboLayoutBinding.pImmutableSamplers = nullptr; // Optional
+
+    VkDescriptorSetLayoutCreateInfo layoutInfo{};
+    layoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
+    layoutInfo.bindingCount = 1;
+    layoutInfo.pBindings = &uboLayoutBinding;
+
+    if (vkCreateDescriptorSetLayout(vulkan_device->device, &layoutInfo, nullptr, &descriptorSetLayout) != VK_SUCCESS) {
+        LOGE("Failed to create descriptor set layout.");
+    }
+
+
+}
+
+void VulkanRender::createUniformBuffers() {
+    VkDeviceSize bufferSize = sizeof(UniformBufferObject);
+
+    uniformBuffers.resize(MAX_FRAMES_IN_FLIGHT);
+    uniformBuffersMemory.resize(MAX_FRAMES_IN_FLIGHT);
+    uniformBuffersMapped.resize(MAX_FRAMES_IN_FLIGHT);
+
+    for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
+        createBuffer(bufferSize, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, uniformBuffers[i], uniformBuffersMemory[i]);
+
+        vkMapMemory(vulkan_device->device, uniformBuffersMemory[i], 0, bufferSize, 0, &uniformBuffersMapped[i]);
+    }
+}
+
+void VulkanRender::updateUniformBuffer(uint32_t currentImage) {
+    static auto startTime = std::chrono::high_resolution_clock::now();
+
+    auto currentTime = std::chrono::high_resolution_clock::now();
+    float time = std::chrono::duration<float, std::chrono::seconds::period>(currentTime - startTime).count();
+
+    UniformBufferObject ubo{};
+    ubo.model = glm::rotate(glm::mat4(1.0f), time * glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+
+    ubo.view = glm::lookAt(glm::vec3(2.0f, 2.0f, 2.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+
+    ubo.proj = glm::perspective(glm::radians(45.0f), (float) vulkan_swap_chain->swapChainExtent.width / (float) vulkan_swap_chain->swapChainExtent.height, 0.1f, 10.0f);
+
+    ubo.proj[1][1] *= -1;
+
+    memcpy(uniformBuffersMapped[currentImage], &ubo, sizeof(ubo));
+}
+
+void VulkanRender::createDescriptorPool() {
+    VkDescriptorPoolSize poolSize{};
+    poolSize.type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+    poolSize.descriptorCount = static_cast<uint32_t>(MAX_FRAMES_IN_FLIGHT);
+
+    VkDescriptorPoolCreateInfo poolInfo{};
+    poolInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
+    poolInfo.poolSizeCount = 1;
+    poolInfo.pPoolSizes = &poolSize;
+
+    poolInfo.maxSets = static_cast<uint32_t>(MAX_FRAMES_IN_FLIGHT);
+
+    if (vkCreateDescriptorPool(vulkan_device->device, &poolInfo, nullptr, &descriptorPool) != VK_SUCCESS) {
+        LOGE("Failed to create descriptor pool.");
+    }
+}
+
+void VulkanRender::createDescriptorSets() {
+    std::vector<VkDescriptorSetLayout> layouts(MAX_FRAMES_IN_FLIGHT, descriptorSetLayout);
+    VkDescriptorSetAllocateInfo allocInfo{};
+    allocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
+    allocInfo.descriptorPool = descriptorPool;
+    allocInfo.descriptorSetCount = static_cast<uint32_t>(MAX_FRAMES_IN_FLIGHT);
+    allocInfo.pSetLayouts = layouts.data();
+
+    descriptorSets.resize(MAX_FRAMES_IN_FLIGHT);
+    if (vkAllocateDescriptorSets(vulkan_device->device, &allocInfo, descriptorSets.data()) != VK_SUCCESS) {
+        LOGE("Failed to allocate descriptor sets.");
+    }
+
+    for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
+        VkDescriptorBufferInfo bufferInfo{};
+        bufferInfo.buffer = uniformBuffers[i];
+        bufferInfo.offset = 0;
+        bufferInfo.range = sizeof(UniformBufferObject);
+
+        VkWriteDescriptorSet descriptorWrite{};
+        descriptorWrite.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+        descriptorWrite.dstSet = descriptorSets[i];
+        descriptorWrite.dstBinding = 0;
+        descriptorWrite.dstArrayElement = 0;
+        descriptorWrite.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+        descriptorWrite.descriptorCount = 1;
+        descriptorWrite.pBufferInfo = &bufferInfo;
+
+        vkUpdateDescriptorSets(vulkan_device->device, 1, &descriptorWrite, 0, nullptr);
+    }
+
+
 }
