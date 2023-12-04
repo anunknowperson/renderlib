@@ -61,23 +61,29 @@ void VulkanCommandPool::recordCommandBuffer(VkCommandBuffer commandBuffer, uint3
 
     vkCmdBeginRenderPass(commandBuffer, &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
 
-    vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, render->vulkan_graphics_pipeline->graphicsPipeline);
+        vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, render->vulkan_graphics_pipeline->graphicsPipeline);
 
-    VkViewport viewport{};
-    viewport.x = 0.0f;
-    viewport.y = 0.0f;
-    viewport.width = static_cast<float>(render->vulkan_swap_chain->swapChainExtent.width);
-    viewport.height = static_cast<float>(render->vulkan_swap_chain->swapChainExtent.height);
-    viewport.minDepth = 0.0f;
-    viewport.maxDepth = 1.0f;
-    vkCmdSetViewport(commandBuffer, 0, 1, &viewport);
+        VkViewport viewport{};
+        viewport.x = 0.0f;
+        viewport.y = 0.0f;
+        viewport.width = static_cast<float>(render->vulkan_swap_chain->swapChainExtent.width);
+        viewport.height = static_cast<float>(render->vulkan_swap_chain->swapChainExtent.height);
+        viewport.minDepth = 0.0f;
+        viewport.maxDepth = 1.0f;
+        vkCmdSetViewport(commandBuffer, 0, 1, &viewport);
 
-    VkRect2D scissor{};
-    scissor.offset = {0, 0};
-    scissor.extent = render->vulkan_swap_chain->swapChainExtent;
-    vkCmdSetScissor(commandBuffer, 0, 1, &scissor);
+        VkRect2D scissor{};
+        scissor.offset = {0, 0};
+        scissor.extent = render->vulkan_swap_chain->swapChainExtent;
+        vkCmdSetScissor(commandBuffer, 0, 1, &scissor);
+        VkBuffer vertexBuffers[] = {render->vertexBuffer};
+        VkDeviceSize offsets[] = {0};
 
-    vkCmdDraw(commandBuffer, 3, 1, 0, 0);
+        vkCmdBindVertexBuffers(commandBuffer, 0, 1, vertexBuffers, offsets);
+        vkCmdBindIndexBuffer(commandBuffer, render->indexBuffer, 0, VK_INDEX_TYPE_UINT16);
+
+        vkCmdDrawIndexed(commandBuffer, static_cast<uint32_t>(render->indices.size()), 1, 0, 0, 0);
+
 
     vkCmdEndRenderPass(commandBuffer);
 
