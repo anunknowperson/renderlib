@@ -36,3 +36,6 @@ target_link_libraries(${PROJECT_NAME} PRIVATE glm::glm)
 
 find_package(Vulkan REQUIRED)
 target_link_libraries(${PROJECT_NAME} PRIVATE Vulkan::Vulkan)
+
+find_package(flecs REQUIRED)
+target_link_libraries(${PROJECT_NAME} PRIVATE flecs::flecs)
