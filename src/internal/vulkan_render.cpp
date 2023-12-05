@@ -6,6 +6,22 @@
 
 void VulkanRender::init(GLFWwindow* p_window)
 {
+    // Identity matrix for no transformation
+    glm::mat4 mat1 = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+
+    // Translation matrix: moving 2 units on the x-axis
+    glm::mat4 mat2 = glm::translate(glm::mat4(1.0f), glm::vec3(2.0f, 0.0f, 0.0f));
+
+    // Rotation matrix: rotating 45 degrees around the z-axis
+    glm::mat4 mat3 = glm::rotate(glm::mat4(1.0f), glm::radians(45.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+
+    // Adding matrices to the vector
+    instances.push_back(mat1);
+    instances.push_back(mat2);
+    instances.push_back(mat3);
+
+    //
+
     lastTime = glfwGetTime();
     nbFrames = 0;
 
@@ -38,6 +54,9 @@ void VulkanRender::init(GLFWwindow* p_window)
 
     createVertexBuffer();
     createIndexBuffer();
+    createInstancesBuffer();
+
+
     createUniformBuffers();
     createDescriptorPool();
     createDescriptorSets();
@@ -132,7 +151,6 @@ VulkanRender::VulkanRender()
 VulkanRender::~VulkanRender()
 {
 
-
     for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
         vkDestroyBuffer(vulkan_device->device, uniformBuffers[i], nullptr);
         vkFreeMemory(vulkan_device->device, uniformBuffersMemory[i], nullptr);
@@ -141,6 +159,9 @@ VulkanRender::~VulkanRender()
     vkDestroyDescriptorPool(vulkan_device->device, descriptorPool, nullptr);
 
     vkDestroyDescriptorSetLayout(vulkan_device->device, descriptorSetLayout, nullptr);
+
+    vkDestroyBuffer(vulkan_device->device, instanceBuffer, nullptr);
+    vkFreeMemory(vulkan_device->device, instanceBufferMemory, nullptr);
 
     vkDestroyBuffer(vulkan_device->device, indexBuffer, nullptr);
     vkFreeMemory(vulkan_device->device, indexBufferMemory, nullptr);
@@ -404,4 +425,24 @@ void VulkanRender::createDescriptorSets() {
     }
 
 
+}
+
+void VulkanRender::createInstancesBuffer() {
+    VkDeviceSize bufferSize = sizeof(instances[0]) * instances.size();
+
+    VkBuffer stagingBuffer;
+    VkDeviceMemory stagingBufferMemory;
+    createBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, stagingBuffer, stagingBufferMemory);
+
+    void* data;
+    vkMapMemory(vulkan_device->device, stagingBufferMemory, 0, bufferSize, 0, &data);
+    memcpy(data, instances.data(), (size_t) bufferSize);
+    vkUnmapMemory(vulkan_device->device, stagingBufferMemory);
+
+    createBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, instanceBuffer, instanceBufferMemory);
+
+    copyBuffer(stagingBuffer, instanceBuffer, bufferSize);
+
+    vkDestroyBuffer(vulkan_device->device, stagingBuffer, nullptr);
+    vkFreeMemory(vulkan_device->device, stagingBufferMemory, nullptr);
 }

@@ -52,8 +52,17 @@ public:
             return bindingDescription;
         }
 
-        static std::array<VkVertexInputAttributeDescription, 2> getAttributeDescriptions() {
-            std::array<VkVertexInputAttributeDescription, 2> attributeDescriptions{};
+        static VkVertexInputBindingDescription getInstanceBindingDescription() {
+            VkVertexInputBindingDescription bindingDescription{};
+            bindingDescription.binding = 1;
+            bindingDescription.stride = sizeof(glm::mat4); // Replace with your actual instance data size
+            bindingDescription.inputRate = VK_VERTEX_INPUT_RATE_INSTANCE;
+
+            return bindingDescription;
+        }
+
+        static std::array<VkVertexInputAttributeDescription, 6> getAttributeDescriptions() {
+            std::array<VkVertexInputAttributeDescription, 6> attributeDescriptions{};
 
             attributeDescriptions[0].binding = 0;
             attributeDescriptions[0].location = 0;
@@ -64,6 +73,14 @@ public:
             attributeDescriptions[1].location = 1;
             attributeDescriptions[1].format = VK_FORMAT_R32G32B32_SFLOAT;
             attributeDescriptions[1].offset = offsetof(Vertex, color);
+
+            // Instance matrix attributes
+            for (int i = 0; i < 4; i++) {
+                attributeDescriptions[2 + i].binding = 1; // Assuming binding index 1 for instance data
+                attributeDescriptions[2 + i].location = 2 + i;
+                attributeDescriptions[2 + i].format = VK_FORMAT_R32G32B32A32_SFLOAT;
+                attributeDescriptions[2 + i].offset = sizeof(float) * 4 * i;
+            }
 
             return attributeDescriptions;
         }
@@ -87,12 +104,19 @@ public:
     };
 
 
+    std::vector<glm::mat4> instances;
+
+
+
     uint32_t findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties);
 
     VkBuffer vertexBuffer;
     VkDeviceMemory vertexBufferMemory;
     VkBuffer indexBuffer;
     VkDeviceMemory indexBufferMemory;
+
+    VkBuffer instanceBuffer;
+    VkDeviceMemory instanceBufferMemory;
 
     std::vector<VkBuffer> uniformBuffers;
     std::vector<VkDeviceMemory> uniformBuffersMemory;
@@ -127,6 +151,8 @@ public:
 
     void createVertexBuffer();
     void createIndexBuffer();
+    void createInstancesBuffer();
+
 
     void createUniformBuffers();
 

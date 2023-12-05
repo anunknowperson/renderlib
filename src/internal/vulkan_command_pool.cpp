@@ -82,10 +82,14 @@ void VulkanCommandPool::recordCommandBuffer(VkCommandBuffer commandBuffer, uint3
         vkCmdBindVertexBuffers(commandBuffer, 0, 1, vertexBuffers, offsets);
         vkCmdBindIndexBuffer(commandBuffer, render->indexBuffer, 0, VK_INDEX_TYPE_UINT16);
 
+        // Bind your instance buffer with a different binding index
+        VkBuffer instanceBuffers[] = {render->instanceBuffer};
+        VkDeviceSize instanceOffsets[] = {0};
+        vkCmdBindVertexBuffers(commandBuffer, 1, 1, instanceBuffers, instanceOffsets);
+
         vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, render->vulkan_graphics_pipeline->pipelineLayout, 0, 1, &render->descriptorSets[render->currentFrame], 0, nullptr);
 
-        vkCmdDrawIndexed(commandBuffer, static_cast<uint32_t>(render->indices.size()), 1, 0, 0, 0);
-
+        vkCmdDrawIndexed(commandBuffer, static_cast<uint32_t>(render->indices.size()), render->instances.size(), 0, 0, 0);
 
     vkCmdEndRenderPass(commandBuffer);
 
