@@ -116,3 +116,29 @@ void LocalTransformComponent::SetScale(const glm::float64 scale)
 {
     this->Scale = scale;
 }
+
+void LocalTransformComponent::TransformTransform(const LocalTransformComponent &transform)
+{
+    this->Position = transform.Position;
+    this->Rotation = transform.Rotation;
+    this->Scale = transform.Scale;
+}
+
+void LocalTransformComponent::Inverse()
+{
+    glm::quat inverse_rotation = glm::inverse(this->Rotation);
+    glm::float64 inverse_scale = 1.0f / this->Scale;
+    this->Position = -glm::rotate(inverse_rotation, this->Position) * static_cast<float>(this->Scale);
+    this->Rotation = inverse_rotation;
+    this->Scale = inverse_scale;
+}
+
+void LocalTransformComponent::TransformPoint(const glm::vec3 &point)
+{
+    this->Position = this->Position + glm::rotate(this->Rotation, point) * static_cast<float>(this->Scale);
+}
+
+void LocalTransformComponent::TransformDirection(const glm::vec3 &direction)
+{
+    this->Position = this->Position + glm::rotate(this->Rotation, direction);
+}

@@ -9,7 +9,7 @@
 #include <glm/ext/scalar_constants.hpp> // glm::pi
 #include <vector>
 
-typedef struct LocalTransformComponent {
+struct LocalTransformComponent {
     glm::vec3 Position;
     glm::quat Rotation;
     glm::float64 Scale;
@@ -31,5 +31,8 @@ typedef struct LocalTransformComponent {
     void TranslateY(const glm::float64 translation);
     void TranslateZ(const glm::float64 translation);
     void SetScale(const glm::float64 scale);
-
-} LocalTransformComponent;
+    void TransformTransform(const LocalTransformComponent &transform);
+    void Inverse();
+    void TransformPoint(const glm::vec3 &point);
+    void TransformDirection(const glm::vec3 &direction);
+};
