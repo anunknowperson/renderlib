@@ -22,9 +22,7 @@ struct ParentSystem {
             LOGW("Trying to remove a child from a parent that does not have a Child component");
             return;
         }
-
         auto children = parentEntity.get_mut<Child>();
-
         int childIndex = -1;
         for (size_t i = 0; i != children->Child.size(); ++i) {
             if (children->Child[i] == childEntity) {
@@ -32,15 +30,15 @@ struct ParentSystem {
                 break;
             }
         }
-
         if (childIndex != -1) {
             children->Child.erase(children->Child.begin() + childIndex);
         }
-
         if (children->Child.size() == 0) {
             parentEntity.remove<Child>();
         }
     }
+};
 
+struct GatherChangedParents {
 
 };
