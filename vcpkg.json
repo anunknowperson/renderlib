@@ -2,6 +2,7 @@
   "dependencies": [
     "glfw3",
     "glm",
-    "spdlog"
+    "spdlog",
+    "flecs"
   ]
 }
