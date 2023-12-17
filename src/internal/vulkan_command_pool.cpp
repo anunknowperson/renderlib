@@ -1,7 +1,7 @@
 #include "internal/vulkan_command_pool.h"
 
 #include "internal/vulkan_render.h"
-#include "core/logging.h"
+#include "../core/logging.h"
 
 VulkanCommandPool::VulkanCommandPool(VulkanRender *p_render) {
     render = p_render;
