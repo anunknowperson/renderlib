@@ -34,6 +34,7 @@ private:
     double lastTime;
     int nbFrames;
 
+    int currentBufferSize;
 
 public:
     VkDescriptorSetLayout descriptorSetLayout;
@@ -87,10 +88,10 @@ public:
     };
 
     const std::vector<Vertex> vertices = {
-            {{-0.5f, -0.5f}, {1.0f, 0.0f, 0.0f}},
-            {{0.5f, -0.5f}, {0.0f, 1.0f, 0.0f}},
-            {{0.5f, 0.5f}, {0.0f, 0.0f, 1.0f}},
-            {{-0.5f, 0.5f}, {1.0f, 1.0f, 1.0f}}
+            {{-0.1f, -0.1f}, {1.0f, 0.0f, 0.0f}},
+            {{0.1f, -0.1f}, {0.0f, 1.0f, 0.0f}},
+            {{0.1f, 0.1f}, {0.0f, 0.0f, 1.0f}},
+            {{-0.1f, 0.1f}, {1.0f, 1.0f, 1.0f}}
     };
 
     const std::vector<uint16_t> indices = {
@@ -104,7 +105,7 @@ public:
     };
 
 
-    std::vector<glm::mat4> instances;
+    static std::vector<glm::mat4> instances;
 
 
 
@@ -162,6 +163,7 @@ public:
 
 
     void updateUniformBuffer(uint32_t currentImage);
+    void updateInstanceBuffer();
 
     void createBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties, VkBuffer& buffer, VkDeviceMemory& bufferMemory);
 
