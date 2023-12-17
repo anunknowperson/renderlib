@@ -1,4 +1,4 @@
-#include "scene/ParentSystem.h"
+#include "scene/parent_system.h"
 
 namespace {
 void updateParent(flecs::entity e, Parent& p)
@@ -53,24 +53,20 @@ void changeParent(flecs::entity e, Parent& p, PreviousParent& pp)
 
 void setRelation(flecs::entity child, flecs::entity parent)
 {
-    if (!parent.is_alive()) {
 #ifndef NDEBUG
+    if (!parent.is_alive()) {
         LOGW("Trying to set entity %s as parent, but it is not alive", parent.name().c_str());
-#endif
         return;
     }
     if (!child.is_alive()) {
-#ifndef NDEBUG
         LOGWF("Trying to set entity {} as child, but it is not alive", child.name().c_str());
-#endif
         return;
     }
     if (child == parent) {
-#ifndef NDEBUG
         LOGWF("Trying to set entity {} as its own parent", child.name().c_str());
-#endif
         return;
     }
+#endif
 
     if (child.has<Parent>())
     {
@@ -96,29 +92,29 @@ void setRelation(flecs::entity child, flecs::entity parent)
 // make docs for overloads
 void removeRelation(flecs::entity child)
 {
-    if (!child.is_alive() || !child.has<Parent>()) {
 #ifndef NDEBUG
+    if (!child.is_alive() || !child.has<Parent>()) {
         LOGWF("Trying to remove parent from entity {}, but it is not alive or has no parent", child.name().c_str());
-#endif
         return;
     }
+#endif
     child.remove<Parent>();
 }
 
 // make docs for overloads
 void removeRelation(flecs::entity removing_child, flecs::entity parent) {
-    if (!parent.is_alive() || !parent.has<Child>() || !parent.get<Child>()->children.empty()) {
 #ifndef NDEBUG
+    if (!parent.is_alive() || !parent.has<Child>() || !parent.get<Child>()->children.empty()) {
         LOGWF("Trying to remove entity {} from parent {}, but parent is not alive or has no children",
               removing_child.name().c_str(), parent.name().c_str());
-#endif
     }
+
     if (!removing_child.is_alive() || !removing_child.has<Parent>()) {
-#ifndef NDEBUG
+
         LOGWF("Trying to remove entity {} from parent {}, but child is not alive or has no parent",
               removing_child.name().c_str(), parent.name().c_str());
-#endif
     }
+#endif
     auto &children = parent.get_mut<Child>()->children;
     auto newEnd = std::remove_if(
             children.begin(),

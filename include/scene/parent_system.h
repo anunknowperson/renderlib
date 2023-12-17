@@ -1,6 +1,6 @@
 #pragma once
 #include "flecs.h"
-#include "scene/ParentComponent.h"
+#include "scene/parent_component.h"
 
 
 void setRelation(flecs::entity child, flecs::entity parent);

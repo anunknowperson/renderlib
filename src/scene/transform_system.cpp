@@ -1,5 +1,5 @@
-#include "scene/TransformSystem.h"
-#include "scene/ParentSystem.h"
+#include "scene/transform_system.h"
+#include "scene/parent_system.h"
 #include "glm/gtx/matrix_decompose.hpp"
 
 namespace {

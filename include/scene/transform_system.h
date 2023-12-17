@@ -1,6 +1,6 @@
 #pragma once
-#include "LocalTransformComponent.h"
-#include "GlobalTransformComponent.h"
+#include "local_transform_component.h"
+#include "global_transform_component.h"
 #include "flecs.h"
 
 void TransformSystem(flecs::world &world);

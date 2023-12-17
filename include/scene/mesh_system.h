@@ -1,6 +1,6 @@
 #pragma once
 #include "mesh_component.h"
-#include "GlobalTransformComponent.h"
+#include "global_transform_component.h"
 #include "graphics/graphics.h"
 
 
