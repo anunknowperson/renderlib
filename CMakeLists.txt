@@ -41,7 +41,7 @@ endforeach()
 
 file(GLOB_RECURSE SOURCES "src/*.cpp")
 
-target_include_directories(${PROJECT_NAME} PRIVATE ${CMAKE_SOURCE_DIR}/include)
+target_include_directories(${PROJECT_NAME} PRIVATE ${CMAKE_SOURCE_DIR}/include ${CMAKE_SOURCE_DIR}/src)
 
 target_sources(${PROJECT_NAME} PRIVATE ${SOURCES})
 
