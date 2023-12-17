@@ -2,11 +2,11 @@
 
 namespace engine::graphics {
 
-class graphics {
+class Graphics {
 
 public:
 
-    static graphics* get_instance();
+    static Graphics* get_instance();
 
     //uint64_t create_mesh_instance();
 
@@ -14,12 +14,12 @@ public:
 
     //void free_mesh_instance();
 
-    graphics();
-    ~graphics();
+    Graphics();
+    ~Graphics();
 
 private:
 
-    static graphics* singleton;
+    static Graphics* singleton;
 
 
 };

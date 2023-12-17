@@ -7,17 +7,17 @@
 namespace engine
 {
 
-class application {
+class Application {
 
 public:
 
 
-    application();
-    ~application();
+    Application();
+    ~Application();
 
 private:
 
-    std::unique_ptr<graphics::graphics> graphics;
+    std::unique_ptr<graphics::Graphics> graphics;
 
     void create_singletons();
 

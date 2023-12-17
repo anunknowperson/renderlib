@@ -4,18 +4,18 @@ namespace engine
 {
 
 
-    application::application() {
+    Application::Application() {
 
         create_singletons();
     }
 
-    void application::create_singletons() {
-        graphics = std::make_unique<graphics::graphics>();
+    void Application::create_singletons() {
+        graphics = std::make_unique<graphics::Graphics>();
 
 
     }
 
-    application::~application() {
+    Application::~Application() {
 
     }
 }
