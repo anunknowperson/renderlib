@@ -1,5 +1,5 @@
 #include "graphics/graphics.h"
-
+#include "internal/vulkan_render.h"
 
 namespace engine::graphics{
 
@@ -17,6 +17,55 @@ Graphics::~Graphics() {
 
 Graphics *Graphics::get_instance() {
     return singleton;
+}
+
+uint64_t Graphics::create_mesh_instance() {
+
+    int new_index;
+    uint64_t new_uid;
+
+    if (meshes.size() != 0) {
+
+
+        auto lastPair = *meshes.rbegin();
+
+        new_index = lastPair.second + 1;
+        new_uid = lastPair.first + 1;
+    } else {
+        new_index = 1;
+        new_uid = 0;
+    }
+
+    meshes[new_index] = new_uid;
+
+    VulkanRender::instances.push_back(glm::mat4(1.0));
+
+    return new_uid;
+}
+
+void Graphics::set_mesh_instance_transform(uint64_t rid, glm::mat4 matrix) {
+    VulkanRender::instances[meshes[rid]] = matrix;
+}
+void Graphics::free_mesh_instance(uint64_t rid) {
+    VulkanRender::instances.erase( VulkanRender::instances.begin() + meshes[rid] );
+
+    meshes.erase(rid);
+
+    auto it = meshes.find(rid);
+    if (it != meshes.end()) {
+        size_t index = it->second;
+        VulkanRender::instances.erase( VulkanRender::instances.begin() + index );
+
+
+        meshes.erase(it);
+
+        // Update the indices in the map for elements with higher indices
+        for (auto& entry : meshes) {
+            if (entry.second > index) {
+                entry.second--;
+            }
+        }
+    }
 }
 
 }
