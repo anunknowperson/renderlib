@@ -2,23 +2,16 @@
 
 #include "../core/logging.h"
 
-
+std::vector<glm::mat4> VulkanRender::instances = {};
 
 void VulkanRender::init(GLFWwindow* p_window)
 {
+
     // Identity matrix for no transformation
-    glm::mat4 mat1 = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+    glm::mat4 mat = glm::translate(glm::mat4(1.0f), glm::vec3(1000.0f, 1000.0f, 1000.0f));
 
-    // Translation matrix: moving 2 units on the x-axis
-    glm::mat4 mat2 = glm::translate(glm::mat4(1.0f), glm::vec3(2.0f, 0.0f, 0.0f));
+    instances.push_back(mat);
 
-    // Rotation matrix: rotating 45 degrees around the z-axis
-    glm::mat4 mat3 = glm::rotate(glm::mat4(1.0f), glm::radians(45.0f), glm::vec3(0.0f, 0.0f, 1.0f));
-
-    // Adding matrices to the vector
-    instances.push_back(mat1);
-    instances.push_back(mat2);
-    instances.push_back(mat3);
 
 
 
@@ -82,6 +75,7 @@ void VulkanRender::drawFrame() {
 
 
     updateUniformBuffer(currentFrame);
+    updateInstanceBuffer();
 
     vkResetFences(vulkan_device->device, 1, &inFlightFences[currentFrame]);
 
@@ -133,13 +127,22 @@ void VulkanRender::drawFrame() {
 
 void VulkanRender::render()
 {
+
+
+
     double currentTime = glfwGetTime();
+
+
+
+
+
     nbFrames++;
-    if ( currentTime - lastTime >= 5.0 ){
+    if ( currentTime - lastTime >= 1.0 ){
         LOGIF("{} ms ({} FPS)", 1000.0/double(nbFrames), double(nbFrames));
         nbFrames = 0;
-        lastTime += 1.0;
+        lastTime = currentTime;
     }
+
 
     drawFrame();
     vkDeviceWaitIdle(vulkan_device->device);
@@ -433,6 +436,8 @@ void VulkanRender::createDescriptorSets() {
 void VulkanRender::createInstancesBuffer() {
     VkDeviceSize bufferSize = sizeof(instances[0]) * instances.size();
 
+    currentBufferSize = bufferSize;
+
     VkBuffer stagingBuffer;
     VkDeviceMemory stagingBufferMemory;
     createBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, stagingBuffer, stagingBufferMemory);
@@ -446,6 +451,37 @@ void VulkanRender::createInstancesBuffer() {
 
     copyBuffer(stagingBuffer, instanceBuffer, bufferSize);
 
+    vkDestroyBuffer(vulkan_device->device, stagingBuffer, nullptr);
+    vkFreeMemory(vulkan_device->device, stagingBufferMemory, nullptr);
+}
+
+void VulkanRender::updateInstanceBuffer() {
+    VkDeviceSize newBufferSize = sizeof(instances[0]) * instances.size();
+
+    // Check if the buffer needs to be resized
+    if (newBufferSize > currentBufferSize) {
+        // Destroy the old buffer and create a new one with larger size
+        vkDestroyBuffer(vulkan_device->device, instanceBuffer, nullptr);
+        vkFreeMemory(vulkan_device->device, instanceBufferMemory, nullptr);
+
+        createBuffer(newBufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, instanceBuffer, instanceBufferMemory);
+        currentBufferSize = newBufferSize;
+    }
+
+    // Use a staging buffer for the new data
+    VkBuffer stagingBuffer;
+    VkDeviceMemory stagingBufferMemory;
+    createBuffer(newBufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, stagingBuffer, stagingBufferMemory);
+
+    void* data;
+    vkMapMemory(vulkan_device->device, stagingBufferMemory, 0, newBufferSize, 0, &data);
+    memcpy(data, instances.data(), (size_t) newBufferSize);
+    vkUnmapMemory(vulkan_device->device, stagingBufferMemory);
+
+    // Copy from staging buffer to the instance buffer
+    copyBuffer(stagingBuffer, instanceBuffer, newBufferSize);
+
+    // Clean up staging buffer
     vkDestroyBuffer(vulkan_device->device, stagingBuffer, nullptr);
     vkFreeMemory(vulkan_device->device, stagingBufferMemory, nullptr);
 }
