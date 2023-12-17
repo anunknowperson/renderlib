@@ -1,6 +1,6 @@
 #include "internal/vulkan_render.h"
 
-#include "core/logging.h"
+#include "../core/logging.h"
 
 
 
@@ -19,6 +19,8 @@ void VulkanRender::init(GLFWwindow* p_window)
     instances.push_back(mat1);
     instances.push_back(mat2);
     instances.push_back(mat3);
+
+
 
     //
 
@@ -77,6 +79,7 @@ void VulkanRender::drawFrame() {
     } else if (result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR) {
         LOGE("Failed to acquire swap chain image.");
     }
+
 
     updateUniformBuffer(currentFrame);
 

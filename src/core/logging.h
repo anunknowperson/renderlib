@@ -1,7 +1,7 @@
 #pragma once
 
-#include <spdlog/fmt/fmt.h>
-#include <spdlog/spdlog.h>
+#include "spdlog/fmt/fmt.h"
+#include "spdlog/spdlog.h"
 
 #define LOGGER_FORMAT "[%^%l%$] %v"
 #define PROJECT_NAME "renderlib"
