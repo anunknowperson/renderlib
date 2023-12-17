@@ -3,8 +3,11 @@
 #include "core/logging.h"
 
 #include "internal/vulkan_render.h"
+#include "graphics/graphics.h"
 
 int main() {
+    engine::graphics::Graphics g;
+
     VulkanRender r; // Only for testing purposes here
 
     // Initialize GLFW
@@ -19,10 +22,10 @@ int main() {
     // Create a GLFW window
     GLFWwindow* window = glfwCreateWindow(1280, 720, "Vulkan Test", nullptr, nullptr);
 
-    
 
     // Initialize the renderer
     r.init(window);
+
 
     if (!window) {
         LOGE("Failed to create a GLFW window");
@@ -30,8 +33,21 @@ int main() {
         return -1;
     }
 
-    // Main loop
+
+    uint64_t obj1 = engine::graphics::Graphics::get_instance()->create_mesh_instance();
+    uint64_t obj2 = engine::graphics::Graphics::get_instance()->create_mesh_instance();
+    uint64_t obj3 = engine::graphics::Graphics::get_instance()->create_mesh_instance();
+
+    engine::graphics::Graphics::get_instance()->free_mesh_instance(obj2);
+    engine::graphics::Graphics::get_instance()->free_mesh_instance(obj1);
+
+    uint64_t obj4 = engine::graphics::Graphics::get_instance()->create_mesh_instance();
+
     while (!glfwWindowShouldClose(window)) {
+
+        engine::graphics::Graphics::get_instance()->set_mesh_instance_transform(obj3, glm::translate(glm::mat4(1.0), glm::vec3(2.0, 0.0, 0.0)));
+        engine::graphics::Graphics::get_instance()->set_mesh_instance_transform(obj4, glm::translate(glm::mat4(1.0), glm::vec3(-2.0, 0.0, 0.5)));
+
         r.render();
         
         glfwPollEvents();
