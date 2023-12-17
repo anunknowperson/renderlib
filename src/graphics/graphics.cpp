@@ -3,13 +3,19 @@
 
 namespace engine::graphics{
 
-graphics::graphics() {
+Graphics* Graphics::singleton = nullptr;
+
+Graphics::Graphics() {
 
     singleton = this;
 
 }
 
-graphics *graphics::get_instance() {
+Graphics::~Graphics() {
+
+}
+
+Graphics *Graphics::get_instance() {
     return singleton;
 }
 
