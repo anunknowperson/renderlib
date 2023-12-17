@@ -3,7 +3,7 @@
 
 #include "internal/vulkan_render.h"
 
-#include "core/logging.h"
+#include "../core/logging.h"
 
 VulkanRenderPass::VulkanRenderPass(VulkanRender *p_render) {
     render = p_render;

@@ -4,7 +4,7 @@
 
 #include "internal/vulkan_surface.h"
 #include "internal/vulkan_render.h"
-#include "core/logging.h"
+#include "../core/logging.h"
 
 
 VulkanSurface::VulkanSurface(VulkanRender* p_render) {
