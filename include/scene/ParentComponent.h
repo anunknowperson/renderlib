@@ -1,7 +1,7 @@
 #pragma once
 #include "flecs.h"
 #include <vector>
-#include "core/logging.h"
+#include "../src/core/logging.h"
 #include <algorithm>
 
 struct Parent {

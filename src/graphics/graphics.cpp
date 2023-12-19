@@ -36,7 +36,7 @@ uint64_t Graphics::create_mesh_instance() {
         new_uid = 0;
     }
 
-    meshes[new_index] = new_uid;
+    meshes[new_uid] = new_index;
 
     VulkanRender::instances.push_back(glm::mat4(1.0));
 

@@ -1,33 +1,40 @@
 #include "scene/mesh_system.h"
+#include <iostream>
 
 namespace {
-    auto Graphics = engine::graphics::Graphics::get_instance();
 
     void CreateMesh(flecs::entity e, GlobalTransform& gt)
     {
-        e.set(MeshComponent{Graphics->create_mesh_instance()});
+        if (!e.has<MeshComponent>()) {
+            e.set(MeshComponent{engine::graphics::Graphics::get_instance()->create_mesh_instance()});
+            std::cout << "papa" << std::endl;
+            std::cout << e.get_mut<MeshComponent>()->MeshID << std::endl;
+        }
+
     }
 
     void UpdateMesh(flecs::entity e, GlobalTransform& gt)
     {
-        Graphics->set_mesh_instance_transform(e.get<MeshComponent>()->MeshID, gt.TransformMatrix);
+
+        engine::graphics::Graphics::get_instance()->set_mesh_instance_transform(e.get_mut<MeshComponent>()->MeshID, gt.TransformMatrix);
+
     }
 
     void DestroyMesh(flecs::entity e, MeshComponent& mc)
     {
-        Graphics->free_mesh_instance(mc.MeshID);
+        engine::graphics::Graphics::get_instance()->free_mesh_instance(mc.MeshID);
     }
 }
 
 void MeshSystem(flecs::world& world)
 {
-    world.system< GlobalTransform>()
-            .kind(flecs::OnAdd)
+    world.system< GlobalTransform>("CreateMesh")
+            .kind(flecs::OnUpdate)
             .each(CreateMesh);
-    world.system<GlobalTransform>()
-            .kind(flecs::OnSet)
+    world.system<GlobalTransform>("UpdateMesh")
+            .kind(flecs::OnUpdate)
             .each(UpdateMesh);
-    world.system<MeshComponent>()
+    world.system<MeshComponent>("DestroyMesh")
             .kind(flecs::OnRemove)
             .each(DestroyMesh);
 }

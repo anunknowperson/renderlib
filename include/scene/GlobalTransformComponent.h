@@ -4,7 +4,7 @@
 #include "glm/vec4.hpp"
 #include "glm/gtx/quaternion.hpp"
 #include "glm/gtx/orthonormalize.hpp"
-#include "core/logging.h"
+#include "../src/core/logging.h"
 
 struct GlobalTransform
 {
