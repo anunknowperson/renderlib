@@ -130,19 +130,19 @@ void removeRelation(flecs::entity removing_child, flecs::entity parent) {
 // fix definition
 void HierarchySystem(flecs::world &world)
 {
-    world.system<Parent>()
+    world.system<Parent>("UpdateParent")
             .kind(flecs::OnAdd)
             .each(updateParent);
 
-    world.system<Child>()
+    world.system<Child>("UpdateChild")
             .kind(flecs::OnSet)
             .each(updateChild);
 
-    world.system<Child>()
+    world.system<Child>("RemoveChild")
             .kind(flecs::OnRemove)
             .each(removeChild);
 
-    world.system<Parent, PreviousParent>()
+    world.system<Parent, PreviousParent>("ChangeParent")
             .kind(flecs::OnAdd)
             .each(changeParent);
 }
