@@ -2,6 +2,7 @@
 #include "LocalTransformComponent.h"
 #include "GlobalTransformComponent.h"
 #include "flecs.h"
+#include <iostream>
 
 void TransformSystem(flecs::world &world);
 

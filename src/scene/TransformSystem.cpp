@@ -151,7 +151,7 @@ glm::f64mat4 GetMatrixFromLocal(flecs::entity e)
 #ifdef NDEBUG
     if (!e.has<LocalTransform>()) {
         LOGW("Trying to convert a LocalTransform to a float4x4, but the entity does not have a LocalTransform");
-        return;
+        return glm::f64mat4(1.0f);
     }
 #endif
     auto *transform = e.get_mut<LocalTransform>();
@@ -318,6 +318,7 @@ void InverseLocal(flecs::entity e)
 void SetGlobalFromPosition(flecs::entity e, const glm::f64vec3& pos)
 {
     e.set(GlobalTransform{glm::translate(glm::f64mat4(1.0f), pos)});
+    std::cout << "SetGlobalFromPosition" << std::endl;
 }
 
 void SetGlobalFromRotation(flecs::entity e, const glm::f64quat& rot)
@@ -391,19 +392,19 @@ void InverseGlobal(flecs::entity e)
 
 void TransformSystem(flecs::world &world)
 {
-    world.system<GlobalTransform>()
+    world.system<GlobalTransform>("UpdateChildrenGlobal")
             .kind(flecs::OnSet)
             .each(UpdateChildrenGlobal);
-    world.system<Parent>()
+    world.system<Parent>("CreateChildLocalIfParentSet")
             .kind(flecs::OnAdd)
             .each(CreateChildLocalIfParentSet);
-    world.system<Parent>()
+    world.system<Parent>("UpdateChildLocalIfParentChanged")
             .kind(flecs::OnSet)
             .each(UpdateChildLocalIfParentChanged);
-    world.system<GlobalTransform>()
+    world.system<GlobalTransform>("UpdateChildLocalIfGlobalChanged")
             .kind(flecs::OnSet)
             .each(UpdateChildLocalIfGlobalChanged);
-    world.system<LocalTransform>()
+    world.system<LocalTransform>("UpdateChildGlobalIfLocalChanged")
             .kind(flecs::OnSet)
             .each(UpdateChildGlobalIfLocalChanged);
 }
