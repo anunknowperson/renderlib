@@ -3,11 +3,7 @@
 
 namespace engine::graphics{
 
-Graphics* Graphics::singleton = nullptr;
-
 Graphics::Graphics() {
-
-    singleton = this;
 
 }
 
@@ -15,12 +11,12 @@ Graphics::~Graphics() {
 
 }
 
-Graphics *Graphics::get_instance() {
-    return singleton;
+Graphics *Graphics::getInstance() {
+    static Graphics singleton;
+    return &singleton;
 }
 
 uint64_t Graphics::create_mesh_instance() {
-
     int new_index;
     uint64_t new_uid;
 

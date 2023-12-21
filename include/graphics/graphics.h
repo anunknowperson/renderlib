@@ -1,35 +1,31 @@
 #pragma once
 
-#include <cstdint>
+#include <map>
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
-#include <map>
+namespace engine::graphics
+{
 
-namespace engine::graphics {
-
-class Graphics {
-
+class Graphics
+{
 public:
+    static Graphics *getInstance();
 
-    static Graphics* get_instance();
+    std::uint64_t create_mesh_instance();
 
-    uint64_t create_mesh_instance();
+    void set_mesh_instance_transform(std::uint64_t rid, glm::mat4 matrix);
 
-    void set_mesh_instance_transform(uint64_t rid, glm::mat4 matrix);
+    void free_mesh_instance(std::uint64_t rid);
 
-    void free_mesh_instance(uint64_t rid);
-
-    Graphics();
     ~Graphics();
 
 private:
+    /*! \brief ctor */
+    Graphics();
 
-    static Graphics* singleton;
-
-    std::map<uint64_t, int> meshes;
-
+    std::map<std::uint64_t, int> meshes;
 };
 
 }

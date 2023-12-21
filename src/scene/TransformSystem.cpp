@@ -318,7 +318,6 @@ void InverseLocal(flecs::entity e)
 void SetGlobalFromPosition(flecs::entity e, const glm::f64vec3& pos)
 {
     e.set(GlobalTransform{glm::translate(glm::f64mat4(1.0f), pos)});
-    std::cout << "SetGlobalFromPosition" << std::endl;
 }
 
 void SetGlobalFromRotation(flecs::entity e, const glm::f64quat& rot)
