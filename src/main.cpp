@@ -8,13 +8,15 @@
 #include "graphics/graphics.h"
 
 
-int main() {
-    engine::graphics::Graphics g;
+int main()
+{
+
     flecs::world world;
     VulkanRender r; // Only for testing purposes here
 
     // Initialize GLFW
-    if (!glfwInit()) {
+    if (!glfwInit())
+    {
         LOGE("Failed to initialize GLFW");
         return -1;
     }
@@ -23,19 +25,19 @@ int main() {
     glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
 
     // Create a GLFW window
-    GLFWwindow* window = glfwCreateWindow(1280, 720, "Vulkan Test", nullptr, nullptr);
+    GLFWwindow *window = glfwCreateWindow(1280, 720, "Vulkan Test", nullptr, nullptr);
 
 
     // Initialize the renderer
     r.init(window);
 
 
-    if (!window) {
+    if (!window)
+    {
         LOGE("Failed to create a GLFW window");
         glfwTerminate();
         return -1;
     }
-
 
 
     world.set<flecs::Rest>({});
@@ -53,27 +55,40 @@ int main() {
     flecs::entity object1 = world.entity("object1");
     //flecs::entity object2 = world.entity("object2");
 
-
-    while (!glfwWindowShouldClose(window)) {
-        if (!object1.has<GlobalTransform>()) {
+    while (!glfwWindowShouldClose(window))
+    {
+        std::cout << object1.has<GlobalTransform>() << " entt initialize" << std::endl;
+        if (!object1.has<GlobalTransform>())
+        {
             SetGlobalFromPosition(object1, glm::vec3(0.0, 0.0, 0.0));
+            std::cout << object1.has<GlobalTransform>() << " entt set" << std::endl;
             auto mat = object1.get<GlobalTransform>()->TransformMatrix;
-            for (int i = 0; i < 4; ++i) {
-                for (int j = 0; j < 4; ++j) {
+            for (int i = 0; i < 4; ++i)
+            {
+                for (int j = 0; j < 4; ++j)
+                {
                     std::cout << mat[i][j] << ' ';
                 }
                 std::cout << '\n';
             };
         }
+
         world.progress();
         r.render();
         glfwPollEvents();
 
-        if (object1.get<GlobalTransform>()->TransformMatrix == glm::f64mat4(1.0)) {
+
+        std::cout << object1.has<MeshComponent>() << " mesh init" << std::endl;
+
+        if (object1.get<GlobalTransform>()->TransformMatrix == glm::f64mat4(1.0))
+        {
             SetGlobalFromPosition(object1, glm::vec3(0.5, 0.5, 1.0));
             auto mat = object1.get<GlobalTransform>()->TransformMatrix;
-            for (int i = 0; i < 4; ++i) {
-                for (int j = 0; j < 4; ++j) {
+            std::cout << object1.has<GlobalTransform>() << " entt set" << std::endl;
+            for (int i = 0; i < 4; ++i)
+            {
+                for (int j = 0; j < 4; ++j)
+                {
                     std::cout << mat[i][j] << ' ';
                 }
                 std::cout << '\n';

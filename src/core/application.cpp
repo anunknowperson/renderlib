@@ -10,7 +10,6 @@ namespace engine
     }
 
     void Application::create_singletons() {
-        graphics = std::make_unique<graphics::Graphics>();
 
 
     }
