@@ -16,9 +16,6 @@ public:
     ~Application();
 
 private:
-
-    std::unique_ptr<graphics::Graphics> graphics;
-
     void create_singletons();
 
 };
