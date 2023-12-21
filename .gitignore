@@ -1,5 +1,8 @@
 // Custom
 
+# Doxygen
+docs/
+
 # Compiled shaders
 *.spv
 
