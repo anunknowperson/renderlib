@@ -2,7 +2,7 @@
 
 #include "core/logging.h"
 #include "scene/ParentSystem.h"
-#include "scene/mesh_system.h"
+#include "scene/MeshSystem.h"
 #include "scene/TransformSystem.h"
 #include "internal/vulkan_render.h"
 #include "graphics/graphics.h"
@@ -39,61 +39,12 @@ int main()
         return -1;
     }
 
-
-    world.set<flecs::Rest>({});
-    world.component<Parent>();
-    world.component<Child>();
-    world.component<PreviousParent>();
-    world.component<GlobalTransform>();
-    world.component<LocalTransform>();
-    world.component<MeshComponent>();
-
-    HierarchySystem(world);
-    TransformSystem(world);
-    MeshSystem(world);
-
-    flecs::entity object1 = world.entity("object1");
-    //flecs::entity object2 = world.entity("object2");
-
     while (!glfwWindowShouldClose(window))
     {
-        std::cout << object1.has<GlobalTransform>() << " entt initialize" << std::endl;
-        if (!object1.has<GlobalTransform>())
-        {
-            SetGlobalFromPosition(object1, glm::vec3(0.0, 0.0, 0.0));
-            std::cout << object1.has<GlobalTransform>() << " entt set" << std::endl;
-            auto mat = object1.get<GlobalTransform>()->TransformMatrix;
-            for (int i = 0; i < 4; ++i)
-            {
-                for (int j = 0; j < 4; ++j)
-                {
-                    std::cout << mat[i][j] << ' ';
-                }
-                std::cout << '\n';
-            };
-        }
 
-        world.progress();
         r.render();
         glfwPollEvents();
 
-
-        std::cout << object1.has<MeshComponent>() << " mesh init" << std::endl;
-
-        if (object1.get<GlobalTransform>()->TransformMatrix == glm::f64mat4(1.0))
-        {
-            SetGlobalFromPosition(object1, glm::vec3(0.5, 0.5, 1.0));
-            auto mat = object1.get<GlobalTransform>()->TransformMatrix;
-            std::cout << object1.has<GlobalTransform>() << " entt set" << std::endl;
-            for (int i = 0; i < 4; ++i)
-            {
-                for (int j = 0; j < 4; ++j)
-                {
-                    std::cout << mat[i][j] << ' ';
-                }
-                std::cout << '\n';
-            };
-        }
     }
     // Cleanup
     glfwDestroyWindow(window);
@@ -101,4 +52,3 @@ int main()
 
     return 0;
 }
-
