@@ -1,9 +1,9 @@
 
-#include "internal/vulkan_render_pass.h"
+#include "VulkanRenderPass.h"
 
-#include "internal/vulkan_render.h"
+#include "VulkanRender.h"
 
-#include "../core/logging.h"
+#include "core/Logging.h"
 
 VulkanRenderPass::VulkanRenderPass(VulkanRender *p_render) {
     render = p_render;

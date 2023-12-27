@@ -1,16 +1,15 @@
 
 #pragma once
 
-#include "GLFW/glfw3.h"
-
-#include "vulkan/vulkan.h"
 #include <vector>
-
+#include <string>
 #include <optional>
 
+#include "GLFW/glfw3.h"
+#include "vulkan/vulkan.h"
 
-#include "internal/vulkan_instance.h"
-#include <string>
+#include "VulkanInstance.h"
+
 
 class VulkanRender;
 // TODO: Get rid of consts

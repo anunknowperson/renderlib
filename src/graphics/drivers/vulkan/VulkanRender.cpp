@@ -1,6 +1,6 @@
-#include "internal/vulkan_render.h"
+#include "VulkanRender.h"
 
-#include "../core/logging.h"
+#include "core/Logging.h"
 
 std::vector<glm::mat4> VulkanRender::instances = {};
 
@@ -33,7 +33,7 @@ void VulkanRender::init(GLFWwindow* p_window)
 
     vulkan_device = std::make_shared<VulkanDevice>(this);
 
-    vulkan_swap_chain = std::make_shared<VulkanSwapchain>(this);
+    vulkan_swap_chain = std::make_shared<VulkanSwapChain>(this);
 
     vulkan_swap_chain->createImageViews();
 

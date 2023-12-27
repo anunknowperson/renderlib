@@ -1,30 +1,31 @@
 
 #pragma once
 
-#include "GLFW/glfw3.h"
-
 #include "vulkan/vulkan.h"
 #include <vector>
 
+#include "GLFW/glfw3.h"
 
-#include "internal/vulkan_instance.h"
-#include "internal/vulkan_physical_device.h"
+#include "VulkanInstance.h"
+#include "VulkanPhysicalDevice.h"
 
 class VulkanRender;
 
 class VulkanDevice {
 
-private:
-
-    VulkanRender* render;
-
 public:
+    VulkanDevice(VulkanRender* p_render);
+    ~VulkanDevice();
+
     VkDevice device;
 
     // TODO: Consider moving queues to separate class(es)
     VkQueue graphicsQueue;
     VkQueue presentQueue;
 
-	VulkanDevice(VulkanRender* p_render);
-	~VulkanDevice();
+private:
+
+    VulkanRender* render;
+
+
 };

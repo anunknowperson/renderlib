@@ -1,12 +1,31 @@
 
 #pragma once
 
-#include "GLFW/glfw3.h"
-
-#include "vulkan/vulkan.h"
 #include <vector>
 
+#include "GLFW/glfw3.h"
+#include "vulkan/vulkan.h"
+
+
 class VulkanInstance {
+
+public:
+    VulkanInstance();
+    ~VulkanInstance();
+
+    VkInstance instance;
+
+#ifdef NDEBUG
+    const bool enableValidationLayers = false;
+#else
+    const bool enableValidationLayers = true;
+#endif
+
+    const std::vector<const char*> validationLayers = {
+            "VK_LAYER_KHRONOS_validation"
+    };
+
+
 
 private:
 	
@@ -37,19 +56,4 @@ private:
 		const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData,
 		void* pUserData);
 
-public:
-	VkInstance instance;
-
-#ifdef NDEBUG
-    const bool enableValidationLayers = false;
-#else
-    const bool enableValidationLayers = true;
-#endif
-
-    const std::vector<const char*> validationLayers = {
-            "VK_LAYER_KHRONOS_validation"
-    };
-
-	VulkanInstance();
-	~VulkanInstance();
 };

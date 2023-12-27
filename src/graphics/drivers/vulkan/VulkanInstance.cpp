@@ -1,6 +1,6 @@
-#include "../core/logging.h"
+#include "core/Logging.h"
 
-#include "internal/vulkan_instance.h"
+#include "VulkanInstance.h"
 
 #include <string>
 
@@ -21,17 +21,17 @@ VKAPI_ATTR VkBool32 VKAPI_CALL VulkanInstance::debugCallback(
 
     switch (messageType)
     {
-    VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT:
+    case VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT:
         type = "General";
 
         break;
 
-    VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT:
+    case VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT:
         type = "Validation";
 
         break;
 
-    VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT:
+    case VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT:
         type = "Perfomance";
 
         break;

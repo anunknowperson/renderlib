@@ -2,9 +2,9 @@
 // Created by Serg on 03.12.2023.
 //
 
-#include "internal/vulkan_surface.h"
-#include "internal/vulkan_render.h"
-#include "../core/logging.h"
+#include "VulkanSurface.h"
+#include "VulkanRender.h"
+#include "core/Logging.h"
 
 
 VulkanSurface::VulkanSurface(VulkanRender* p_render) {
