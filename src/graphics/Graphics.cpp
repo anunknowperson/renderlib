@@ -1,5 +1,5 @@
-#include "graphics/graphics.h"
-#include "internal/vulkan_render.h"
+#include "graphics/Graphics.h"
+#include "graphics/drivers/vulkan/VulkanRender.h"
 
 namespace engine::graphics{
 
@@ -17,8 +17,8 @@ Graphics *Graphics::getInstance() {
 }
 
 uint64_t Graphics::create_mesh_instance() {
-    int new_index;
-    uint64_t new_uid;
+    std::uint64_t new_index;
+    std::uint64_t new_uid;
 
     if (meshes.size() != 0) {
 
@@ -55,7 +55,7 @@ void Graphics::free_mesh_instance(uint64_t rid) {
 
         meshes.erase(it);
 
-        // Update the indices in the map for elements with higher indices
+
         for (auto& entry : meshes) {
             if (entry.second > index) {
                 entry.second--;

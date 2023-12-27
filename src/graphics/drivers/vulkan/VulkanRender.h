@@ -1,28 +1,23 @@
-
 #pragma once
 
+#include <chrono>
 #include <memory>
+
+#define GLM_FORCE_RADIANS
+#include "glm/glm.hpp"
+#include "glm/gtc/matrix_transform.hpp"
+#include "GLFW/glfw3.h"
 
 #include <vulkan/vulkan.hpp>
 
-
-#define GLM_FORCE_RADIANS
-
-#include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
-#include <chrono>
-
-#include "GLFW/glfw3.h"
-
-
-#include "internal/vulkan_instance.h"
-#include "internal/vulkan_physical_device.h"
-#include "internal/vulkan_device.h"
-#include "internal/vulkan_surface.h"
-#include "internal/vulkan_swap_chain.h"
-#include "internal/vulkan_graphics_pipeline.h"
-#include "internal/vulkan_render_pass.h"
-#include "internal/vulkan_command_pool.h"
+#include "VulkanInstance.h"
+#include "VulkanPhysicalDevice.h"
+#include "VulkanDevice.h"
+#include "VulkanSurface.h"
+#include "VulkanSwapChain.h"
+#include "VulkanGraphicsPipeline.h"
+#include "VulkanRenderPass.h"
+#include "VulkanCommandPool.h"
 
 #include <array>
 
@@ -30,12 +25,6 @@
 
 
 class VulkanRender {
-private:
-    double lastTime;
-    int nbFrames;
-
-    int currentBufferSize;
-
 public:
     VkDescriptorSetLayout descriptorSetLayout;
 
@@ -130,7 +119,7 @@ public:
 	std::shared_ptr<VulkanInstance> vulkan_instance;
     std::shared_ptr<VulkanDevice> vulkan_device;
     std::shared_ptr<VulkanSurface> vulkan_surface;
-    std::shared_ptr<VulkanSwapchain> vulkan_swap_chain;
+    std::shared_ptr<VulkanSwapChain> vulkan_swap_chain;
     std::shared_ptr<VulkanGraphicsPipeline> vulkan_graphics_pipeline;
     std::shared_ptr<VulkanRenderPass> vulkan_render_pass;
     std::shared_ptr<VulkanCommandPool> vulkan_command_pool;
@@ -181,4 +170,10 @@ public:
 	~VulkanRender();
 
     uint32_t currentFrame = 0;
+
+private:
+    double lastTime;
+    int nbFrames;
+
+    VkDeviceSize currentBufferSize;
 };

@@ -1,10 +1,10 @@
-#include "internal/vulkan_graphics_pipeline.h"
+#include "VulkanGraphicsPipeline.h"
 
 
-#include "internal/vulkan_render.h"
+#include "VulkanRender.h"
 
 
-#include "../core/logging.h"
+#include "core/Logging.h"
 
 #include <fstream>
 
