@@ -1,14 +1,14 @@
 
-#include "internal/vulkan_swap_chain.h"
-#include "../core/logging.h"
+#include "VulkanSwapChain.h"
+#include "core/Logging.h"
 
-#include "internal/vulkan_render.h"
+#include "VulkanRender.h"
 
 #include <cstdint>
 #include <limits>
 #include <algorithm>
 
-VulkanSwapchain::VulkanSwapchain(VulkanRender* p_render) {
+VulkanSwapChain::VulkanSwapChain(VulkanRender* p_render) {
     render = p_render;
 
 
@@ -16,12 +16,12 @@ VulkanSwapchain::VulkanSwapchain(VulkanRender* p_render) {
 }
 
 
-VulkanSwapchain::~VulkanSwapchain()
+VulkanSwapChain::~VulkanSwapChain()
 {
     cleanupSwapChain();
 }
 
-VkSurfaceFormatKHR VulkanSwapchain::chooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR> &availableFormats) {
+VkSurfaceFormatKHR VulkanSwapChain::chooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR> &availableFormats) {
     for (const auto& availableFormat : availableFormats) {
         if (availableFormat.format == VK_FORMAT_B8G8R8A8_SRGB && availableFormat.colorSpace == VK_COLOR_SPACE_SRGB_NONLINEAR_KHR) {
             return availableFormat;
@@ -31,7 +31,7 @@ VkSurfaceFormatKHR VulkanSwapchain::chooseSwapSurfaceFormat(const std::vector<Vk
     return availableFormats[0];
 }
 
-VkPresentModeKHR VulkanSwapchain::chooseSwapPresentMode(const std::vector<VkPresentModeKHR>& availablePresentModes) {
+VkPresentModeKHR VulkanSwapChain::chooseSwapPresentMode(const std::vector<VkPresentModeKHR>& availablePresentModes) {
     for (const auto& availablePresentMode : availablePresentModes) {
         if (availablePresentMode == VK_PRESENT_MODE_MAILBOX_KHR) {
             return availablePresentMode;
@@ -41,7 +41,7 @@ VkPresentModeKHR VulkanSwapchain::chooseSwapPresentMode(const std::vector<VkPres
     return VK_PRESENT_MODE_FIFO_KHR;
 }
 
-VkExtent2D VulkanSwapchain::chooseSwapExtent(const VkSurfaceCapabilitiesKHR &capabilities) {
+VkExtent2D VulkanSwapChain::chooseSwapExtent(const VkSurfaceCapabilitiesKHR &capabilities) {
     if (capabilities.currentExtent.width != std::numeric_limits<uint32_t>::max()) {
         return capabilities.currentExtent;
     } else {
@@ -60,7 +60,7 @@ VkExtent2D VulkanSwapchain::chooseSwapExtent(const VkSurfaceCapabilitiesKHR &cap
     }
 }
 
-void VulkanSwapchain::createImageViews() {
+void VulkanSwapChain::createImageViews() {
     swapChainImageViews.resize(swapChainImages.size());
 
     for (size_t i = 0; i < swapChainImages.size(); i++) {
@@ -89,7 +89,7 @@ void VulkanSwapchain::createImageViews() {
 
 }
 
-void VulkanSwapchain::create_framebuffers() {
+void VulkanSwapChain::create_framebuffers() {
     swapChainFramebuffers.resize(swapChainImageViews.size());
 
     for (size_t i = 0; i < swapChainImageViews.size(); i++) {
@@ -112,7 +112,7 @@ void VulkanSwapchain::create_framebuffers() {
     }
 }
 
-void VulkanSwapchain::recreate() {
+void VulkanSwapChain::recreate() {
     int width = 0, height = 0;
     glfwGetFramebufferSize(render->window, &width, &height);
     while (width == 0 || height == 0) {
@@ -129,7 +129,7 @@ void VulkanSwapchain::recreate() {
     create_framebuffers();
 }
 
-void VulkanSwapchain::createSwapChain() {
+void VulkanSwapChain::createSwapChain() {
     VulkanPhysicalDevice::SwapChainSupportDetails swapChainSupport = VulkanPhysicalDevice::querySwapChainSupport(render->vulkan_physical_device, render->vulkan_surface->surface);
 
     VkSurfaceFormatKHR surfaceFormat = chooseSwapSurfaceFormat(swapChainSupport.formats);
@@ -187,7 +187,7 @@ void VulkanSwapchain::createSwapChain() {
     swapChainExtent = extent;
 }
 
-void VulkanSwapchain::cleanupSwapChain() {
+void VulkanSwapChain::cleanupSwapChain() {
     for (auto framebuffer : swapChainFramebuffers) {
         vkDestroyFramebuffer(render->vulkan_device->device, framebuffer, nullptr);
     }

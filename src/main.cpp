@@ -1,18 +1,18 @@
 ﻿#include <iostream>
 
-#include "core/logging.h"
+#include "core/Logging.h"
 #include "scene/ParentSystem.h"
 #include "scene/MeshSystem.h"
 #include "scene/TransformSystem.h"
-#include "internal/vulkan_render.h"
-#include "graphics/graphics.h"
+#include "graphics/drivers/vulkan/VulkanRender.h"
+#include "graphics/Graphics.h"
 
 
 int main()
 {
 
     flecs::world world;
-    VulkanRender r; // Only for testing purposes here
+    VulkanRender r;
 
     // Initialize GLFW
     if (!glfwInit())

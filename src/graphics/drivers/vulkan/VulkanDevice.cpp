@@ -1,8 +1,8 @@
-#include "../core/logging.h"
+#include "core/Logging.h"
 
-#include "internal/vulkan_device.h"
+#include "VulkanDevice.h"
 
-#include "internal/vulkan_render.h"
+#include "VulkanRender.h"
 
 #include <set>
 

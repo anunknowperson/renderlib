@@ -1,6 +1,6 @@
-#include "../core/logging.h"
-#include "internal/vulkan_physical_device.h"
-#include "internal/vulkan_render.h"
+#include "core/Logging.h"
+#include "VulkanPhysicalDevice.h"
+#include "VulkanRender.h"
 #include <map>
 #include <string>
 #include <unordered_map>

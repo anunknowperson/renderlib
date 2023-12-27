@@ -1,7 +1,7 @@
 #pragma once
 #include "MeshComponent.h"
 #include "GlobalTransformComponent.h"
-#include "graphics/graphics.h"
+#include "graphics/Graphics.h"
 
 
 /**
