@@ -1,5 +1,5 @@
 #include "graphics/Graphics.h"
-#include "graphics/drivers/vulkan/VulkanRender.h"
+
 
 namespace engine::graphics{
 
@@ -34,23 +34,23 @@ uint64_t Graphics::create_mesh_instance() {
 
     meshes[new_uid] = new_index;
 
-    VulkanRender::instances.push_back(glm::mat4(1.0));
+    //VulkanRender::instances.push_back(glm::mat4(1.0));
 
     return new_uid;
 }
 
 void Graphics::set_mesh_instance_transform(uint64_t rid, glm::mat4 matrix) {
-    VulkanRender::instances[meshes[rid]] = matrix;
+    //VulkanRender::instances[meshes[rid]] = matrix;
 }
 void Graphics::free_mesh_instance(uint64_t rid) {
-    VulkanRender::instances.erase( VulkanRender::instances.begin() + meshes[rid] );
+    //VulkanRender::instances.erase( VulkanRender::instances.begin() + meshes[rid] );
 
     meshes.erase(rid);
 
     auto it = meshes.find(rid);
     if (it != meshes.end()) {
         size_t index = it->second;
-        VulkanRender::instances.erase( VulkanRender::instances.begin() + index );
+        //VulkanRender::instances.erase( VulkanRender::instances.begin() + index );
 
 
         meshes.erase(it);

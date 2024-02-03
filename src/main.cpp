@@ -4,15 +4,16 @@
 #include "scene/ParentSystem.h"
 #include "scene/MeshSystem.h"
 #include "scene/TransformSystem.h"
-#include "graphics/drivers/vulkan/VulkanRender.h"
 #include "graphics/Graphics.h"
+
+#include "GLFW/glfw3.h"
 
 
 int main()
 {
 
     flecs::world world;
-    VulkanRender r;
+    //VulkanRender r;
 
     // Initialize GLFW
     if (!glfwInit())
@@ -29,7 +30,7 @@ int main()
 
 
     // Initialize the renderer
-    r.init(window);
+    //r.init(window);
 
 
     if (!window)
@@ -42,7 +43,7 @@ int main()
     while (!glfwWindowShouldClose(window))
     {
 
-        r.render();
+        //r.render();
         glfwPollEvents();
 
     }
