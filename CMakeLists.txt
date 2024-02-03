@@ -52,18 +52,27 @@ if (CMAKE_VERSION VERSION_GREATER 3.12)
   set_property(TARGET ${PROJECT_NAME} PROPERTY CXX_STANDARD 20)
 endif()
 
-
 find_package(spdlog CONFIG REQUIRED)
 target_link_libraries(${PROJECT_NAME} PRIVATE spdlog::spdlog)
 
-find_package(glfw3 CONFIG REQUIRED)
-target_link_libraries(${PROJECT_NAME} PRIVATE glfw)
+find_package(flecs CONFIG REQUIRED)
+target_link_libraries(${PROJECT_NAME} PRIVATE $<IF:$<TARGET_EXISTS:flecs::flecs>,flecs::flecs,flecs::flecs_static>)
 
 find_package(glm CONFIG REQUIRED)
 target_link_libraries(${PROJECT_NAME} PRIVATE glm::glm)
 
+find_package(SDL2 CONFIG REQUIRED)
+target_link_libraries(${PROJECT_NAME}
+    PRIVATE
+    $<TARGET_NAME_IF_EXISTS:SDL2::SDL2main>
+    $<IF:$<TARGET_EXISTS:SDL2::SDL2>,SDL2::SDL2,SDL2::SDL2-static>
+)
+
+find_package(vk-bootstrap CONFIG REQUIRED)
+target_link_libraries(${PROJECT_NAME} PRIVATE vk-bootstrap::vk-bootstrap)
+
 find_package(Vulkan REQUIRED)
 target_link_libraries(${PROJECT_NAME} PRIVATE Vulkan::Vulkan)
 
-find_package(flecs REQUIRED)
-target_link_libraries(${PROJECT_NAME} PRIVATE flecs::flecs)
+find_package(VulkanMemoryAllocator CONFIG REQUIRED)
+target_link_libraries(${PROJECT_NAME} PRIVATE Vulkan::Vulkan GPUOpen::VulkanMemoryAllocator)

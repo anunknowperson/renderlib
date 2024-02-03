@@ -1,8 +1,13 @@
 {
   "dependencies": [
-    "glfw3",
+    "vk-bootstrap",
+    "vulkan-memory-allocator",
     "glm",
     "spdlog",
-    "flecs"
+    "flecs",
+    {
+      "name": "sdl2",
+      "features": [ "vulkan" ]
+    }
   ]
 }
