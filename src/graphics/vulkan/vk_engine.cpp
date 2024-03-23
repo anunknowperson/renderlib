@@ -67,24 +67,15 @@ VKAPI_ATTR VkBool32 VKAPI_CALL VulkanEngine::debugCallback(
     return VK_FALSE;
 }
 
-void VulkanEngine::init()
+void VulkanEngine::init(struct SDL_Window* window)
 {
+    _window = window;
+
     // only one engine initialization is allowed with the application.
     assert(loadedEngine == nullptr);
     loadedEngine = this;
 
-    // We initialize SDL and create a window with it.
-    SDL_Init(SDL_INIT_VIDEO);
 
-    SDL_WindowFlags window_flags = (SDL_WindowFlags)(SDL_WINDOW_VULKAN);
-
-    _window = SDL_CreateWindow(
-        "TODO: PUT APP NAME HERE",
-        SDL_WINDOWPOS_UNDEFINED,
-        SDL_WINDOWPOS_UNDEFINED,
-        _windowExtent.width,
-        _windowExtent.height,
-        window_flags);
 
     init_vulkan();
 
@@ -308,7 +299,7 @@ void VulkanEngine::cleanup()
 
         vkb::destroy_debug_utils_messenger(_instance, _debug_messenger);
         vkDestroyInstance(_instance, nullptr);
-        SDL_DestroyWindow(_window);
+
     }
 
     // clear engine pointer
@@ -395,36 +386,9 @@ void VulkanEngine::draw()
 
 }
 
-void VulkanEngine::run()
+void VulkanEngine::update()
 {
-    SDL_Event e;
-    bool bQuit = false;
 
-    // main loop
-    while (!bQuit) {
-        // Handle events on queue
-        while (SDL_PollEvent(&e) != 0) {
-            // close the window when user alt-f4s or clicks the X button
-            if (e.type == SDL_QUIT)
-                bQuit = true;
+    draw();
 
-            if (e.type == SDL_WINDOWEVENT) {
-                if (e.window.event == SDL_WINDOWEVENT_MINIMIZED) {
-                    stop_rendering = true;
-                }
-                if (e.window.event == SDL_WINDOWEVENT_RESTORED) {
-                    stop_rendering = false;
-                }
-            }
-        }
-
-        // do not draw if we are minimized
-        if (stop_rendering) {
-            // throttle the speed to avoid the endless spinning
-            std::this_thread::sleep_for(std::chrono::milliseconds(100));
-            continue;
-        }
-
-        draw();
-    }
 }
