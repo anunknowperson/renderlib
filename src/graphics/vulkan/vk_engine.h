@@ -35,7 +35,7 @@ public:
 	static VulkanEngine& Get();
 
 	//initializes everything in the engine
-	void init();
+	void init(struct SDL_Window* window);
 
 	//shuts down the engine
 	void cleanup();
@@ -44,7 +44,8 @@ public:
 	void draw();
 
 	//run main loop
-	void run();
+	void update();
+
 
 	VkInstance _instance;// Vulkan library handle
 	VkDebugUtilsMessengerEXT _debug_messenger;// Vulkan debug output handle
