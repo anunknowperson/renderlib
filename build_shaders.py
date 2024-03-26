@@ -18,7 +18,7 @@ for filename in os.listdir(shaders_directory):
         command = [glslc_executable, shader_file_path, "-o", output_file]
 
         try:
-            subprocess.run(command, check=True)
+            subprocess.run(command, check=True, shell=True)
             print(f"Compiled {filename} to {output_file}")
         except subprocess.CalledProcessError as e:
             print(f"Failed to compile {filename}: {e}")
