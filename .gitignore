@@ -460,5 +460,5 @@ FodyWeavers.xsd
 *.sln.iml
 
 # CLion folders
-/cmake-build-debug/
-/.idea/
+.idea/
+cmake-build-debug/
