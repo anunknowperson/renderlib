@@ -1,4 +1,6 @@
 #pragma once
+
+#define GLM_ENABLE_EXPERIMENTAL
 #include "MeshComponent.h"
 #include "GlobalTransformComponent.h"
 #include "graphics/Graphics.h"
