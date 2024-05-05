@@ -458,3 +458,6 @@ FodyWeavers.xsd
 
 # JetBrains Rider
 *.sln.iml
+
+# CLion folders
+/cmake-build-debug/
