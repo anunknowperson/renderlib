@@ -3,4 +3,4 @@
 	url = https://github.com/ocornut/imgui.git
 [submodule "vendor/vcpkg"]
 	path = vendor/vcpkg
-	url = https://github.com/microsoft/vcpkg.git
+	url = https://github.com/Microsoft/vcpkg.git
