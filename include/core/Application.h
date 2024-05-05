@@ -1,28 +1,43 @@
 #pragma once
 
-#include <memory>
-
-#include "graphics/Graphics.h"
+#include "event/ApplicationEvent.h"
+#include "IWindow.h"
+#include "LayerStack.h"
+#include "core/Logging.h"
+#include "core/Asserts.h"
 
 namespace engine
 {
+    class Application
+    {
+    public:
+        Application();
 
-/** @brief Main application class.
- *
- * @details An object of this class is responsible for all the main functions of the engine and must be created in every application.
- * */
+        virtual ~Application();
 
-class Application {
+        void Run();
 
-public:
+        void OnEvent(engine::Event& e);
 
-    /*! @brief ctor */
-    Application();
-    ~Application();
+        void PushLayer(Layer* layer);
 
-private:
+        void PushOverlay(Layer* layer);
 
+        inline IWindow& GetWindow() { return *m_Window; }
 
-};
+        static Application& Get() { return *s_Instance; }
 
-}
+    private:
+        bool OnWindowClose(WindowCloseEvent& e);
+
+    private:
+        std::unique_ptr<IWindow> m_Window;
+        bool m_Running = true;
+        LayerStack m_LayerStack;
+        static Application* s_Instance;
+
+    };
+//should be implemented by the client
+    Application* CreateApplication();
+
+} // namespace BZEngine
