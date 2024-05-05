@@ -16,7 +16,7 @@ add_executable (${PROJECT_NAME})
 
 # Собираем шейдеры
 
-set(BUILD_SHADERS_SCRIPT "${CMAKE_SOURCE_DIR}/build_shaders.py")
+set(BUILD_SHADERS_SCRIPT "${CMAKE_SOURCE_DIR}/scripts/build_shaders.py")
 
 set(SHADERS_SOURCE_DIR "${CMAKE_SOURCE_DIR}/shaders")
 set(SHADERS_DEST_DIR "${CMAKE_BINARY_DIR}/shaders")
