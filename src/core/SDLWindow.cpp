@@ -1,5 +1,4 @@
 #include "core/SDLWindow.h"
-#include "Asserts.h"
 #include "core/Logging.h"
 #include "event/ApplicationEvent.h"
 #include "event/KeyEvent.h"
@@ -36,7 +35,7 @@ namespace engine {
         {
             int success = SDL_Init(SDL_INIT_VIDEO);
 #ifndef DEBUG
-      if (success == 0) LOGE("Failed to initialize window!")
+      if (success == 0) LOGE("Failed to initialize window!");
 #endif
             s_SDLInitialized = true;
         }
@@ -48,7 +47,7 @@ namespace engine {
                                     props.Height,
                                     SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE);
 #ifndef DEBUG
-        if (m_Window == nullptr) LOGE("Failed to create window!")
+        if (m_Window == nullptr) LOGE("Failed to create window!");
 #endif
 
         SDL_GL_MakeCurrent(m_Window, SDL_GL_CreateContext(m_Window));
@@ -171,4 +170,4 @@ namespace engine {
     {
         return m_Data.VSync;
     }
-} // namespace RLEngine
+} // namespace engine
