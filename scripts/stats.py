@@ -17,7 +17,7 @@ def count_lines_in_directory(directory):
     return total_lines
 
 if __name__ == "__main__":
-    src_directory = "src/"
+    src_directory = "../src/"
     shaders_directory = "shaders/"
 
     total_lines_src = 0
