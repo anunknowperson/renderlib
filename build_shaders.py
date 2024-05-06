@@ -10,7 +10,7 @@ glslc_executable = "glslc.exe"
 
 print("Shader builder working directory: " + os.environ['PYTHONPATH'])
 for filename in os.listdir(shaders_directory):
-    if filename.endswith(".vert") or filename.endswith(".frag"):
+    if filename.endswith(".vert") or filename.endswith(".frag") or filename.endswith(".comp"):
         shader_file_path = os.path.join(shaders_directory, filename)
         output_file = os.path.splitext(shader_file_path)[0] + os.path.splitext(shader_file_path)[1] + ".spv"
 
