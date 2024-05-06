@@ -1,24 +1,25 @@
 import os
 import subprocess
 
+project_dir = os.getcwd()
 
-shaders_directory = os.environ['PYTHONPATH'] + "/shaders/"
+if os.name == 'nt':
+    glslc_executable = "glslc.exe"
+else:
+    glslc_executable = "glslc"
 
+print("Shader builder working directory: " + project_dir)
 
-glslc_executable = "glslc.exe"
-
-
-print("Shader builder working directory: " + os.environ['PYTHONPATH'])
-for filename in os.listdir(shaders_directory):
+for filename in os.listdir(project_dir + "/shaders/"):
     if filename.endswith(".vert") or filename.endswith(".frag") or filename.endswith(".comp"):
-        shader_file_path = os.path.join(shaders_directory, filename)
-        output_file = os.path.splitext(shader_file_path)[0] + os.path.splitext(shader_file_path)[1] + ".spv"
+        shader_file_path = os.path.join(project_dir + "/shaders/", filename)
 
+        output_file = os.path.splitext(shader_file_path)[0] + os.path.splitext(shader_file_path)[1] + ".spv"
 
         command = [glslc_executable, shader_file_path, "-o", output_file]
 
         try:
-            subprocess.run(command, check=True, shell=True)
+            subprocess.run(command, check=True)
             print(f"Compiled {filename} to {output_file}")
         except subprocess.CalledProcessError as e:
             print(f"Failed to compile {filename}: {e}")
