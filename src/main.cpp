@@ -1,6 +1,8 @@
 ﻿#include <iostream>
 
 #include "core/Logging.h"
+#include "core/Layer.h"
+#include "core/Application.h"
 #include "scene/ParentSystem.h"
 #include "scene/MeshSystem.h"
 #include "scene/TransformSystem.h"
@@ -12,6 +14,7 @@
 #include <SDL.h>
 
 #include <SDL_vulkan.h>
+
 
 int main(int argc, char* args[])
 {

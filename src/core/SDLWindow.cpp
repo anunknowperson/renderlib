@@ -49,8 +49,8 @@ namespace engine {
 #ifndef DEBUG
         if (m_Window == nullptr) LOGE("Failed to create window!");
 #endif
-
-        SDL_GL_MakeCurrent(m_Window, SDL_GL_CreateContext(m_Window));
+        // TODO: vulkan
+        //SDL_GL_MakeCurrent(m_Window, SDL_GL_CreateContext(m_Window));
         SDL_SetWindowData(m_Window, "m_Data", &m_Data);
         SetVSync(true);
     }
