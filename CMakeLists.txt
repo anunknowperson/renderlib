@@ -88,3 +88,11 @@ add_library(imgui
 )
 target_include_directories(imgui PUBLIC ${IMGUI_DIR})
 target_link_libraries(${PROJECT_NAME} PRIVATE imgui)
+
+find_package(Stb REQUIRED)
+target_include_directories(${PROJECT_NAME} PRIVATE ${Stb_INCLUDE_DIR})
+
+find_package(fastgltf CONFIG REQUIRED)
+target_link_libraries(${PROJECT_NAME} PRIVATE fastgltf::fastgltf)
+
+

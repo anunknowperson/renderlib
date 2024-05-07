@@ -6,6 +6,7 @@
 #include "vk_types.h"
 #include "vk_descriptors.h"
 #include "vk_pipelines.h"
+#include "vk_loader.h"
 
 
 constexpr unsigned int FRAME_OVERLAP = 2;
@@ -103,9 +104,19 @@ public:
     VkCommandBuffer _immCommandBuffer;
     VkCommandPool _immCommandPool;
 
+    VkPipelineLayout _trianglePipelineLayout;
+    VkPipeline _trianglePipeline;
+
+    VkPipelineLayout _meshPipelineLayout;
+    VkPipeline _meshPipeline;
+
+    GPUMeshBuffers rectangle;
+
 
     void immediate_submit(std::function<void(VkCommandBuffer cmd)>&& function);
+    GPUMeshBuffers uploadMesh(std::span<uint32_t> indices, std::span<Vertex> vertices);
 
+    std::vector<std::shared_ptr<MeshAsset>> testMeshes;
 
 private:
 
@@ -132,5 +143,20 @@ private:
     void init_background_pipelines();
     void init_imgui();
 
+    void init_triangle_pipeline();
+
     void draw_imgui(VkCommandBuffer cmd, VkImageView targetImageView);
+
+
+    void draw_geometry(VkCommandBuffer cmd);
+
+    AllocatedBuffer create_buffer(size_t allocSize, VkBufferUsageFlags usage, VmaMemoryUsage memoryUsage);
+
+    void destroy_buffer(const AllocatedBuffer &buffer);
+
+
+
+    void init_mesh_pipeline();
+
+    void init_default_data();
 };
