@@ -113,6 +113,7 @@ VkPipeline PipelineBuilder::build_pipeline(VkDevice device) {
     pipelineInfo.pColorBlendState = &colorBlending;
     pipelineInfo.pDepthStencilState = &_depthStencil;
     pipelineInfo.layout = _pipelineLayout;
+
     VkDynamicState state[] = {VK_DYNAMIC_STATE_VIEWPORT, VK_DYNAMIC_STATE_SCISSOR};
 
     VkPipelineDynamicStateCreateInfo dynamicInfo = {.sType = VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO};
@@ -209,4 +210,41 @@ void PipelineBuilder::disable_depthtest()
     _depthStencil.back = {};
     _depthStencil.minDepthBounds = 0.f;
     _depthStencil.maxDepthBounds= 1.f;
+}
+
+void PipelineBuilder::enable_depthtest(bool depthWriteEnable,VkCompareOp op)
+{
+    _depthStencil.depthTestEnable = VK_TRUE;
+    _depthStencil.depthWriteEnable = depthWriteEnable;
+    _depthStencil.depthCompareOp = op;
+    _depthStencil.depthBoundsTestEnable = VK_FALSE;
+    _depthStencil.stencilTestEnable = VK_FALSE;
+    _depthStencil.front = {};
+    _depthStencil.back = {};
+    _depthStencil.minDepthBounds = 0.f;
+    _depthStencil.maxDepthBounds = 1.f;
+}
+
+void PipelineBuilder::enable_blending_additive()
+{
+    _colorBlendAttachment.colorWriteMask = VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT | VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT;
+    _colorBlendAttachment.blendEnable = VK_TRUE;
+    _colorBlendAttachment.srcColorBlendFactor = VK_BLEND_FACTOR_ONE;
+    _colorBlendAttachment.dstColorBlendFactor = VK_BLEND_FACTOR_DST_ALPHA;
+    _colorBlendAttachment.colorBlendOp = VK_BLEND_OP_ADD;
+    _colorBlendAttachment.srcAlphaBlendFactor = VK_BLEND_FACTOR_ONE;
+    _colorBlendAttachment.dstAlphaBlendFactor = VK_BLEND_FACTOR_ZERO;
+    _colorBlendAttachment.alphaBlendOp = VK_BLEND_OP_ADD;
+}
+
+void PipelineBuilder::enable_blending_alphablend()
+{
+    _colorBlendAttachment.colorWriteMask = VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT | VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT;
+    _colorBlendAttachment.blendEnable = VK_TRUE;
+    _colorBlendAttachment.srcColorBlendFactor = VK_BLEND_FACTOR_ONE_MINUS_DST_ALPHA;
+    _colorBlendAttachment.dstColorBlendFactor = VK_BLEND_FACTOR_DST_ALPHA;
+    _colorBlendAttachment.colorBlendOp = VK_BLEND_OP_ADD;
+    _colorBlendAttachment.srcAlphaBlendFactor = VK_BLEND_FACTOR_ONE;
+    _colorBlendAttachment.dstAlphaBlendFactor = VK_BLEND_FACTOR_ZERO;
+    _colorBlendAttachment.alphaBlendOp = VK_BLEND_OP_ADD;
 }
