@@ -52,7 +52,7 @@ public:
 	bool _isInitialized{ false };
 	int _frameNumber {0};
 	bool stop_rendering{ false };
-	VkExtent2D _windowExtent{ 1700 , 900 };
+	VkExtent2D _windowExtent{ 2560 , 1440 };
 
 	struct SDL_Window* _window{ nullptr };
 
@@ -91,6 +91,7 @@ public:
     AllocatedImage _drawImage;
     AllocatedImage _depthImage;
     VkExtent2D _drawExtent;
+    float renderScale = 1.f;
 
     DescriptorAllocator globalDescriptorAllocator;
 
@@ -118,6 +119,8 @@ public:
     GPUMeshBuffers uploadMesh(std::span<uint32_t> indices, std::span<Vertex> vertices);
 
     std::vector<std::shared_ptr<MeshAsset>> testMeshes;
+
+    bool resize_requested;
 
 private:
 
@@ -155,7 +158,7 @@ private:
 
     void destroy_buffer(const AllocatedBuffer &buffer);
 
-
+    void resize_swapchain();
 
     void init_mesh_pipeline();
 
