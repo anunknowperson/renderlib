@@ -22,7 +22,7 @@ int main(int argc, char* args[])
     // We initialize SDL and create a window with it.
     SDL_Init(SDL_INIT_VIDEO);
 
-    auto window_flags = (SDL_WindowFlags)(SDL_WINDOW_VULKAN);
+    SDL_WindowFlags window_flags = (SDL_WindowFlags)(SDL_WINDOW_VULKAN | SDL_WINDOW_RESIZABLE);
 
     struct SDL_Window* window{ nullptr };
 
@@ -75,8 +75,11 @@ int main(int argc, char* args[])
         ImGui_ImplSDL2_NewFrame();
         ImGui::NewFrame();
 
-        //some imgui UI to test
-        ImGui::ShowDemoWindow();
+        if (ImGui::Begin("background")) {
+            ImGui::SliderFloat("Render Scale",&engine.renderScale, 0.3f, 1.f);
+            //other code
+        }
+        ImGui::End();
 
         //make imgui calculate internal draw structures
         ImGui::Render();
