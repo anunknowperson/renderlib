@@ -11,8 +11,14 @@ endif()
 
 project ("renderlib")
 
+# resources
+set(ASSETS_DIR "${CMAKE_SOURCE_DIR}/assets")
+
+
 # Добавьте источник в исполняемый файл этого проекта.
 add_executable (${PROJECT_NAME})
+configure_file(config.h.in ${CMAKE_CURRENT_SOURCE_DIR}/include/core/config.h @ONLY)
+
 
 # Собираем шейдеры
 
