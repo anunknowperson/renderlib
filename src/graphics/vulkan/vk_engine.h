@@ -7,9 +7,40 @@
 #include "vk_descriptors.h"
 #include "vk_pipelines.h"
 #include "vk_loader.h"
+#include "camera.h"
 
 
 constexpr unsigned int FRAME_OVERLAP = 2;
+
+struct GLTFMetallic_Roughness {
+    MaterialPipeline opaquePipeline;
+    MaterialPipeline transparentPipeline;
+
+    VkDescriptorSetLayout materialLayout;
+
+    struct MaterialConstants {
+        glm::vec4 colorFactors;
+        glm::vec4 metal_rough_factors;
+        //padding, we need it anyway for uniform buffers
+        glm::vec4 extra[14];
+    };
+
+    struct MaterialResources {
+        AllocatedImage colorImage;
+        VkSampler colorSampler;
+        AllocatedImage metalRoughImage;
+        VkSampler metalRoughSampler;
+        VkBuffer dataBuffer;
+        uint32_t dataBufferOffset;
+    };
+
+    DescriptorWriter writer;
+
+    void build_pipelines(VulkanEngine* engine);
+    void clear_resources(VkDevice device);
+
+    MaterialInstance write_material(VkDevice device, MaterialPass pass, const MaterialResources& resources, DescriptorAllocatorGrowable& descriptorAllocator);
+};
 
 struct DeletionQueue
 {
@@ -50,8 +81,36 @@ struct GPUSceneData {
     glm::vec4 sunlightColor;
 };
 
+struct MeshNode : public ENode {
+
+    std::shared_ptr<MeshAsset> mesh;
+
+    virtual void Draw(const glm::mat4& topMatrix, DrawContext& ctx) override;
+};
+struct RenderObject {
+    uint32_t indexCount;
+    uint32_t firstIndex;
+    VkBuffer indexBuffer;
+
+    MaterialInstance* material;
+
+    glm::mat4 transform;
+    VkDeviceAddress vertexBufferAddress;
+};
+
+struct DrawContext {
+    std::vector<RenderObject> OpaqueSurfaces;
+};
+
 class VulkanEngine {
 public:
+    Camera mainCamera;
+
+    DrawContext mainDrawContext;
+    std::unordered_map<std::string, std::shared_ptr<ENode>> loadedNodes;
+
+    void update_scene();
+
 	FrameData _frames[FRAME_OVERLAP];
 
 	FrameData& get_current_frame() { return _frames[_frameNumber % FRAME_OVERLAP]; };
@@ -80,6 +139,8 @@ public:
 	//run main loop
 	void update();
 
+    void костыль(SDL_Event& e);
+
 
 	VkInstance _instance;// Vulkan library handle
 	VkDebugUtilsMessengerEXT _debug_messenger;// Vulkan debug output handle
@@ -103,7 +164,7 @@ public:
     VkExtent2D _drawExtent;
     float renderScale = 1.f;
 
-    DescriptorAllocator globalDescriptorAllocator;
+    DescriptorAllocatorGrowable globalDescriptorAllocator;
 
     VkDescriptorSet _drawImageDescriptors;
     VkDescriptorSetLayout _drawImageDescriptorLayout;
@@ -150,6 +211,9 @@ public:
     VkSampler _defaultSamplerNearest;
 
     VkDescriptorSetLayout _singleImageDescriptorLayout;
+
+    MaterialInstance defaultData;
+    GLTFMetallic_Roughness metalRoughMaterial;
 
 private:
 
