@@ -60,7 +60,9 @@ int main(int argc, char* args[])
                 }
             }
 
+            engine.костыль(e);
             ImGui_ImplSDL2_ProcessEvent(&e);
+
         }
 
         // do not draw if we are minimized
