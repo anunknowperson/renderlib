@@ -19,7 +19,6 @@
 #include "backends/imgui_impl_vulkan.h"
 #include "vk_loader.h"
 
-#define GLM_FORCE_DEPTH_ZERO_TO_ONE
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/transform.hpp>
 
@@ -206,7 +205,7 @@ void VulkanEngine::init_mesh_pipeline() {
     pipelineBuilder.disable_blending();
 
     //pipelineBuilder.disable_depthtest();
-    pipelineBuilder.enable_depthtest(true, VK_COMPARE_OP_GREATER_OR_EQUAL);
+    pipelineBuilder.enable_depthtest(true, VK_COMPARE_OP_GREATER );
 
     //connect the image format we will draw into, from draw image
     pipelineBuilder.set_color_attachment_format(_drawImage.imageFormat);
@@ -882,6 +881,7 @@ void VulkanEngine::draw_geometry(VkCommandBuffer cmd)
     viewport.minDepth = 0.f;
     viewport.maxDepth = 1.f;
 
+    
     vkCmdSetViewport(cmd, 0, 1, &viewport);
 
     VkRect2D scissor = {};
@@ -1273,17 +1273,17 @@ void MeshNode::Draw(const glm::mat4& topMatrix, DrawContext& ctx)
     ENode::Draw(topMatrix, ctx);
 }
 
+
 void VulkanEngine::update_scene()
 {
     mainCamera.update();
 
     glm::mat4 view = mainCamera.getViewMatrix();
 
-    // camera projection
-    glm::mat4 projection = glm::perspective(glm::radians(70.f), (float)_windowExtent.width / (float)_windowExtent.height, 0.1f, 10000.f);
+    glm::mat4 projection = glm::perspective(glm::radians(70.f), (float)_windowExtent.width / (float)_windowExtent.height, 10000.f, 0.1f);
 
     // invert the Y direction on projection matrix so that we are more similar
-    
+
     // to opengl and gltf axis
     projection[1][1] *= -1;
 
