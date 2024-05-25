@@ -1,5 +1,7 @@
-#include "vk_types.h"
-#include <SDL_events.h>
+#pragma once
+
+#include "graphics/vulkan/vk_types.h"
+#include "SDL2/SDL_events.h"
 
 class Camera {
 public:
