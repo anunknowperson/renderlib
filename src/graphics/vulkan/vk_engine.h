@@ -7,7 +7,7 @@
 #include "vk_descriptors.h"
 #include "vk_pipelines.h"
 #include "vk_loader.h"
-#include "camera.h"
+#include "scene/Camera.h"
 
 
 constexpr unsigned int FRAME_OVERLAP = 2;
@@ -104,7 +104,7 @@ struct DrawContext {
 
 class VulkanEngine {
 public:
-    Camera mainCamera;
+    Camera* mainCamera;
 
     DrawContext mainDrawContext;
     std::unordered_map<std::string, std::shared_ptr<ENode>> loadedNodes;
@@ -138,8 +138,6 @@ public:
 
 	//run main loop
 	void update();
-
-    void костыль(SDL_Event& e);
 
 
 	VkInstance _instance;// Vulkan library handle

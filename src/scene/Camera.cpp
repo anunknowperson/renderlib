@@ -1,7 +1,7 @@
-#include "camera.h"
+#include "Camera.h"
 #define GLM_ENABLE_EXPERIMENTAL
-#include <glm/gtx/transform.hpp>
-#include <glm/gtx/quaternion.hpp>
+#include "glm/gtx/transform.hpp"
+#include "glm/gtx/quaternion.hpp"
 
 void Camera::update()
 {
