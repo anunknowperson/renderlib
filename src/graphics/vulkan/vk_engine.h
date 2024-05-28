@@ -104,6 +104,8 @@ struct DrawContext {
 
 class VulkanEngine {
 public:
+    std::unordered_map<std::string, std::shared_ptr<LoadedGLTF>> loadedScenes;
+
     Camera* mainCamera;
 
     DrawContext mainDrawContext;
@@ -213,6 +215,8 @@ public:
     MaterialInstance defaultData;
     GLTFMetallic_Roughness metalRoughMaterial;
 
+    AllocatedBuffer create_buffer(size_t allocSize, VkBufferUsageFlags usage, VmaMemoryUsage memoryUsage);
+
 private:
 
 	static VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(
@@ -244,8 +248,6 @@ private:
 
 
     void draw_geometry(VkCommandBuffer cmd);
-
-    AllocatedBuffer create_buffer(size_t allocSize, VkBufferUsageFlags usage, VmaMemoryUsage memoryUsage);
 
     void destroy_buffer(const AllocatedBuffer &buffer);
 
