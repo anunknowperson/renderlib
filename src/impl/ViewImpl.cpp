@@ -19,6 +19,7 @@
 #include "backends/imgui_impl_vulkan.h"
 
 #include "impl/ViewImpl.h"
+#include "graphics/vulkan/vk_engine.h"
 
 /*
 namespace
@@ -226,6 +227,9 @@ void ViewImpl::run() const {
 
     _model->registerWindow(window);
 
+
+    _controller->init();
+
     SDL_Event e;
     bool bQuit = false;
 
@@ -266,7 +270,9 @@ void ViewImpl::run() const {
         ImGui::NewFrame();
 
         if (ImGui::Begin("background")) {
-            //ImGui::SliderFloat("Render Scale",&engine.renderScale, 0.3f, 1.f);
+
+            VulkanEngine& engine = VulkanEngine::Get();
+            ImGui::SliderFloat("Render Scale",&engine.renderScale, 0.3f, 1.f);
             //other code
         }
         ImGui::End();
@@ -275,8 +281,9 @@ void ViewImpl::run() const {
         ImGui::Render();
 
 
+        _controller->update();
+        //_model->updateVulkan();
 
-        _model->updateVulkan();
         //engine.update();
 
     }
