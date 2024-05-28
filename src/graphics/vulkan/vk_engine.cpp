@@ -1305,13 +1305,47 @@ void VulkanEngine::update_scene()
     sceneData.sunlightColor = glm::vec4(1.f);
     sceneData.sunlightDirection = glm::vec4(0,1,0.5,1.f);
 
-    for (int x = -3; x < 3; x++) {
+    for (const auto& [key, mesh] : meshes) {
+        std::shared_ptr<LoadedGLTF> loadedMesh = mesh;
 
-        glm::mat4 scale = glm::scale(glm::vec3{0.2});
-        glm::mat4 translation =  glm::translate(glm::vec3{x, 1, 0});
-
-        loadedScenes["structure"]->Draw(translation * scale, mainDrawContext);
+        loadedMesh->Draw(transforms[key], mainDrawContext);
     }
 
 
+}
+
+
+int64_t VulkanEngine::registerMesh(std::string filePath) {
+
+    std::random_device rd;
+
+    // Use the Mersenne Twister engine for high-quality random numbers
+    std::mt19937_64 generator(rd());
+
+    // Create a uniform distribution for int64_t
+    std::uniform_int_distribution<int64_t> distribution;
+
+    // Generate and print a random int64_t value
+    int64_t random_int64 = distribution(generator);
+
+    std::string structurePath = { std::string(ASSETS_DIR) + filePath };
+    auto structureFile = loadGltf(this,structurePath);
+
+    assert(structureFile.has_value());
+
+    meshes[random_int64] = *structureFile;
+    transforms[random_int64] = glm::mat4(1.0f);
+
+    return random_int64;
+
+}
+
+void VulkanEngine::unregisterMesh(int64_t id) {
+
+    meshes.erase(id);
+    transforms.erase(id);
+}
+
+void VulkanEngine::setMeshTransform(int64_t id, glm::mat4 mat) {
+    transforms[id] = mat;
 }
