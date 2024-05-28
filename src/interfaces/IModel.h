@@ -23,6 +23,9 @@ public:
 
     virtual void updateVulkan() = 0;
 
+    virtual void createMesh(std::string name) = 0;
+    virtual void setMeshTransform(std::string name, glm::mat4x4 transform) = 0;
+
     [[nodiscard]] virtual Camera* getCamera() = 0;
 
 	/*! \brief

@@ -8,6 +8,8 @@
 #include "vk_pipelines.h"
 #include "vk_loader.h"
 #include "scene/Camera.h"
+#include "core/Mesh.h"
+#include <random>
 
 
 constexpr unsigned int FRAME_OVERLAP = 2;
@@ -104,6 +106,15 @@ struct DrawContext {
 
 class VulkanEngine {
 public:
+    int64_t registerMesh(std::string filePath);
+    void unregisterMesh(int64_t id);
+
+    void setMeshTransform(int64_t id, glm::mat4 mat);
+
+    std::unordered_map<int64_t, std::shared_ptr<LoadedGLTF>> meshes;
+
+    std::unordered_map<int64_t, glm::mat4> transforms;
+
     std::unordered_map<std::string, std::shared_ptr<LoadedGLTF>> loadedScenes;
 
     Camera* mainCamera;

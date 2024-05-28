@@ -11,6 +11,7 @@ public:
 	/*void setBrightness(uint16_t lvl) const override;
 	void setColor(Color Color) const override;*/
 
+    void init() const override;
     void update() const override;
     void processEvent(SDL_Event& e) const override;
 

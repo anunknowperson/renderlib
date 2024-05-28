@@ -12,6 +12,7 @@ int main(int argc, char *args[]) {
         auto const controller = createController(model);
         auto const view = createView(controller, model);
 
+
         view->run();
     }
     catch (std::runtime_error const &e) {

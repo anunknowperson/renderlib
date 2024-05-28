@@ -17,6 +17,8 @@ class IController
 public:
 	virtual ~IController() = default;
 
+    virtual void init() const = 0;
+
     virtual void update() const = 0;
 
     virtual void processEvent(SDL_Event& e) const = 0;
