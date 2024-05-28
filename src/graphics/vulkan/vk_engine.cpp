@@ -144,19 +144,6 @@ void VulkanEngine::init_default_data() {
 
     defaultData = metalRoughMaterial.write_material(_device,MaterialPass::MainColor,materialResources, globalDescriptorAllocator);
 
-    for (auto& m : testMeshes) {
-        std::shared_ptr<MeshNode> newNode = std::make_shared<MeshNode>();
-        newNode->mesh = m;
-
-        newNode->localTransform = glm::mat4{ 1.f };
-        newNode->worldTransform = glm::mat4{ 1.f };
-
-        for (auto& s : newNode->mesh->surfaces) {
-            s.material = std::make_shared<GLTFMaterial>(defaultData);
-        }
-
-        loadedNodes[m->name] = std::move(newNode);
-    }
 
 }
 
@@ -429,6 +416,15 @@ void VulkanEngine::init(struct SDL_Window* window)
 
     mainCamera->pitch = 0;
     mainCamera->yaw = 0;
+
+    std::string structurePath = { std::string(ASSETS_DIR) + "/basicmesh.glb" };
+    auto structureFile = loadGltf(this,structurePath);
+
+    assert(structureFile.has_value());
+
+    loadedScenes["structure"] = *structureFile;
+
+
 
     // everything went fine
     _isInitialized = true;
@@ -713,6 +709,9 @@ void VulkanEngine::cleanup()
     if (_isInitialized) {
         //make sure the gpu has stopped doing its things
         vkDeviceWaitIdle(_device);
+
+        loadedScenes.clear();
+
         _mainDeletionQueue.flush();
 
         for (int i = 0; i < FRAME_OVERLAP; i++) {
@@ -734,6 +733,7 @@ void VulkanEngine::cleanup()
 
         vkb::destroy_debug_utils_messenger(_instance, _debug_messenger);
         vkDestroyInstance(_instance, nullptr);
+
 
     }
 
@@ -1295,8 +1295,6 @@ void VulkanEngine::update_scene()
 
     mainDrawContext.OpaqueSurfaces.clear();
 
-    loadedNodes["Suzanne"]->Draw(glm::mat4{1.f}, mainDrawContext);
-
 
     // invert the Y direction on projection matrix so that we are more similar
     // to opengl and gltf axis
@@ -1312,6 +1310,8 @@ void VulkanEngine::update_scene()
         glm::mat4 scale = glm::scale(glm::vec3{0.2});
         glm::mat4 translation =  glm::translate(glm::vec3{x, 1, 0});
 
-        loadedNodes["Cube"]->Draw(translation * scale, mainDrawContext);
+        loadedScenes["structure"]->Draw(translation * scale, mainDrawContext);
     }
+
+
 }

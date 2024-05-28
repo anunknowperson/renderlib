@@ -21,7 +21,9 @@ add_executable (${PROJECT_NAME}
         src/View.cpp
         src/View.h
         src/Model.cpp
-        src/Model.h)
+        src/Model.h
+        src/core/Mesh.cpp
+        src/core/Mesh.h)
 configure_file(config.h.in ${CMAKE_CURRENT_SOURCE_DIR}/include/core/config.h @ONLY)
 
 # Собираем шейдеры
