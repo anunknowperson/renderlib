@@ -461,4 +461,7 @@ FodyWeavers.xsd
 # CLion folders
 .idea/
 cmake-build-debug/
-cmake-build-debug-clang/
+cmake-build-debug-clang/!/html/
+!/latex/
+!/Doxyfile.bak
+!/html/
