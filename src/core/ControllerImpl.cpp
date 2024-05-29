@@ -6,7 +6,7 @@
 #include <utility>
 #include <chrono>
 
-#include "impl/ControllerImpl.h"
+#include "core/ControllerImpl.h"
 
 
 #define GLM_ENABLE_EXPERIMENTAL

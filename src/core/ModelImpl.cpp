@@ -5,7 +5,7 @@
 #include <cstring>
 #include <iostream>
 
-#include "impl/ModelImpl.h"
+#include "core/ModelImpl.h"
 
 namespace {
 

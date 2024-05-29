@@ -18,7 +18,7 @@
 #include "backends/imgui_impl_sdl2.h"
 #include "backends/imgui_impl_vulkan.h"
 
-#include "impl/ViewImpl.h"
+#include "core/ViewImpl.h"
 #include "graphics/vulkan/vk_engine.h"
 
 /*
