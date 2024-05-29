@@ -14,11 +14,9 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char *args[]) {
 
 
         view->run();
-    }
-    catch (std::runtime_error const &e) {
+    } catch (std::runtime_error const &e) {
         std::cerr << "Unhandled exception: " << e.what() << '\n';
     }
 
     return 0;
-
 }
