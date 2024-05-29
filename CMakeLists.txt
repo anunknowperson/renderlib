@@ -18,6 +18,8 @@ set(ASSETS_DIR "${CMAKE_SOURCE_DIR}/assets")
 add_executable (${PROJECT_NAME})
 configure_file(config.h.in ${CMAKE_CURRENT_SOURCE_DIR}/include/core/config.h @ONLY)
 
+
+
 # Собираем шейдеры
 
 set(BUILD_SHADERS_SCRIPT "${CMAKE_SOURCE_DIR}/build_shaders.py")
