@@ -1,22 +1,22 @@
 #pragma once
 
-
 #include <filesystem>
 
 #include "glm/detail/type_mat4x4.hpp"
 #include "graphics/vulkan/vk_engine.h"
 
-class Mesh {
+class Mesh
+{
 
 public:
-    Mesh(std::string filePath);
-    ~Mesh();
+	Mesh(std::string filePath);
+	~Mesh();
 
-    void set_transform(glm::mat4 t);
-    glm::mat4 get_transform(glm::mat4 t);
+	void set_transform(glm::mat4 t);
+	glm::mat4 get_transform(glm::mat4 t);
 
 private:
-    glm::mat4 _transform;
+	glm::mat4 _transform;
 
-    int64_t _rid;
+	int64_t _rid;
 };
