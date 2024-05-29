@@ -1,25 +1,21 @@
-﻿//> includes
-#include "vk_engine.h"
+﻿#include "vk_engine.h"
 #include "core/config.h"
-
-#include <SDL_vulkan.h>
 
 #define VMA_IMPLEMENTATION
 #include "vk_mem_alloc.h"
-
 #include "vk_images.h"
 #include "vk_initializers.h"
 #include "vk_types.h"
-
 #include "VkBootstrap.h"
 
 #include "backends/imgui_impl_sdl2.h"
 #include "backends/imgui_impl_vulkan.h"
 #include "imgui.h"
+#include "SDL_vulkan.h"
 #include "vk_loader.h"
 
 #define GLM_ENABLE_EXPERIMENTAL
-#include <glm/gtx/transform.hpp>
+#include "glm/gtx/transform.hpp"
 
 VulkanEngine* loadedEngine = nullptr;
 

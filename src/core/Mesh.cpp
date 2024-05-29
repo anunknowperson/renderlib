@@ -1,7 +1,3 @@
-//
-// Created by User on 28.05.2024.
-//
-
 #include "core/Mesh.h"
 
 
