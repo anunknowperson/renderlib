@@ -3,7 +3,6 @@
 
 #include "core/ModelImpl.h"
 
-IModel::Ptr createModel()
-{
-	return std::make_shared<ModelImpl>();
+IModel::Ptr createModel() {
+    return std::make_shared<ModelImpl>();
 }
