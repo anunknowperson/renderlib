@@ -1,23 +1,21 @@
-﻿// vulkan_guide.h : Include file for standard system include files,
-// or project specific include files.
-#pragma once
+﻿#pragma once
 
+#include <array>
+#include <deque>
+#include <functional>
 #include <memory>
 #include <optional>
 #include <string>
-#include <vector>
 #include <span>
-#include <array>
-#include <functional>
-#include <deque>
-
-#include <vulkan/vulkan.h>
-#include <vk_mem_alloc.h>
+#include <vector>
 
 #include "core/Logging.h"
 
-#include <glm/mat4x4.hpp>
-#include <glm/vec4.hpp>
+#include "glm/mat4x4.hpp"
+#include "glm/vec4.hpp"
+
+#include "vulkan/vulkan.h"
+#include "vk_mem_alloc.h"
 
 #define VK_CHECK(x)                                                     \
     do {                                                                \

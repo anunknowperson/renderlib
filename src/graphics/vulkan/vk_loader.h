@@ -1,9 +1,10 @@
 ﻿#pragma once
 
-#include "vk_types.h"
-#include "vk_descriptors.h"
-#include <unordered_map>
 #include <filesystem>
+#include <unordered_map>
+
+#include "vk_descriptors.h"
+#include "vk_types.h"
 
 struct GLTFMaterial
 {
