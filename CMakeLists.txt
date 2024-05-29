@@ -15,15 +15,7 @@ project ("renderlib")
 set(ASSETS_DIR "${CMAKE_SOURCE_DIR}/assets")
 
 # Добавьте источник в исполняемый файл этого проекта.
-add_executable (${PROJECT_NAME}
-        src/Controller.cpp
-        src/Controller.h
-        src/View.cpp
-        src/View.h
-        src/Model.cpp
-        src/Model.h
-        src/core/Mesh.cpp
-        src/core/Mesh.h)
+add_executable (${PROJECT_NAME})
 configure_file(config.h.in ${CMAKE_CURRENT_SOURCE_DIR}/include/core/config.h @ONLY)
 
 # Собираем шейдеры

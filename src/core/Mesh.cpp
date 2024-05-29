@@ -2,7 +2,7 @@
 // Created by User on 28.05.2024.
 //
 
-#include "Mesh.h"
+#include "core/Mesh.h"
 
 
 Mesh::Mesh(std::string filePath) {

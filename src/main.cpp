@@ -1,8 +1,8 @@
 ﻿#include <iostream>
 
-#include "Controller.h"
-#include "Model.h"
-#include "View.h"
+#include "core/Controller.h"
+#include "core/Model.h"
+#include "core/View.h"
 
 
 int main(int argc, char *args[]) {
