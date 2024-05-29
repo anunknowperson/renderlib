@@ -1,10 +1,10 @@
 #pragma once
 
+#include "SDL.h"
 #include <cstdint>
 #include <expected>
 #include <memory>
 #include <string_view>
-#include "SDL.h"
 
 /*! \brief
  * Interface for interacting with the chip that allows changing keyboard backlight settings.
@@ -43,7 +43,7 @@ public:
      *
      * This method processes the incoming SDL event and performs necessary actions.
      */
-    virtual void processEvent(SDL_Event& e) const = 0;
+    virtual void processEvent(SDL_Event &e) const = 0;
 
     /*!
      * \brief Sends data to change the brightness of the backlight.
