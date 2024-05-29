@@ -1,10 +1,10 @@
 #pragma once
 
-#include "SDL.h"
 #include <cstdint>
 #include <expected>
 #include <memory>
 #include <string_view>
+#include "SDL.h"
 
 /*! \brief
  * Interface for interacting with the chip that allows changing keyboard backlight settings.

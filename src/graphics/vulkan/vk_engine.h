@@ -1,15 +1,14 @@
-﻿// vulkan_guide.h : Include file for standard system include files,
-// or project specific include files.
+﻿#pragma once
 
-#pragma once
-
-#include "vk_types.h"
-#include "vk_descriptors.h"
-#include "vk_pipelines.h"
-#include "vk_loader.h"
-#include "scene/Camera.h"
-#include "core/Mesh.h"
 #include <random>
+
+#include "vk_descriptors.h"
+#include "vk_loader.h"
+#include "vk_types.h"
+#include "vk_pipelines.h"
+
+#include "core/Mesh.h"
+#include "scene/Camera.h"
 
 constexpr unsigned int FRAME_OVERLAP = 2;
 

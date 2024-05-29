@@ -5,8 +5,8 @@
 #include <memory>
 #include <string_view>
 
-#include <SDL.h>
-#include <SDL_vulkan.h>
+#include "SDL.h"
+#include "SDL_vulkan.h"
 #include "scene/Camera.h"
 
 

@@ -1,9 +1,9 @@
-﻿#include "stb_image.h"
-#include <iostream>
-#include "vk_loader.h"
+﻿#include <iostream>
 
+#include "stb_image.h"
+
+#include "vk_loader.h"
 #include "vk_engine.h"
-#include "vk_initializers.h"
 #include "vk_types.h"
 
 #define GLM_ENABLE_EXPERIMENTAL
