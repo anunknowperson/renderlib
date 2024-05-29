@@ -6,7 +6,7 @@
 
 class ModelImpl : public IModel {
 public:
-    /*! \brief
+	/*! \brief
 	 * throws std::runtime_error()
 	 */
     ModelImpl();
