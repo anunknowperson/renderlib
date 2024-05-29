@@ -209,9 +209,9 @@ public:
     VkDescriptorSetLayout _gpuSceneDataDescriptorLayout;
 
 
-    AllocatedImage create_image(VkExtent3D size, VkFormat format, VkImageUsageFlags usage, bool mipmapped = false);
+    AllocatedImage create_image(VkExtent3D size, VkFormat format, VkImageUsageFlags usage, bool mipmapped = false) const;
     AllocatedImage create_image(void* data, VkExtent3D size, VkFormat format, VkImageUsageFlags usage, bool mipmapped = false);
-    void destroy_image(const AllocatedImage& img);
+    void destroy_image(const AllocatedImage& img) const;
 
     AllocatedImage _whiteImage;
     AllocatedImage _blackImage;
@@ -226,7 +226,7 @@ public:
     MaterialInstance defaultData;
     GLTFMetallic_Roughness metalRoughMaterial;
 
-    AllocatedBuffer create_buffer(size_t allocSize, VkBufferUsageFlags usage, VmaMemoryUsage memoryUsage);
+    AllocatedBuffer create_buffer(size_t allocSize, VkBufferUsageFlags usage, VmaMemoryUsage memoryUsage) const;
 
 private:
 
@@ -255,12 +255,12 @@ private:
 
     void init_triangle_pipeline();
 
-    void draw_imgui(VkCommandBuffer cmd, VkImageView targetImageView);
+    void draw_imgui(VkCommandBuffer cmd, VkImageView targetImageView) const;
 
 
     void draw_geometry(VkCommandBuffer cmd);
 
-    void destroy_buffer(const AllocatedBuffer &buffer);
+    void destroy_buffer(const AllocatedBuffer &buffer) const;
 
     void resize_swapchain();
 
