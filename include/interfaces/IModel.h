@@ -4,6 +4,7 @@
 #include <cstdint>
 #include <memory>
 #include <string_view>
+#include <string>
 
 #include "SDL.h"
 #include "SDL_vulkan.h"
