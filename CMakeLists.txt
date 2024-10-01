@@ -21,7 +21,9 @@ include_directories(${Vulkan_SDK}/include)
 link_directories(${Vulkan_SDK}/lib)
 
 # Добавьте источник в исполняемый файл этого проекта.
-add_executable (${PROJECT_NAME})
+add_executable (${PROJECT_NAME}
+        Scene/Camera.h
+        Scene/Camera.cpp)
 configure_file(config.h.in ${CMAKE_CURRENT_SOURCE_DIR}/include/core/config.h @ONLY)
 
 # Собираем шейдеры
