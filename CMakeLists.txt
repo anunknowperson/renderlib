@@ -1,7 +1,4 @@
-﻿# CMakeList.txt: проект CMake для renderlib; включите исходный код и определения,
-# укажите здесь логику для конкретного проекта.
-#
-cmake_minimum_required (VERSION 3.8)
+﻿cmake_minimum_required (VERSION 3.8)
 
 # Включение горячей перезагрузки для компиляторов MSVC, если поддерживается.
 if (POLICY CMP0141)
@@ -14,16 +11,21 @@ project ("renderlib")
 # resources
 set(ASSETS_DIR "${CMAKE_SOURCE_DIR}/assets")
 
+# Укажите путь к Vulkan SDK (обновите путь на ваш)
+set(Vulkan_SDK "E:/Vulkan") # Замените на ваш путь к Vulkan SDK
+
+# Добавьте пути к заголовкам Vulkan
+include_directories(${Vulkan_SDK}/include)
+
+# Добавьте путь для библиотек Vulkan
+link_directories(${Vulkan_SDK}/lib)
+
 # Добавьте источник в исполняемый файл этого проекта.
 add_executable (${PROJECT_NAME})
 configure_file(config.h.in ${CMAKE_CURRENT_SOURCE_DIR}/include/core/config.h @ONLY)
 
-
-
 # Собираем шейдеры
-
 set(BUILD_SHADERS_SCRIPT "${CMAKE_SOURCE_DIR}/build_shaders.py")
-
 set(SHADERS_SOURCE_DIR "${CMAKE_SOURCE_DIR}/shaders")
 set(SHADERS_DEST_DIR "${CMAKE_BINARY_DIR}/shaders")
 
@@ -44,7 +46,6 @@ foreach(SPV_FILE ${SPV_SHADERS})
 endforeach()
 
 # Компиляция C++
-
 file(GLOB_RECURSE SOURCES "src/*.cpp")
 
 target_include_directories(${PROJECT_NAME} PRIVATE
@@ -58,6 +59,7 @@ if (CMAKE_VERSION VERSION_GREATER 3.12)
   set_property(TARGET ${PROJECT_NAME} PROPERTY CXX_STANDARD 20)
 endif()
 
+# Подключение библиотек
 find_package(spdlog CONFIG REQUIRED)
 target_link_libraries(${PROJECT_NAME} PRIVATE spdlog::spdlog)
 
@@ -80,10 +82,11 @@ target_link_libraries(${PROJECT_NAME} PRIVATE vk-bootstrap::vk-bootstrap)
 find_package(Vulkan REQUIRED)
 target_link_libraries(${PROJECT_NAME} PRIVATE Vulkan::Vulkan)
 
+# Подключение VulkanMemoryAllocator
 find_package(VulkanMemoryAllocator CONFIG REQUIRED)
 target_link_libraries(${PROJECT_NAME} PRIVATE Vulkan::Vulkan GPUOpen::VulkanMemoryAllocator)
 
-#imgui
+# imgui
 set(IMGUI_DIR ${CMAKE_SOURCE_DIR}/vendor/imgui)
 add_library(imgui
         ${IMGUI_DIR}/imgui.cpp
@@ -100,5 +103,3 @@ target_include_directories(${PROJECT_NAME} PRIVATE ${Stb_INCLUDE_DIR})
 
 find_package(fastgltf CONFIG REQUIRED)
 target_link_libraries(${PROJECT_NAME} PRIVATE fastgltf::fastgltf)
-
-
