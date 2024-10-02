@@ -1,3 +1,3 @@
 #pragma once
 
-#define ASSETS_DIR "/home/tydik/CLionProjects/renderlib/assets"
+#define ASSETS_DIR "D:/renderlib/assets"
