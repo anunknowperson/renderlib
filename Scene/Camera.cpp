@@ -10,7 +10,11 @@ Camera::Camera()
           fov(45.0f),
           width(800.0f),
           height(600.0f),
-          viewMatrix(glm::mat4(1.0f)) {
+          viewMatrix(glm::mat4(1.0f)),
+          velocity(glm::vec3(0.0f)),
+          pitch(0.0f),
+          yaw(0.0f)
+{
     updateViewMatrix();
 }
 
@@ -21,8 +25,17 @@ Camera::Camera(const glm::vec3& position, float fov, float width, float height)
           fov(fov),
           width(width),
           height(height),
-          viewMatrix(glm::mat4(1.0f)) {
+          viewMatrix(glm::mat4(1.0f)),
+          velocity(glm::vec3(0.0f)),
+          pitch(0.0f),
+          yaw(0.0f)
+{
     updateViewMatrix();
+}
+
+// Метод для получения текущего вращения камеры
+glm::quat Camera::getRotation() const {
+    return rotation;
 }
 
 void Camera::lookAt(const glm::vec3& target) {
@@ -67,4 +80,42 @@ void Camera::processSDLEvent(const SDL_Event& event) {
     if (event.type == SDL_KEYDOWN) {
         // Обработка нажатий клавиш
     }
+}
+
+// Реализация метода для получения FOV
+float Camera::getFOV() const {
+    return fov;
+}
+
+// Реализация метода для получения направления камеры
+glm::vec3 Camera::getDirection() const {
+    return direction;
+}
+
+// Реализация методов для работы с velocity
+void Camera::setVelocity(const glm::vec3& newVelocity) {
+    velocity = newVelocity;
+}
+
+glm::vec3 Camera::getVelocity() const {
+    return velocity;
+}
+
+// Реализация методов для работы с pitch и yaw
+void Camera::setPitch(float newPitch) {
+    pitch = newPitch;
+    updateViewMatrix(); // Обновляем матрицу вида при изменении угла
+}
+
+float Camera::getPitch() const {
+    return pitch;
+}
+
+void Camera::setYaw(float newYaw) {
+    yaw = newYaw;
+    updateViewMatrix(); // Обновляем матрицу вида при изменении угла
+}
+
+float Camera::getYaw() const {
+    return yaw;
 }
