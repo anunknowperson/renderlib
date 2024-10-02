@@ -296,7 +296,7 @@ build renderlib.exe: CXX_EXECUTABLE_LINKER__renderlib_Debug CMakeFiles\renderlib
 build cmake_object_order_depends_target_imgui: phony || CMakeFiles\imgui.dir
 
 build CMakeFiles\imgui.dir\vendor\imgui\imgui.cpp.obj: CXX_COMPILER__imgui_unscanned_Debug C$:\Users\offic\renderlib\vendor\imgui\imgui.cpp || cmake_object_order_depends_target_imgui
-  FLAGS = /DWIN32 /D_WINDOWS /W3 /GR /EHsc /MDd /Ob0 /Od /RTC1 -ZI
+  FLAGS = /DWIN32 /D_WINDOWS /W3 /GR /EHsc /MDd /Ob0 /Od /RTC1 -std:c++latest -ZI
   INCLUDES = -IE:\Vulkan\include -IC:\Users\offic\renderlib\vendor\imgui -IC:\vcpkg\installed\x64-windows\include -IC:\Users\offic\renderlib\include -IC:\Users\offic\renderlib\include\scene
   OBJECT_DIR = CMakeFiles\imgui.dir
   OBJECT_FILE_DIR = CMakeFiles\imgui.dir\vendor\imgui
@@ -304,7 +304,7 @@ build CMakeFiles\imgui.dir\vendor\imgui\imgui.cpp.obj: CXX_COMPILER__imgui_unsca
   TARGET_PDB = imgui.pdb
 
 build CMakeFiles\imgui.dir\vendor\imgui\imgui_draw.cpp.obj: CXX_COMPILER__imgui_unscanned_Debug C$:\Users\offic\renderlib\vendor\imgui\imgui_draw.cpp || cmake_object_order_depends_target_imgui
-  FLAGS = /DWIN32 /D_WINDOWS /W3 /GR /EHsc /MDd /Ob0 /Od /RTC1 -ZI
+  FLAGS = /DWIN32 /D_WINDOWS /W3 /GR /EHsc /MDd /Ob0 /Od /RTC1 -std:c++latest -ZI
   INCLUDES = -IE:\Vulkan\include -IC:\Users\offic\renderlib\vendor\imgui -IC:\vcpkg\installed\x64-windows\include -IC:\Users\offic\renderlib\include -IC:\Users\offic\renderlib\include\scene
   OBJECT_DIR = CMakeFiles\imgui.dir
   OBJECT_FILE_DIR = CMakeFiles\imgui.dir\vendor\imgui
@@ -312,7 +312,7 @@ build CMakeFiles\imgui.dir\vendor\imgui\imgui_draw.cpp.obj: CXX_COMPILER__imgui_
   TARGET_PDB = imgui.pdb
 
 build CMakeFiles\imgui.dir\vendor\imgui\imgui_widgets.cpp.obj: CXX_COMPILER__imgui_unscanned_Debug C$:\Users\offic\renderlib\vendor\imgui\imgui_widgets.cpp || cmake_object_order_depends_target_imgui
-  FLAGS = /DWIN32 /D_WINDOWS /W3 /GR /EHsc /MDd /Ob0 /Od /RTC1 -ZI
+  FLAGS = /DWIN32 /D_WINDOWS /W3 /GR /EHsc /MDd /Ob0 /Od /RTC1 -std:c++latest -ZI
   INCLUDES = -IE:\Vulkan\include -IC:\Users\offic\renderlib\vendor\imgui -IC:\vcpkg\installed\x64-windows\include -IC:\Users\offic\renderlib\include -IC:\Users\offic\renderlib\include\scene
   OBJECT_DIR = CMakeFiles\imgui.dir
   OBJECT_FILE_DIR = CMakeFiles\imgui.dir\vendor\imgui
@@ -320,7 +320,7 @@ build CMakeFiles\imgui.dir\vendor\imgui\imgui_widgets.cpp.obj: CXX_COMPILER__img
   TARGET_PDB = imgui.pdb
 
 build CMakeFiles\imgui.dir\vendor\imgui\imgui_tables.cpp.obj: CXX_COMPILER__imgui_unscanned_Debug C$:\Users\offic\renderlib\vendor\imgui\imgui_tables.cpp || cmake_object_order_depends_target_imgui
-  FLAGS = /DWIN32 /D_WINDOWS /W3 /GR /EHsc /MDd /Ob0 /Od /RTC1 -ZI
+  FLAGS = /DWIN32 /D_WINDOWS /W3 /GR /EHsc /MDd /Ob0 /Od /RTC1 -std:c++latest -ZI
   INCLUDES = -IE:\Vulkan\include -IC:\Users\offic\renderlib\vendor\imgui -IC:\vcpkg\installed\x64-windows\include -IC:\Users\offic\renderlib\include -IC:\Users\offic\renderlib\include\scene
   OBJECT_DIR = CMakeFiles\imgui.dir
   OBJECT_FILE_DIR = CMakeFiles\imgui.dir\vendor\imgui
@@ -328,7 +328,7 @@ build CMakeFiles\imgui.dir\vendor\imgui\imgui_tables.cpp.obj: CXX_COMPILER__imgu
   TARGET_PDB = imgui.pdb
 
 build CMakeFiles\imgui.dir\vendor\imgui\imgui_demo.cpp.obj: CXX_COMPILER__imgui_unscanned_Debug C$:\Users\offic\renderlib\vendor\imgui\imgui_demo.cpp || cmake_object_order_depends_target_imgui
-  FLAGS = /DWIN32 /D_WINDOWS /W3 /GR /EHsc /MDd /Ob0 /Od /RTC1 -ZI
+  FLAGS = /DWIN32 /D_WINDOWS /W3 /GR /EHsc /MDd /Ob0 /Od /RTC1 -std:c++latest -ZI
   INCLUDES = -IE:\Vulkan\include -IC:\Users\offic\renderlib\vendor\imgui -IC:\vcpkg\installed\x64-windows\include -IC:\Users\offic\renderlib\include -IC:\Users\offic\renderlib\include\scene
   OBJECT_DIR = CMakeFiles\imgui.dir
   OBJECT_FILE_DIR = CMakeFiles\imgui.dir\vendor\imgui
@@ -364,7 +364,7 @@ build cmake_object_order_depends_target_CameraTest: phony || CMakeFiles\CameraTe
 
 build CMakeFiles\CameraTest.dir\Scene\SceneTests\CameraTest.cpp.obj: CXX_COMPILER__CameraTest_unscanned_Debug C$:\Users\offic\renderlib\Scene\SceneTests\CameraTest.cpp || cmake_object_order_depends_target_CameraTest
   DEFINES = -DGTEST_LINKED_AS_SHARED_LIBRARY=1
-  FLAGS = /DWIN32 /D_WINDOWS /W3 /GR /EHsc /MDd /Ob0 /Od /RTC1 -ZI
+  FLAGS = /DWIN32 /D_WINDOWS /W3 /GR /EHsc /MDd /Ob0 /Od /RTC1 -std:c++latest -ZI
   INCLUDES = -IE:\Vulkan\include -IC:\Users\offic\renderlib\include -IC:\Users\offic\renderlib\include\scene -external:IC:\vcpkg\installed\x64-windows\include -external:W0
   OBJECT_DIR = CMakeFiles\CameraTest.dir
   OBJECT_FILE_DIR = CMakeFiles\CameraTest.dir\Scene\SceneTests

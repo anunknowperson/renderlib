@@ -19,7 +19,8 @@ TEST_F(CameraTest, SetPosition) {
 TEST_F(CameraTest, LookAt) {
     camera.lookAt(glm::vec3(1.0f, 0.0f, 0.0f));
     glm::mat4 viewMatrix = camera.getViewMatrix();
-    EXPECT_NE(viewMatrix, glm::mat4(1.0f));
+    // Для сравнения матриц лучше использовать библиотеку, которая поддерживает такую проверку, или хотя бы проверить отдельные элементы
+    EXPECT_NE(viewMatrix, glm::mat4(1.0f)); // Проверка, что матрица изменилась
 }
 
 TEST_F(CameraTest, SetFOV) {
@@ -30,12 +31,15 @@ TEST_F(CameraTest, SetFOV) {
 TEST_F(CameraTest, DirectionAfterLookAt) {
     camera.lookAt(glm::vec3(1.0f, 0.0f, 0.0f));
     glm::vec3 expectedDirection = glm::normalize(glm::vec3(1.0f, 0.0f, 0.0f) - camera.getPosition());
-    EXPECT_EQ(camera.getDirection(), expectedDirection);
+    // Используем EXPECT_NEAR для сравнения компонентов вектора с допуском
+    EXPECT_NEAR(camera.getDirection().x, expectedDirection.x, 1e-5);
+    EXPECT_NEAR(camera.getDirection().y, expectedDirection.y, 1e-5);
+    EXPECT_NEAR(camera.getDirection().z, expectedDirection.z, 1e-5);
 }
 
 TEST_F(CameraTest, UpdateViewMatrixOnPositionChange) {
     camera.setPosition(glm::vec3(0.0f, 0.0f, 10.0f));
     camera.lookAt(glm::vec3(0.0f, 0.0f, 0.0f));
     glm::mat4 viewMatrix = camera.getViewMatrix();
-    EXPECT_NE(viewMatrix, glm::mat4(1.0f));
+    EXPECT_NE(viewMatrix, glm::mat4(1.0f)); // Проверка, что матрица изменилась
 }
