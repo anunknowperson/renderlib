@@ -1,7 +1,4 @@
-﻿# CMakeList.txt: проект CMake для renderlib; включите исходный код и определения,
-# укажите здесь логику для конкретного проекта.
-#
-cmake_minimum_required (VERSION 3.10)
+﻿cmake_minimum_required (VERSION 3.12)
 
 # Включение горячей перезагрузки для компиляторов MSVC, если поддерживается.
 if (POLICY CMP0141)
@@ -90,5 +87,4 @@ target_include_directories(${PROJECT_NAME} PRIVATE ${Stb_INCLUDE_DIR})
 
 find_package(fastgltf CONFIG REQUIRED)
 target_link_libraries(${PROJECT_NAME} PRIVATE fastgltf::fastgltf)
-
 
