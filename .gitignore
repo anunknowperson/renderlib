@@ -467,3 +467,4 @@ cmake-build-debug-clang/!/html/
 /Doxyfile
 /Doxyfile.bak
 /.clang-format
+/build/
