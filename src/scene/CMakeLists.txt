@@ -1,0 +1,9 @@
+target_sources(SRC
+        PUBLIC
+        Camera.cpp
+        Camera.h
+        MeshSystem.cpp
+        Node.cpp
+        ParentSystem.cpp
+        TransformSystem.cpp
+)

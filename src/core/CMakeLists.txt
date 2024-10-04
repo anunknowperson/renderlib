@@ -1,0 +1,11 @@
+target_sources(SRC
+        PUBLIC
+        Controller.cpp
+        ControllerImpl.cpp
+        Mesh.cpp
+        Model.cpp
+        ModelImpl.cpp
+        View.cpp
+        ViewImpl.cpp
+        Logging.h
+)

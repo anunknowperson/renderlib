@@ -1,0 +1,17 @@
+target_sources(SRC
+        PUBLIC
+        vulkan/vk_descriptors.cpp
+        vulkan/vk_engine.cpp
+        vulkan/vk_images.cpp
+        vulkan/vk_initializers.cpp
+        vulkan/vk_loader.cpp
+        vulkan/vk_pipelines.cpp
+        vulkan/vk_descriptors.h
+        vulkan/vk_engine.h
+        vulkan/vk_initializers.h
+        vulkan/vk_loader.h
+        vulkan/vk_pipelines.h
+        vulkan/vk_types.h
+        Graphics.cpp
+        RenderPathHE.h
+)
