@@ -3,6 +3,8 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/quaternion.hpp>
 
+// Класс Camera отвечает только за хранение данных о камере
+// Имплементация содержится в CameraController
 class Camera {
 public:
     Camera();
@@ -12,10 +14,11 @@ public:
     glm::quat getRotation() const;
     float getFOV() const;
 
-    // Публичные данные, с которыми будет работать контроллер
+    // Публичные данные, которые контроллер будет использовать для управления
     glm::vec3 position;
     glm::quat rotation;
     float fov;
+    // Разрешение экрана
     float width;
     float height;
 
