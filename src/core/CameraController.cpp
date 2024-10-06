@@ -56,6 +56,12 @@ float CameraController::getFOV() const {
     return camera.fov;
 }
 
+glm::mat4 CameraController::getViewMatrix() const {
+    // Создаем матрицу вида на основе позиции и ориентации камеры
+    return glm::lookAt(camera.position, camera.position + glm::vec3(0.0f, 0.0f, -1.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+}
+// updateViewMatrix обновляет матрицу вида камеры на основе текущей позиции и ориентации
+
 // Перемещение камеры с использованием клавиш WASD.
 // Изменение ориентации камеры (вращение) при движении мыши.
 // Изменение скорости движения камеры с помощью клавиш Shift или Ctrl.
