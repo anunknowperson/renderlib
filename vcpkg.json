@@ -1,9 +1,17 @@
 {
+  "name": "renderlib",
+  "version": "1.0.0",
+  "builtin-baseline": "2960d7d80e8d09c84ae8abf15c12196c2ca7d39a",
   "dependencies": [
     "vk-bootstrap",
     "vulkan-memory-allocator",
+    "vulkan",
+    "glfw3",
     "glm",
-    "spdlog",
+    {
+      "name": "spdlog",
+      "version>=": "1.14.1"
+    },
     "flecs",
     {
       "name": "sdl2",
