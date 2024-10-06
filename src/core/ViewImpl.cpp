@@ -36,13 +36,17 @@ ViewImpl::ViewImpl(IController::Ptr controller, IModel::Ptr model) : _controller
             window_flags);
 }
 
+void createCubes(const std::shared_ptr<IModel> &_model) {
+    for (int i = 0; i < 5; i++) {
+        _model->createMesh("cube" + i);
+    }
+}
 
 void ViewImpl::run() const {
 
     _model->registerWindow(window);
 
-
-    _controller->init();
+    createCubes(_model);
 
     SDL_Event e;
     bool bQuit = false;
