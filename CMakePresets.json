@@ -16,7 +16,7 @@
         "lhs": "${hostSystemName}",
         "rhs": "Windows"
       },
-      "toolchainFile": "${sourceDir}/vendor/vcpkg/scripts/buildsystems/vcpkg.cmake"
+      "toolchainFile": "${sourceDir}/vcpkg/scripts/buildsystems/vcpkg.cmake"
     },
 
     {
@@ -74,7 +74,7 @@
         "lhs": "${hostSystemName}",
         "rhs": "Linux"
       },
-      "toolchainFile": "${sourceDir}/vendor/vcpkg/scripts/buildsystems/vcpkg.cmake"
+      "toolchainFile": "${sourceDir}/vcpkg/scripts/buildsystems/vcpkg.cmake"
     },
     {
       "name": "lx64-debug",

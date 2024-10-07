@@ -1,15 +1,27 @@
 {
+  "name": "renderlib",
+  "version": "0.0.0",
+  "builtin-baseline": "7adc2e4d49e8d0efc07a369079faa6bc3dbb90f3",
   "dependencies": [
-    "vk-bootstrap",
-    "vulkan-memory-allocator",
-    "glm",
-    "spdlog",
+    "fastgltf",
     "flecs",
+    "glm",
+    {
+      "name": "imgui",
+      "features": [
+        "sdl2-binding",
+        "vulkan-binding"
+      ]
+    },
     {
       "name": "sdl2",
-      "features": [ "vulkan" ]
+      "features": [
+        "vulkan"
+      ]
     },
-    "fastgltf",
-    "stb"
+    "spdlog",
+    "stb",
+    "vk-bootstrap",
+    "vulkan-memory-allocator"
   ]
 }
