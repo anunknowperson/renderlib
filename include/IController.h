@@ -4,7 +4,7 @@
 #include <expected>
 #include <memory>
 #include <string_view>
-#include "SDL.h"
+#include "SDL2/SDL.h"
 
 /*! \brief
  * Interface for interacting with the chip that allows changing keyboard backlight settings.
@@ -73,6 +73,6 @@ public:
 
 IController::Ptr createInstance();
 
-#include <SDL.h>
+#include <SDL2/SDL.h>
 
-#include <SDL_vulkan.h>
+#include <SDL2/SDL_vulkan.h>

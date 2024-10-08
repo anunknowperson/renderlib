@@ -1,4 +1,4 @@
-target_sources(SRC
+target_sources(src
         PUBLIC
         Controller.cpp
         ControllerImpl.cpp
@@ -7,5 +7,5 @@ target_sources(SRC
         ModelImpl.cpp
         View.cpp
         ViewImpl.cpp
-        Logging.h
+        createInstance.cpp
 )

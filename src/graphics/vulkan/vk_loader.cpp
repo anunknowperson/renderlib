@@ -2,9 +2,9 @@
 
 #include "stb_image.h"
 
-#include "vk_loader.h"
-#include "vk_engine.h"
-#include "vk_types.h"
+#include "graphics/vulkan/vk_loader.h"
+#include "graphics/vulkan/vk_engine.h"
+#include "graphics/vulkan/vk_types.h"
 
 #define GLM_ENABLE_EXPERIMENTAL
 

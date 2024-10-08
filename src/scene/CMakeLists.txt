@@ -1,7 +1,6 @@
-target_sources(SRC
+target_sources(src
         PUBLIC
         Camera.cpp
-        Camera.h
         MeshSystem.cpp
         Node.cpp
         ParentSystem.cpp

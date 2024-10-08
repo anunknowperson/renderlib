@@ -3,7 +3,7 @@
 #include <string>
 #include <vector>
 #include <memory>
-#include "../src/core/Logging.h"
+#include "core/Logging.h"
 
 /**
  * @class Node

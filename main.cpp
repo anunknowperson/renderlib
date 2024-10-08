@@ -1,6 +1,6 @@
 ﻿#include <iostream>
 
-#include "interfaces/IController.h"
+#include "include/IController.h"
 
 int main([[maybe_unused]] int argc, [[maybe_unused]] char* args[])
 {

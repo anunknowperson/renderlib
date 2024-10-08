@@ -1,18 +1,19 @@
-﻿#include "vk_engine.h"
+﻿#include "graphics/vulkan/vk_engine.h"
 #include "core/config.h"
 
 #define VMA_IMPLEMENTATION
 #include "vk_mem_alloc.h"
-#include "vk_images.h"
-#include "vk_initializers.h"
-#include "vk_types.h"
+#include "graphics/vulkan/vk_images.h"
+#include "graphics/vulkan/vk_initializers.h"
+#include "graphics/vulkan/vk_types.h"
 #include "VkBootstrap.h"
 
 #include "imgui.h"
 #include "imgui_impl_sdl2.h"
 #include "imgui_impl_vulkan.h"
 #include "SDL_vulkan.h"
-#include "vk_loader.h"
+#include "graphics/vulkan/vk_loader.h"
+#include "graphics/vulkan/vk_pipelines.h"
 
 #define GLM_ENABLE_EXPERIMENTAL
 #include "glm/gtx/transform.hpp"
