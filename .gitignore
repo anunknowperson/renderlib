@@ -468,4 +468,4 @@ cmake-build-debug-clang/!/html/
 /Doxyfile.bak
 /.clang-format
 /build/
-!/venv/
+/venv/

@@ -84,16 +84,8 @@ find_package(VulkanMemoryAllocator CONFIG REQUIRED)
 target_link_libraries(${PROJECT_NAME} PRIVATE Vulkan::Vulkan GPUOpen::VulkanMemoryAllocator)
 
 #imgui
-set(IMGUI_DIR ${CMAKE_SOURCE_DIR}/vendor/imgui)
-add_library(imgui
-        ${IMGUI_DIR}/imgui.cpp
-        ${IMGUI_DIR}/imgui_draw.cpp
-        ${IMGUI_DIR}/imgui_widgets.cpp
-        ${IMGUI_DIR}/imgui_tables.cpp
-        ${IMGUI_DIR}/imgui_demo.cpp
-)
-target_include_directories(imgui PUBLIC ${IMGUI_DIR})
-target_link_libraries(${PROJECT_NAME} PRIVATE imgui)
+find_package(imgui REQUIRED)
+target_link_libraries(${PROJECT_NAME} PRIVATE imgui::imgui)
 
 find_package(Stb REQUIRED)
 target_include_directories(${PROJECT_NAME} PRIVATE ${Stb_INCLUDE_DIR})
