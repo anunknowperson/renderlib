@@ -10,6 +10,8 @@
 #include "core/Mesh.h"
 #include "scene/Camera.h"
 
+#include "pipelines.h"
+
 constexpr unsigned int FRAME_OVERLAP = 2;
 
 struct GLTFMetallic_Roughness
@@ -117,6 +119,8 @@ struct DrawContext
 class VulkanEngine
 {
 public:
+	Pipelines pipelines;
+
 	int64_t registerMesh(std::string filePath);
 	void unregisterMesh(int64_t id);
 
@@ -199,11 +203,7 @@ public:
 	VkCommandBuffer _immCommandBuffer;
 	VkCommandPool _immCommandPool;
 
-	VkPipelineLayout _trianglePipelineLayout;
-	VkPipeline _trianglePipeline;
-
-	VkPipelineLayout _meshPipelineLayout;
-	VkPipeline _meshPipeline;
+	
 
 	GPUMeshBuffers rectangle;
 
@@ -263,7 +263,6 @@ private:
 	void init_background_pipelines();
 	void init_imgui();
 
-	void init_triangle_pipeline();
 
 	void draw_imgui(VkCommandBuffer cmd, VkImageView targetImageView) const;
 
@@ -273,7 +272,6 @@ private:
 
 	void resize_swapchain();
 
-	void init_mesh_pipeline();
 
 	void init_default_data();
 };
