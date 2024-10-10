@@ -1,7 +1,7 @@
 import os
 import subprocess
 
-project_dir = os.getcwd()
+project_dir = os.environ.get('PROJECTDIR')
 
 if os.name == 'nt':
     glslc_executable = "glslc.exe"

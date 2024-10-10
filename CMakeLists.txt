@@ -5,6 +5,8 @@ project ("renderlib")
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+include(${CMAKE_SOURCE_DIR}/cmake/options.cmake)
+
 # Включение горячей перезагрузки для компиляторов MSVC, если поддерживается.
 if (POLICY CMP0141)
   cmake_policy(SET CMP0141 NEW)
@@ -16,6 +18,10 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON CACHE INTERNAL "")
 add_library(${PROJECT_NAME})
 
 add_subdirectory(src)
+
+if (BUILD_SHADERS)
+  include(${CMAKE_SOURCE_DIR}/cmake/compileShaders.cmake)
+endif ()
 
 add_executable(${PROJECT_NAME}.x main.cpp)
 target_link_libraries(${PROJECT_NAME}.x ${PROJECT_NAME})
