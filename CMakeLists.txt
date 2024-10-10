@@ -2,7 +2,7 @@
 
 project ("renderlib")
 
-enable_testing()
+list(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -22,9 +22,14 @@ add_library(${PROJECT_NAME})
 add_subdirectory(src)
 
 if (BUILD_SHADERS)
-  include(${CMAKE_SOURCE_DIR}/cmake/compileShaders.cmake)
+  include(compileShaders)
 endif ()
 
 if (BUILD_DEMO)
   add_subdirectory(demo)
+endif ()
+
+if (CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME AND ENABLE_TESTS)
+  enable_testing()
+  add_subdirectory(tests)
 endif ()
