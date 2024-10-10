@@ -1,4 +1,4 @@
-target_sources(src
+target_sources(${PROJECT_NAME}
         PUBLIC
         vulkan/vk_descriptors.cpp
         vulkan/vk_engine.cpp
