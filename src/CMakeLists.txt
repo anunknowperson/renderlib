@@ -37,11 +37,11 @@ target_link_libraries(${PROJECT_NAME} PRIVATE Vulkan::Vulkan)
 find_package(VulkanMemoryAllocator CONFIG REQUIRED)
 target_link_libraries(${PROJECT_NAME} PRIVATE Vulkan::Vulkan GPUOpen::VulkanMemoryAllocator)
 
+find_package(fastgltf CONFIG REQUIRED)
+target_link_libraries(${PROJECT_NAME} PRIVATE fastgltf::fastgltf)
+
 find_package(imgui REQUIRED)
 target_link_libraries(${PROJECT_NAME} PUBLIC imgui::imgui)
 
 find_package(Stb REQUIRED)
 target_include_directories(${PROJECT_NAME} PUBLIC ${Stb_INCLUDE_DIR})
-
-find_package(fastgltf CONFIG REQUIRED)
-target_link_libraries(${PROJECT_NAME} PUBLIC fastgltf::fastgltf)

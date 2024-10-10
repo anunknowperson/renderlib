@@ -21,12 +21,12 @@ add_library(${PROJECT_NAME})
 
 add_subdirectory(src)
 
-if (BUILD_SHADERS)
-  include(compileShaders)
-endif ()
-
 if (BUILD_DEMO)
   add_subdirectory(demo)
+endif ()
+
+if (BUILD_SHADERS)
+  include(compileShaders)
 endif ()
 
 if (CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME AND ENABLE_TESTS)
