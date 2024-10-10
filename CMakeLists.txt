@@ -1,7 +1,7 @@
 ﻿# CMakeList.txt: проект CMake для renderlib; включите исходный код и определения,
 # укажите здесь логику для конкретного проекта.
 #
-cmake_minimum_required (VERSION 3.8)
+cmake_minimum_required (VERSION 3.10)
 
 # Включение горячей перезагрузки для компиляторов MSVC, если поддерживается.
 if (POLICY CMP0141)
@@ -17,11 +17,9 @@ set(ASSETS_DIR "${CMAKE_SOURCE_DIR}/assets")
 # Добавьте источник в исполняемый файл этого проекта.
 add_executable (${PROJECT_NAME})
 configure_file(config.h.in ${CMAKE_CURRENT_SOURCE_DIR}/include/core/config.h @ONLY)
-
-
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON CACHE INTERNAL "")
 
 # Собираем шейдеры
-
 set(BUILD_SHADERS_SCRIPT "${CMAKE_SOURCE_DIR}/build_shaders.py")
 
 set(SHADERS_SOURCE_DIR "${CMAKE_SOURCE_DIR}/shaders")
