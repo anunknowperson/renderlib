@@ -4,7 +4,7 @@ AccessModifierOffset: -4
 TabWidth: 4
 IndentWidth: 4
 ContinuationIndentWidth: 8
-ColumnLimit: 100
+ColumnLimit: 80
 AllowShortFunctionsOnASingleLine: Empty
 IncludeCategories:
   - Regex: '^<ext/.*\.h>'
@@ -14,5 +14,7 @@ IncludeCategories:
   - Regex: '.+'
     Priority: 3
 QualifierAlignment: Custom
-QualifierOrder: ['inline', 'static', 'type', 'const', 'volatile' ]
+QualifierOrder: ['const', 'inline', 'static', 'type', 'volatile' ]
 SeparateDefinitionBlocks: Always
+PointerAlignment: Left
+ReferenceAlignment: Left
