@@ -1,5 +1,5 @@
 target_sources(${PROJECT_NAME}
-        PUBLIC
+        PRIVATE
         vulkan/vk_descriptors.cpp
         vulkan/vk_engine.cpp
         vulkan/vk_images.cpp

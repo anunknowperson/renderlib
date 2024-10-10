@@ -1,5 +1,5 @@
 target_sources(${PROJECT_NAME}
-        PUBLIC
+        PRIVATE
         Camera.cpp
         MeshSystem.cpp
         Node.cpp

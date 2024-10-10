@@ -2,6 +2,8 @@
 
 project ("renderlib")
 
+enable_testing()
+
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
@@ -23,5 +25,6 @@ if (BUILD_SHADERS)
   include(${CMAKE_SOURCE_DIR}/cmake/compileShaders.cmake)
 endif ()
 
-add_executable(${PROJECT_NAME}.x main.cpp)
-target_link_libraries(${PROJECT_NAME}.x ${PROJECT_NAME})
+if (BUILD_DEMO)
+  add_subdirectory(demo)
+endif ()

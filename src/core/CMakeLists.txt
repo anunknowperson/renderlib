@@ -1,5 +1,5 @@
 target_sources(${PROJECT_NAME}
-        PUBLIC
+        PRIVATE
         Controller.cpp
         ControllerImpl.cpp
         Mesh.cpp
