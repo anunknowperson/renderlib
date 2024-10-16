@@ -2,7 +2,7 @@
 
 #include "flecs.h"
 #include <vector>
-#include "../src/core/Logging.h"
+#include "core/Logging.h"
 #include <algorithm>
 
 /** @brief Entity component containing the parent entity.

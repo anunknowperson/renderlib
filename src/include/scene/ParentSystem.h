@@ -1,7 +1,7 @@
 #pragma once
 
 #include "flecs.h"
-#include "scene/ParentComponent.h"
+#include "ParentComponent.h"
 
 
 /** @brief Sets the parent of an entity.

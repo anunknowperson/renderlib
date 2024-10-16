@@ -6,7 +6,7 @@
 #include "glm/vec4.hpp"
 #include "glm/gtx/quaternion.hpp"
 #include "glm/gtx/orthonormalize.hpp"
-#include "../src/core/Logging.h"
+#include "core/Logging.h"
 
 /** @brief A component that stores global coordinates in 3D.
  *
