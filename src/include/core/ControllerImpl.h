@@ -1,6 +1,6 @@
 #pragma once
 
-#include "interfaces/IController.h"
+#include "IController.h"
 #include "interfaces/IModel.h"
 
 class ControllerImpl: public IController, public std::enable_shared_from_this<ControllerImpl>

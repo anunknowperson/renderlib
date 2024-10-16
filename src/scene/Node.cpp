@@ -1,4 +1,4 @@
-#include "scene//Node.h"
+#include "scene/Node.h"
 
 Node::Node(std::shared_ptr<Node> parent, std::string name)
         : _name(name), _parent(parent)

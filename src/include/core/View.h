@@ -1,6 +1,6 @@
 #pragma once
 
-#include "interfaces/IController.h"
+#include "IController.h"
 #include "interfaces/IModel.h"
 #include "interfaces/IView.h"
 
