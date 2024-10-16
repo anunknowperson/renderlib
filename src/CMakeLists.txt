@@ -4,7 +4,7 @@ add_subdirectory(scene)
 
 # resources
 set(ASSETS_DIR "${CMAKE_SOURCE_DIR}/assets")
-configure_file(config.h.in src/include/core/config.h @ONLY)
+configure_file(config.h.in "${PROJECT_SOURCE_DIR}/src/include/core/config.h")
 
 target_include_directories(${PROJECT_NAME}
         PUBLIC
