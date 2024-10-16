@@ -7,14 +7,14 @@
 
 class CameraController {
 public:
-    CameraController(Camera& camera);
+    explicit CameraController(Camera& camera);
 
     void setPosition(const glm::vec3& newPosition);
     glm::vec3 getPosition() const;
 
     void setRotation(const glm::quat& newRotation);
     glm::quat getRotation() const;
-
+    
     void setPitch(float newPitch);
     void setYaw(float newYaw);
     float getPitch() const;
