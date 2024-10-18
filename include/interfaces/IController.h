@@ -68,8 +68,11 @@ public:
     /*!
      * \brief Shared pointer type for IController.
      */
-    using Ptr = std::shared_ptr<IController>;
+    using Ptr = std::shared_ptr<const IController>;
 };
+
+IController::Ptr createInstance();
+
 #include <SDL.h>
 
 #include <SDL_vulkan.h>

@@ -6,6 +6,7 @@
 #include "core/ControllerImpl.h"
 
 #define GLM_ENABLE_EXPERIMENTAL
+#include <core/View.h>
 #include <glm/gtx/transform.hpp>
 
 ControllerImpl::ControllerImpl(IModel::Ptr model)
@@ -24,12 +25,6 @@ double getCurrentGlobalTime() {
 
     // Return the double value
     return seconds.count();
-}
-
-void createCubes(const std::shared_ptr<IModel> &_model) {
-    for (int i = 0; i < 5; i++) {
-        _model->createMesh("cube" + i);
-    }
 }
 
 void updateCube(const std::shared_ptr<IModel> &_model, int name) {
@@ -63,6 +58,7 @@ void ControllerImpl::processEvent(SDL_Event &e) const {
 }
 
 void ControllerImpl::init() const {
-
-    createCubes(_model);
+    const auto controller = shared_from_this();
+    const auto view = createView(controller, _model);
+    view->run();
 }
