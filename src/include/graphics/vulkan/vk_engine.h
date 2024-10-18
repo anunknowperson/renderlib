@@ -132,7 +132,7 @@ public:
     uint32_t _graphicsQueueFamily;
 
     bool _isInitialized{false};
-    int _frameNumber{0};
+    unsigned int _frameNumber{0};
     bool stop_rendering{false};
     VkExtent2D _windowExtent{2560, 1440};
 
