@@ -20,6 +20,6 @@ void Mesh::set_transform(glm::mat4 t) {
     engine.setMeshTransform(_rid, t);
 }
 
-glm::mat4 Mesh::get_transform(glm::mat4 t) {
+glm::mat4 Mesh::get_transform() {
     return _transform;
 }

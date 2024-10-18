@@ -11,7 +11,7 @@ public:
     ~Mesh();
 
     void set_transform(glm::mat4 t);
-    glm::mat4 get_transform(glm::mat4 t);
+    glm::mat4 get_transform();
 
 private:
     glm::mat4 _transform;
