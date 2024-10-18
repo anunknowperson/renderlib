@@ -1,34 +1,32 @@
 #include "scene/TransformSystem.h"
-#include "scene/ParentSystem.h"
-#include "glm/gtx/matrix_decompose.hpp"
 
-namespace
-{
-void UpdateChildrenGlobal(flecs::entity e, GlobalTransform &t)
-{
-    if (e.has<Child>())
-    {
+#include "glm/gtx/matrix_decompose.hpp"
+#include "scene/ParentSystem.h"
+
+namespace {
+void UpdateChildrenGlobal(flecs::entity e, GlobalTransform &t) {
+    if (e.has<Child>()) {
         auto c = e.get<Child>();
-        for (auto &child: c->children)
-        {
+        for (auto &child : c->children) {
             auto *child_transform = child.get<LocalTransform>();
             auto *child_global_transform = child.get_mut<GlobalTransform>();
-            child_global_transform->TransformMatrix = t.TransformMatrix *
-                                                      glm::translate(glm::f64mat4(1.0f), child_transform->position) *
-                                                      glm::mat4_cast(child_transform->rotation) *
-                                                      glm::scale(glm::f64mat4(1.0f),
-                                                                 glm::f64vec3(child_transform->scale));
-
+            child_global_transform->TransformMatrix =
+                    t.TransformMatrix *
+                    glm::translate(glm::f64mat4(1.0f),
+                                   child_transform->position) *
+                    glm::mat4_cast(child_transform->rotation) *
+                    glm::scale(glm::f64mat4(1.0f),
+                               glm::f64vec3(child_transform->scale));
         }
     }
 }
 
-void CreateChildLocalIfParentSet(flecs::entity e, Parent &p)
-{
-    if (e.has<GlobalTransform>())
-    {
+void CreateChildLocalIfParentSet(flecs::entity e, Parent &p) {
+    if (e.has<GlobalTransform>()) {
         auto t = e.get<GlobalTransform>();
-        auto local = t->TransformMatrix * glm::inverse(p.parent.get<GlobalTransform>()->TransformMatrix);
+        auto local =
+                t->TransformMatrix *
+                glm::inverse(p.parent.get<GlobalTransform>()->TransformMatrix);
         glm::f64vec3 position;
         glm::f64quat rotation;
         glm::f64vec3 scale;
@@ -39,10 +37,10 @@ void CreateChildLocalIfParentSet(flecs::entity e, Parent &p)
     }
 }
 
-void UpdateChildLocalIfParentChanged(flecs::entity e, Parent &p)
-{
+void UpdateChildLocalIfParentChanged(flecs::entity e, Parent &p) {
     auto t = e.get<GlobalTransform>();
-    auto local = t->TransformMatrix * glm::inverse(p.parent.get<GlobalTransform>()->TransformMatrix);
+    auto local = t->TransformMatrix *
+                 glm::inverse(p.parent.get<GlobalTransform>()->TransformMatrix);
     glm::f64vec3 position;
     glm::f64quat rotation;
     glm::f64vec3 scale;
@@ -55,12 +53,12 @@ void UpdateChildLocalIfParentChanged(flecs::entity e, Parent &p)
     transform->scale = scale.x;
 }
 
-void UpdateChildLocalIfGlobalChanged(flecs::entity e, GlobalTransform &t)
-{
-    if (e.has<Parent>())
-    {
+void UpdateChildLocalIfGlobalChanged(flecs::entity e, GlobalTransform &t) {
+    if (e.has<Parent>()) {
         auto p = e.get<Parent>();
-        auto local = t.TransformMatrix * glm::inverse(p->parent.get<GlobalTransform>()->TransformMatrix);
+        auto local =
+                t.TransformMatrix *
+                glm::inverse(p->parent.get<GlobalTransform>()->TransformMatrix);
         glm::f64vec3 position;
         glm::f64quat rotation;
         glm::f64vec3 scale;
@@ -74,24 +72,24 @@ void UpdateChildLocalIfGlobalChanged(flecs::entity e, GlobalTransform &t)
     }
 }
 
-void UpdateChildGlobalIfLocalChanged(flecs::entity e, LocalTransform &t)
-{
-    auto global = e.get_mut<GlobalTransform>()->TransformMatrix = getMatrixFromLocal(t) *
-                                                                  e.get<Parent>()->parent.get<GlobalTransform>()->TransformMatrix;
+void UpdateChildGlobalIfLocalChanged(flecs::entity e, LocalTransform &t) {
+    auto global = e.get_mut<GlobalTransform>()->TransformMatrix =
+            getMatrixFromLocal(t) *
+            e.get<Parent>()->parent.get<GlobalTransform>()->TransformMatrix;
 }
-}
+}  // namespace
 
-void setLocalFromMatrix(flecs::entity e, const glm::mat4 &matrix)
-{
+void setLocalFromMatrix(flecs::entity e, const glm::mat4 &matrix) {
     glm::vec3 position = matrix[3];
     glm::float64 scale = sqrt(glm::length(matrix[0]));
 #ifndef NDEBUG
     glm::float64 epsilon = 0.0001;
     glm::float64 scale_y = glm::length(matrix[1]);
     glm::float64 scale_z = glm::length(matrix[2]);
-    if (abs(scale - scale_y) > epsilon || abs(scale - scale_z) > epsilon || abs(scale_y - scale_z) > epsilon)
-    {
-        LOGW("Trying to convert a float4x4 to a LocalTransform, but the scale is not uniform")
+    if (abs(scale - scale_y) > epsilon || abs(scale - scale_z) > epsilon ||
+        abs(scale_y - scale_z) > epsilon) {
+        LOGW("Trying to convert a float4x4 to a LocalTransform, but the scale "
+             "is not uniform")
     }
 #endif
 
@@ -101,8 +99,10 @@ void setLocalFromMatrix(flecs::entity e, const glm::mat4 &matrix)
     glm::float64 dot_product1 = glm::dot(pos_matrix[0], pos_matrix[1]);
     glm::float64 dot_product2 = glm::dot(pos_matrix[0], pos_matrix[2]);
     glm::float64 dot_product3 = glm::dot(pos_matrix[1], pos_matrix[2]);
-    if (abs(dot_product1) > epsilon || abs(dot_product2) > epsilon || abs(dot_product3) > epsilon) {
-        LOGW("Trying to convert a float4x4 to a LocalTransform, but the rotation is not orthogonal");
+    if (abs(dot_product1) > epsilon || abs(dot_product2) > epsilon ||
+        abs(dot_product3) > epsilon) {
+        LOGW("Trying to convert a float4x4 to a LocalTransform, but the "
+             "rotation is not orthogonal");
     }
 #endif
     pos_matrix = glm::orthonormalize(pos_matrix);
@@ -110,26 +110,23 @@ void setLocalFromMatrix(flecs::entity e, const glm::mat4 &matrix)
     e.set<LocalTransform>({position, rotation, scale});
 }
 
-void setLocalFromPosition(flecs::entity e, const glm::vec3 &pos)
-{
+void setLocalFromPosition(flecs::entity e, const glm::vec3 &pos) {
     e.set<LocalTransform>({pos, glm::quat(1, 0, 0, 0), 1});
 }
 
-void setLocalFromRotation(flecs::entity e, const glm::quat &rot)
-{
+void setLocalFromRotation(flecs::entity e, const glm::quat &rot) {
     e.set<LocalTransform>({glm::vec3(0, 0, 0), rot, 1});
 }
 
-void setLocalFromScale(flecs::entity e, const glm::float64 &scale)
-{
+void setLocalFromScale(flecs::entity e, const glm::float64 &scale) {
     e.set<LocalTransform>({glm::vec3(0, 0, 0), glm::quat(1, 0, 0, 0), scale});
 }
 
-glm::f64mat4 getMatrixFromLocal(flecs::entity e)
-{
+glm::f64mat4 getMatrixFromLocal(flecs::entity e) {
 #ifndef NDEBUG
     if (!e.has<LocalTransform>()) {
-        LOGW("Trying to convert a LocalTransform to a float4x4, but the entity does not have a LocalTransform");
+        LOGW("Trying to convert a LocalTransform to a float4x4, but the entity "
+             "does not have a LocalTransform");
         return glm::f64mat4(1.0f);
     }
 #endif
@@ -139,19 +136,17 @@ glm::f64mat4 getMatrixFromLocal(flecs::entity e)
            glm::scale(glm::f64mat4(1.0f), glm::f64vec3(transform->scale));
 }
 
-glm::f64mat4 getMatrixFromLocal(const LocalTransform &t)
-{
+glm::f64mat4 getMatrixFromLocal(const LocalTransform &t) {
     return glm::translate(glm::f64mat4(1.0f), t.position) *
            glm::mat4_cast(t.rotation) *
            glm::scale(glm::f64mat4(1.0f), glm::f64vec3(t.scale));
 }
 
-
-void localRotate(flecs::entity e, const glm::f64quat &rot)
-{
+void localRotate(flecs::entity e, const glm::f64quat &rot) {
 #ifndef NDEBUG
     if (!e.has<LocalTransform>()) {
-        LOGW("Trying to rotate an entity, but it does not have a LocalTransform");
+        LOGW("Trying to rotate an entity, but it does not have a "
+             "LocalTransform");
         return;
     }
 #endif
@@ -159,49 +154,50 @@ void localRotate(flecs::entity e, const glm::f64quat &rot)
     transform->rotation = rot * transform->rotation;
 }
 
-void localRotateX(flecs::entity e, const glm::float64 &angle)
-{
+void localRotateX(flecs::entity e, const glm::float64 &angle) {
 #ifndef NDEBUG
     if (!e.has<LocalTransform>()) {
-        LOGW("Trying to rotate an entity, but it does not have a LocalTransform");
+        LOGW("Trying to rotate an entity, but it does not have a "
+             "LocalTransform");
         return;
     }
 #endif
     auto *transform = e.get_mut<LocalTransform>();
-    transform->rotation = transform->rotation * glm::f64quat(angle, glm::f64vec3(1, 0, 0));
+    transform->rotation =
+            transform->rotation * glm::f64quat(angle, glm::f64vec3(1, 0, 0));
 }
 
-void localRotateY(flecs::entity e, const glm::float64 &angle)
-{
+void localRotateY(flecs::entity e, const glm::float64 &angle) {
 #ifndef NDEBUG
     if (!e.has<LocalTransform>()) {
-        LOGW("Trying to rotate an entity, but it does not have a LocalTransform");
+        LOGW("Trying to rotate an entity, but it does not have a "
+             "LocalTransform");
         return;
     }
 #endif
     auto *transform = e.get_mut<LocalTransform>();
-    transform->rotation = transform->rotation * glm::f64quat(angle, glm::f64vec3(0, 1, 0));
-
+    transform->rotation =
+            transform->rotation * glm::f64quat(angle, glm::f64vec3(0, 1, 0));
 }
 
-void localRotateZ(flecs::entity e, const glm::float64 &angle)
-{
+void localRotateZ(flecs::entity e, const glm::float64 &angle) {
 #ifndef NDEBUG
     if (!e.has<LocalTransform>()) {
-        LOGW("Trying to rotate an entity, but it does not have a LocalTransform");
+        LOGW("Trying to rotate an entity, but it does not have a "
+             "LocalTransform");
         return;
     }
 #endif
     auto *transform = e.get_mut<LocalTransform>();
-    transform->rotation = transform->rotation * glm::f64quat(angle, glm::f64vec3(0, 0, 1));
-
+    transform->rotation =
+            transform->rotation * glm::f64quat(angle, glm::f64vec3(0, 0, 1));
 }
 
-void localTranslate(flecs::entity e, const glm::vec3 &pos)
-{
+void localTranslate(flecs::entity e, const glm::vec3 &pos) {
 #ifndef NDEBUG
     if (!e.has<LocalTransform>()) {
-        LOGW("Trying to translate an entity, but it does not have a LocalTransform");
+        LOGW("Trying to translate an entity, but it does not have a "
+             "LocalTransform");
         return;
     }
 #endif
@@ -209,63 +205,59 @@ void localTranslate(flecs::entity e, const glm::vec3 &pos)
     transform->position += pos;
 }
 
-void localTranslateX(flecs::entity e, const glm::float64 &distance)
-{
+void localTranslateX(flecs::entity e, const glm::float64 &distance) {
 #ifndef NDEBUG
     if (!e.has<LocalTransform>()) {
-        LOGW("Trying to translate an entity, but it does not have a LocalTransform");
+        LOGW("Trying to translate an entity, but it does not have a "
+             "LocalTransform");
         return;
     }
 #endif
     auto *transform = e.get_mut<LocalTransform>();
     transform->position.x += distance;
-
 }
 
-void localTranslateY(flecs::entity e, const glm::float64 &distance)
-{
+void localTranslateY(flecs::entity e, const glm::float64 &distance) {
 #ifndef NDEBUG
     if (!e.has<LocalTransform>()) {
-        LOGW("Trying to translate an entity, but it does not have a LocalTransform");
+        LOGW("Trying to translate an entity, but it does not have a "
+             "LocalTransform");
         return;
     }
 #endif
     auto *transform = e.get_mut<LocalTransform>();
     transform->position.y += distance;
-
 }
 
-void localTranslateZ(flecs::entity e, const glm::float64 &distance)
-{
+void localTranslateZ(flecs::entity e, const glm::float64 &distance) {
 #ifndef NDEBUG
     if (!e.has<LocalTransform>()) {
-        LOGW("Trying to translate an entity, but it does not have a LocalTransform");
+        LOGW("Trying to translate an entity, but it does not have a "
+             "LocalTransform");
         return;
     }
 #endif
     auto *transform = e.get_mut<LocalTransform>();
     transform->position.z += distance;
-
 }
 
-void localSetScale(flecs::entity e, const glm::float64 &scale)
-{
+void localSetScale(flecs::entity e, const glm::float64 &scale) {
 #ifndef NDEBUG
     if (!e.has<LocalTransform>()) {
-        LOGW("Trying to set the scale of an entity, but it does not have a LocalTransform");
+        LOGW("Trying to set the scale of an entity, but it does not have a "
+             "LocalTransform");
         return;
     }
 #endif
     auto *transform = e.get_mut<LocalTransform>();
     transform->scale = scale;
-
 }
 
-void setLocalFromEntity(flecs::entity e, const flecs::entity &parent)
-{
+void setLocalFromEntity(flecs::entity e, const flecs::entity &parent) {
 #ifndef NDEBUG
     if (!e.has<LocalTransform>()) {
-        LOGW("Trying to set the LocalTransform of an entity from another entity, but one of them does not have a LocalTransform");
+        LOGW("Trying to set the LocalTransform of an entity from another "
+             "entity, but one of them does not have a LocalTransform");
         return;
     }
 #endif
@@ -274,100 +266,90 @@ void setLocalFromEntity(flecs::entity e, const flecs::entity &parent)
     transform->position = parent_transform->position;
     transform->rotation = parent_transform->rotation;
     transform->scale = parent_transform->scale;
-
 }
 
-void inverseLocal(flecs::entity e)
-{
+void inverseLocal(flecs::entity e) {
 #ifndef NDEBUG
     if (!e.has<LocalTransform>()) {
-        LOGW("Trying to inverse transform an entity, but it does not have a LocalTransform");
+        LOGW("Trying to inverse transform an entity, but it does not have a "
+             "LocalTransform");
         return;
     }
 #endif
     auto *transform = e.get_mut<LocalTransform>();
     transform->rotation = glm::inverse(transform->rotation);
     transform->position = -transform->position;
-
 }
 
-void setGlobalFromPosition(flecs::entity e, const glm::f64vec3 &pos)
-{
+void setGlobalFromPosition(flecs::entity e, const glm::f64vec3 &pos) {
     e.set(GlobalTransform{glm::translate(glm::f64mat4(1.0f), pos)});
 }
 
-void setGlobalFromRotation(flecs::entity e, const glm::f64quat &rot)
-{
+void setGlobalFromRotation(flecs::entity e, const glm::f64quat &rot) {
     e.set(GlobalTransform{glm::mat4_cast(rot)});
 }
 
-void setGlobalFromScale(flecs::entity e, const glm::float64 &scale)
-{
+void setGlobalFromScale(flecs::entity e, const glm::float64 &scale) {
     e.set(GlobalTransform{glm::scale(glm::f64mat4(1.0f), glm::f64vec3(scale))});
 }
 
-void globalRotate(flecs::entity e, const glm::f64quat &rot)
-{
+void globalRotate(flecs::entity e, const glm::f64quat &rot) {
     e.set(GlobalTransform{glm::f64mat4(1.0f) * glm::mat4_cast(rot)});
 }
 
-void globalRotateX(flecs::entity e, const glm::float64 &angle)
-{
-    e.set(GlobalTransform{glm::f64mat4(1.0f) * glm::mat4_cast(glm::f64quat(angle, glm::f64vec3(1, 0, 0)))});
+void globalRotateX(flecs::entity e, const glm::float64 &angle) {
+    e.set(GlobalTransform{
+            glm::f64mat4(1.0f) *
+            glm::mat4_cast(glm::f64quat(angle, glm::f64vec3(1, 0, 0)))});
 }
 
-void globalRotateY(flecs::entity e, const glm::float64 &angle)
-{
-    e.set(GlobalTransform{glm::f64mat4(1.0f) * glm::mat4_cast(glm::f64quat(angle, glm::f64vec3(0, 1, 0)))});
+void globalRotateY(flecs::entity e, const glm::float64 &angle) {
+    e.set(GlobalTransform{
+            glm::f64mat4(1.0f) *
+            glm::mat4_cast(glm::f64quat(angle, glm::f64vec3(0, 1, 0)))});
 }
 
-void globalRotateZ(flecs::entity e, const glm::float64 &angle)
-{
-    e.set(GlobalTransform{glm::f64mat4(1.0f) * glm::mat4_cast(glm::f64quat(angle, glm::f64vec3(0, 0, 1)))});
+void globalRotateZ(flecs::entity e, const glm::float64 &angle) {
+    e.set(GlobalTransform{
+            glm::f64mat4(1.0f) *
+            glm::mat4_cast(glm::f64quat(angle, glm::f64vec3(0, 0, 1)))});
 }
 
-void globalTranslate(flecs::entity e, const glm::f64vec3 &pos)
-{
+void globalTranslate(flecs::entity e, const glm::f64vec3 &pos) {
     e.set(GlobalTransform{glm::translate(glm::f64mat4(1.0f), pos)});
 }
 
-void globalTranslateX(flecs::entity e, const glm::float64 &distance)
-{
-    e.set(GlobalTransform{glm::translate(glm::f64mat4(1.0f), glm::f64vec3(distance, 0, 0))});
+void globalTranslateX(flecs::entity e, const glm::float64 &distance) {
+    e.set(GlobalTransform{
+            glm::translate(glm::f64mat4(1.0f), glm::f64vec3(distance, 0, 0))});
 }
 
-void globalTranslateY(flecs::entity e, const glm::float64 &distance)
-{
-    e.set(GlobalTransform{glm::translate(glm::f64mat4(1.0f), glm::f64vec3(0, distance, 0))});
+void globalTranslateY(flecs::entity e, const glm::float64 &distance) {
+    e.set(GlobalTransform{
+            glm::translate(glm::f64mat4(1.0f), glm::f64vec3(0, distance, 0))});
 }
 
-void globalTranslateZ(flecs::entity e, const glm::float64 &distance)
-{
-    e.set(GlobalTransform{glm::translate(glm::f64mat4(1.0f), glm::f64vec3(0, 0, distance))});
+void globalTranslateZ(flecs::entity e, const glm::float64 &distance) {
+    e.set(GlobalTransform{
+            glm::translate(glm::f64mat4(1.0f), glm::f64vec3(0, 0, distance))});
 }
 
-void globalSetScale(flecs::entity e, const glm::float64 &scale)
-{
+void globalSetScale(flecs::entity e, const glm::float64 &scale) {
     e.set(GlobalTransform{glm::scale(glm::f64mat4(1.0f), glm::f64vec3(scale))});
 }
 
-void setGlobalFromEntity(flecs::entity e, const flecs::entity &parent)
-{
-    if (parent.has<GlobalTransform>())
-    {
+void setGlobalFromEntity(flecs::entity e, const flecs::entity &parent) {
+    if (parent.has<GlobalTransform>()) {
         e.set(GlobalTransform{parent.get<GlobalTransform>()->TransformMatrix});
     }
 }
 
-void inverseGlobal(flecs::entity e)
-{
+void inverseGlobal(flecs::entity e) {
     auto *transform = e.get_mut<GlobalTransform>();
     transform->TransformMatrix = glm::inverse(transform->TransformMatrix);
 }
 
-
-void TransformSystem(flecs::world & world)
-{
+void TransformSystem(flecs::world &world) {
     world.system<GlobalTransform>("UpdateChildrenGlobal")
             .kind(flecs::OnSet)
             .each(UpdateChildrenGlobal);

@@ -1,8 +1,7 @@
 #pragma once
 
-#include "flecs.h"
 #include "ParentComponent.h"
-
+#include "flecs.h"
 
 /** @brief Sets the parent of an entity.
  * @param child The entity to set the parent of.
@@ -23,11 +22,15 @@ void removeRelation(flecs::entity removing_child, flecs::entity parent);
 
 /** @brief Sets up the ParentSystem in the given world.
  *
- * @details The system guarantees the following invariants after each update: <br>
- * - Invalid or deleted entities that were children are removed from the parent's child lists. <br>
+ * @details The system guarantees the following invariants after each update:
+ * <br>
+ * - Invalid or deleted entities that were children are removed from the
+ * parent's child lists. <br>
  * - If the parent entity is deleted or invalid, its children are deleted. <br>
- * - If an entity changes its parent, it will be removed from the list of children of the previous parent. <br>
- * - All dependent entities have exactly one parent and all parent entities have at least one child.
+ * - If an entity changes its parent, it will be removed from the list of
+ * children of the previous parent. <br>
+ * - All dependent entities have exactly one parent and all parent entities have
+ * at least one child.
  * @param world The world to set up the system in.
  * */
-void ParentSystem(flecs::world & world);
+void ParentSystem(flecs::world& world);

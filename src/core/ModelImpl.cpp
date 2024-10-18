@@ -1,8 +1,8 @@
+#include "core/ModelImpl.h"
+
 #include <cassert>
 #include <cstring>
 #include <iostream>
-
-#include "core/ModelImpl.h"
 
 ModelImpl::~ModelImpl() {
     _engine.cleanup();
@@ -24,8 +24,6 @@ Camera *ModelImpl::getCamera() {
 }
 
 void ModelImpl::createMesh(std::string name) {
-
-
     auto mesh = std::make_shared<Mesh>("/basicmesh.glb");
 
     mesh->set_transform(glm::mat4(1.0f));

@@ -1,4 +1,5 @@
 #include "core/Controller.h"
+
 #include "core/ControllerImpl.h"
 
 IController::Ptr createController(IModel::Ptr ptr) {
