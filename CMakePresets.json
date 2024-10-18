@@ -10,6 +10,7 @@
       "cacheVariables": {
         "CMAKE_C_COMPILER": "cl",
         "CMAKE_CXX_COMPILER": "cl",
+        "CMAKE_COMPILE_WARNING_AS_ERROR": "ON",
         "CMAKE_C_FLAGS_INIT": "/W4",
         "CMAKE_CXX_FLAGS_INIT": "/W4"
       },
@@ -70,8 +71,9 @@
       "cacheVariables": {
         "CMAKE_C_COMPILER": "clang",
         "CMAKE_CXX_COMPILER": "clang++",
-        "CMAKE_C_FLAGS_INIT": "-Werror -Wall -Wextra -pedantic -Wconversion -Wdouble-promotion -Wshadow",
-        "CMAKE_CXX_FLAGS_INIT": "-Werror -Wall -Wextra -pedantic -Wconversion -Wdouble-promotion -Wshadow"
+        "CMAKE_COMPILE_WARNING_AS_ERROR": "ON",
+        "CMAKE_C_FLAGS_INIT": "-Wall -Wextra -pedantic -Wconversion -Wdouble-promotion -Wshadow",
+        "CMAKE_CXX_FLAGS_INIT": "-Wall -Wextra -pedantic -Wconversion -Wdouble-promotion -Wshadow"
       },
       "condition": {
         "type": "equals",
