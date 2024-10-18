@@ -1,30 +1,28 @@
 #pragma once
 
-#include "flecs.h"
-#include <vector>
-#include "core/Logging.h"
 #include <algorithm>
+#include <vector>
+
+#include "core/Logging.h"
+#include "flecs.h"
 
 /** @brief Entity component containing the parent entity.
  * @see ParentSystem
  * */
-struct Parent
-{
+struct Parent {
     flecs::entity parent;
 };
 
 /** @brief Entity component containing the children entities.
  *  @see ParentSystem
  * */
-struct Child
-{
+struct Child {
     std::vector<flecs::entity> children;
 };
 
 /** @brief Entity component containing the previous parent entity.
  * @see ParentSystem
  * */
-struct PreviousParent
-{
+struct PreviousParent {
     flecs::entity parent;
 };
