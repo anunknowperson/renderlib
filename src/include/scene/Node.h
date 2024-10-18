@@ -1,28 +1,31 @@
 #pragma once
 
+#include <memory>
 #include <string>
 #include <vector>
-#include <memory>
+
 #include "core/Logging.h"
 
 /**
  * @class Node
  * @brief A class representing a node in a tree structure.
  *
- * This class is designed to represent objects on scene. Each node can have multiple children but only one parent.
- * Each node can be uniquely identified by its name.
- * This class uses shared pointers to manage the memory of the nodes.
+ * This class is designed to represent objects on scene. Each node can have
+ * multiple children but only one parent. Each node can be uniquely identified
+ * by its name. This class uses shared pointers to manage the memory of the
+ * nodes.
  */
-class Node : public std::enable_shared_from_this<Node>
-{
+class Node : public std::enable_shared_from_this<Node> {
 public:
     /**
      * @brief Construct a new Node object.
      *
-     * @param parent The parent of the node. Default is nullptr, indicating that the node has no parent.
+     * @param parent The parent of the node. Default is nullptr, indicating that
+     * the node has no parent.
      * @param name The name of the node. Default is "without name".
      */
-    explicit Node(std::shared_ptr<Node> parent = nullptr, std::string name = "without name");
+    explicit Node(std::shared_ptr<Node> parent = nullptr,
+                  std::string name = "without name");
 
     /**
      * @brief Destroy the Node object.

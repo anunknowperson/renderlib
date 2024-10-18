@@ -1,3 +1,7 @@
+#include "core/ViewImpl.h"
+
+#include <SDL2/SDL.h>
+#include <SDL2/SDL_vulkan.h>
 #include <charconv>
 #include <chrono>
 #include <iomanip>
@@ -8,32 +12,20 @@
 #include <utility>
 #include <variant>
 
-#include <SDL2/SDL.h>
-#include <SDL2/SDL_vulkan.h>
-
+#include "graphics/vulkan/vk_engine.h"
+#include "imgui.h"
 #include "imgui_impl_sdl2.h"
 #include "imgui_impl_vulkan.h"
-#include "imgui.h"
 
-#include "core/ViewImpl.h"
-#include "graphics/vulkan/vk_engine.h"
-
-
-ViewImpl::ViewImpl(IController::Ptr controller, IModel::Ptr model) : _controller(std::move(controller)),
-                                                                     _model(std::move(model)) {
-
+ViewImpl::ViewImpl(IController::Ptr controller, IModel::Ptr model)
+    : _controller(std::move(controller)), _model(std::move(model)) {
     SDL_Init(SDL_INIT_VIDEO);
 
-    auto window_flags = (SDL_WindowFlags) (SDL_WINDOW_VULKAN | SDL_WINDOW_RESIZABLE);
+    auto window_flags =
+            (SDL_WindowFlags)(SDL_WINDOW_VULKAN | SDL_WINDOW_RESIZABLE);
 
-
-    window = SDL_CreateWindow(
-            "engine",
-            SDL_WINDOWPOS_UNDEFINED,
-            SDL_WINDOWPOS_UNDEFINED,
-            1700,
-            900,
-            window_flags);
+    window = SDL_CreateWindow("engine", SDL_WINDOWPOS_UNDEFINED,
+                              SDL_WINDOWPOS_UNDEFINED, 1700, 900, window_flags);
 }
 
 void createCubes(const std::shared_ptr<IModel> &_model) {
@@ -43,7 +35,6 @@ void createCubes(const std::shared_ptr<IModel> &_model) {
 }
 
 void ViewImpl::run() const {
-
     _model->registerWindow(window);
 
     createCubes(_model);
@@ -58,8 +49,7 @@ void ViewImpl::run() const {
         // Handle events on queue
         while (SDL_PollEvent(&e) != 0) {
             // close the window when user alt-f4s or clicks the X button
-            if (e.type == SDL_QUIT)
-                bQuit = true;
+            if (e.type == SDL_QUIT) bQuit = true;
 
             if (e.type == SDL_WINDOWEVENT) {
                 if (e.window.event == SDL_WINDOWEVENT_MINIMIZED) {
@@ -87,21 +77,19 @@ void ViewImpl::run() const {
         ImGui::NewFrame();
 
         if (ImGui::Begin("background")) {
-
             VulkanEngine &engine = VulkanEngine::Get();
             ImGui::SliderFloat("Render Scale", &engine.renderScale, 0.3f, 1.f);
-            //other code
+            // other code
         }
         ImGui::End();
 
-        //make imgui calculate internal draw structures
+        // make imgui calculate internal draw structures
         ImGui::Render();
-
 
         _controller->update();
         //_model->updateVulkan();
 
-        //engine.update();
+        // engine.update();
     }
 }
 

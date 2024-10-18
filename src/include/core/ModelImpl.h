@@ -6,9 +6,9 @@
 
 class ModelImpl : public IModel {
 public:
-	/*! \brief
-	 * throws std::runtime_error()
-	 */
+    /*! \brief
+     * throws std::runtime_error()
+     */
     ModelImpl();
     ~ModelImpl() override;
 
@@ -20,7 +20,6 @@ public:
 
     void createMesh(std::string name) override;
     void setMeshTransform(std::string name, glm::mat4x4 transform) override;
-
 
     Camera *getCamera() override;
 

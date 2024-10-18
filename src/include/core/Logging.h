@@ -21,4 +21,6 @@
 #define LOGWF(...) spdlog::warn(fmt::format(__VA_ARGS__));
 #define LOGDF(...) spdlog::debug(fmt::format(__VA_ARGS__));
 
-#define LOGE(...) spdlog::error("[{}:{}] {}", __FILENAME__, __LINE__, fmt::format(__VA_ARGS__));
+#define LOGE(...)                                       \
+    spdlog::error("[{}:{}] {}", __FILENAME__, __LINE__, \
+                  fmt::format(__VA_ARGS__));

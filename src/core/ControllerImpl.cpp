@@ -1,17 +1,15 @@
+#include "core/ControllerImpl.h"
+
 #include <cassert>
 #include <chrono>
 #include <iostream>
 #include <utility>
 
-#include "core/ControllerImpl.h"
-
 #define GLM_ENABLE_EXPERIMENTAL
 #include <core/View.h>
 #include <glm/gtx/transform.hpp>
 
-ControllerImpl::ControllerImpl(IModel::Ptr model)
-    : _model(std::move(model)) {
-}
+ControllerImpl::ControllerImpl(IModel::Ptr model) : _model(std::move(model)) {}
 
 double getCurrentGlobalTime() {
     // Get the current time point
@@ -30,10 +28,8 @@ double getCurrentGlobalTime() {
 void updateCube(const std::shared_ptr<IModel> &_model, int name) {
     double sinValue = std::sin(getCurrentGlobalTime() + name) * 5.0f;
 
-
     glm::mat4 scale = glm::scale(glm::vec3{0.2});
     glm::mat4 translation = glm::translate(glm::vec3{name - 2.5f, sinValue, 0});
-
 
     _model->setMeshTransform("cube" + name, scale * translation);
 }
@@ -43,7 +39,6 @@ void updateCubes(const std::shared_ptr<IModel> &_model) {
         updateCube(_model, i);
     }
 }
-
 
 void ControllerImpl::update() const {
     _model->updateVulkan();

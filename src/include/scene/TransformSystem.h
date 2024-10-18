@@ -1,15 +1,16 @@
 #pragma once
 
-#include "LocalTransformComponent.h"
-#include "GlobalTransformComponent.h"
-#include "flecs.h"
 #include <iostream>
 
+#include "GlobalTransformComponent.h"
+#include "LocalTransformComponent.h"
+#include "flecs.h"
 
 /** @brief a method to set the local coordinates of an entity from a matrix.
  *
  * @param e entity into which the coordinates are set.
- * @param mat orthonormalized matrix with uniform scale to set the local coordinates.
+ * @param mat orthonormalized matrix with uniform scale to set the local
+ * coordinates.
  * */
 void setLocalFromMatrix(flecs::entity e, const glm::mat4 &mat);
 
@@ -106,7 +107,8 @@ void localTranslateZ(flecs::entity e, const glm::float64 &distance);
  * */
 void localSetScale(flecs::entity e, const glm::float64 &scale);
 
-/** @brief a method to set the local coordinates of an entity from another entity.
+/** @brief a method to set the local coordinates of an entity from another
+ * entity.
  *
  * @param e entity into which the coordinates are set.
  * @param parent entity from which the coordinates are retrieved.
@@ -202,7 +204,8 @@ void globalTranslateZ(flecs::entity e, const glm::float64 &distance);
  * */
 void globalSetScale(flecs::entity e, const glm::float64 &scale);
 
-/** @brief a method to set the global coordinates of an entity from another entity.
+/** @brief a method to set the global coordinates of an entity from another
+ * entity.
  *
  * @param e entity into which the coordinates are set.
  * @param parent entity from which the coordinates are retrieved.
@@ -221,12 +224,14 @@ void inverseGlobal(flecs::entity e);
  * @details
  *
  * The system guarantees the following invariants after each update: <br>
- * - Every time the parent's coordinates are changed, the children's coordinates also changes. <br>
- * - When children change global coordinates, local coordinates change and vice versa. <br>
+ * - Every time the parent's coordinates are changed, the children's coordinates
+ * also changes. <br>
+ * - When children change global coordinates, local coordinates change and vice
+ * versa. <br>
  * - Children will always have local coordinates. <br>
  *
  * @param world The world to set up the system in.
  *
  * @see LocalTransformComponent, GlobalTransformComponent, ParentSystem.
  * */
-void TransformSystem(flecs::world & world);
+void TransformSystem(flecs::world &world);
