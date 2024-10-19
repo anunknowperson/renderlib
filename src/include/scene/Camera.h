@@ -1,21 +1,28 @@
 #pragma once
 
-#include "SDL2/SDL_events.h"
-#include "graphics/vulkan/vk_types.h"
+#include <glm/glm.hpp>
+#include <glm/gtc/quaternion.hpp>
 
+// Класс Camera отвечает только за хранение данных о камере
+// Имплементация содержится в CameraController
 class Camera {
 public:
-    glm::vec3 velocity;
+    Camera();
+    Camera(const glm::vec3& position, float fov, float width, float height);
+
+    glm::vec3 getPosition() const;
+    glm::quat getRotation() const;
+    float getFOV() const;
+
+    // Публичные данные, которые контроллер будет использовать для управления
     glm::vec3 position;
-    // vertical rotation
-    float pitch{0.f};
-    // horizontal rotation
-    float yaw{0.f};
+    glm::quat rotation;
+    float fov;
+    // Разрешение экрана
+    float width;
+    float height;
 
-    glm::mat4 getViewMatrix();
-    glm::mat4 getRotationMatrix();
-
-    void processSDLEvent(SDL_Event& e);
-
-    void update();
+private:
+    glm::vec3 direction;
+    glm::mat4 viewMatrix;
 };
