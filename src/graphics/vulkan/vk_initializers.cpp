@@ -2,7 +2,7 @@
 
 //> init_cmd
 VkCommandPoolCreateInfo vkinit::command_pool_create_info(
-        uint32_t queueFamilyIndex, VkCommandPoolCreateFlags flags /*= 0*/) {
+        [[maybe_unused]] uint32_t queueFamilyIndex, VkCommandPoolCreateFlags flags /*= 0*/) {
     VkCommandPoolCreateInfo info = {};
     info.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
     info.pNext = nullptr;

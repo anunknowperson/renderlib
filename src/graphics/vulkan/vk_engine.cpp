@@ -34,7 +34,7 @@ VKAPI_ATTR VkBool32 VKAPI_CALL VulkanEngine::debugCallback(
         VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
         VkDebugUtilsMessageTypeFlagsEXT messageType,
         const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData,
-        void* pUserData) {
+        [[maybe_unused]] void* pUserData) {
     std::string type;
 
     switch (messageType) {

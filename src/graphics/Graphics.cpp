@@ -32,7 +32,7 @@ uint64_t Graphics::create_mesh_instance() {
     return new_uid;
 }
 
-void Graphics::set_mesh_instance_transform(uint64_t rid, glm::mat4 matrix) {
+void Graphics::set_mesh_instance_transform([[maybe_unused]] uint64_t rid, [[maybe_unused]] glm::mat4 matrix) {
     // VulkanRender::instances[meshes[rid]] = matrix;
 }
 
