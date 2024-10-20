@@ -113,8 +113,8 @@ void VulkanEngine::init_default_data() {
     // checkerboard image
     uint32_t magenta = glm::packUnorm4x8(glm::vec4(1, 0, 1, 1));
     std::array<uint32_t, 16 * 16> pixels{};  // for 16x16 checkerboard texture
-    for (int x = 0; x < 16; x++) {
-        for (int y = 0; y < 16; y++) {
+    for (size_t x = 0; x < 16; x++) {
+        for (size_t y = 0; y < 16; y++) {
             pixels[y * 16 + x] = ((x % 2) ^ (y % 2)) ? magenta : black;
         }
     }

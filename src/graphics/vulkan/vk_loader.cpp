@@ -77,7 +77,7 @@ std::optional<std::vector<std::shared_ptr<MeshAsset>>> loadGltfMeshes(
             newSurface.count =
                     (uint32_t)gltf.accessors[p.indicesAccessor.value()].count;
 
-            size_t initial_vtx = vertices.size();
+            auto initial_vtx = static_cast<uint32_t>(vertices.size());
 
             // load indexes
             {
