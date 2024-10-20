@@ -32,7 +32,7 @@ void updateCube(const std::shared_ptr<IModel> &_model, int name) {
     glm::mat4 translation = glm::translate(
             glm::vec3{static_cast<float>(name) - 2.5f, sinValue, 0});
 
-    _model->setMeshTransform("cube" + name, scale * translation);
+    _model->setMeshTransform(&"cube"[name], scale * translation);
 }
 
 void updateCubes(const std::shared_ptr<IModel> &_model) {
