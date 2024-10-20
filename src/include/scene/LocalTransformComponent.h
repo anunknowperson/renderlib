@@ -19,5 +19,5 @@ struct LocalTransform {
 
     glm::f64quat rotation = glm::quat(1.0f, 1.0f, 0.0f, 0.0f);
 
-    glm::float64 scale = 1.0f;
+    glm::float64 scale = 1.0;
 };

@@ -81,11 +81,11 @@ void UpdateChildGlobalIfLocalChanged(flecs::entity e, LocalTransform &t) {
 
 void setLocalFromMatrix(flecs::entity e, const glm::mat4 &matrix) {
     glm::vec3 position = matrix[3];
-    glm::float64 scale = sqrt(glm::length(matrix[0]));
+    auto scale = sqrt(static_cast<double>(glm::length(matrix[0])));
 #ifndef NDEBUG
     glm::float64 epsilon = 0.0001;
-    glm::float64 scale_y = glm::length(matrix[1]);
-    glm::float64 scale_z = glm::length(matrix[2]);
+    auto scale_y = static_cast<double>(glm::length(matrix[1]));
+    auto scale_z = static_cast<double>(glm::length(matrix[2]));
     if (abs(scale - scale_y) > epsilon || abs(scale - scale_z) > epsilon ||
         abs(scale_y - scale_z) > epsilon) {
         LOGW("Trying to convert a float4x4 to a LocalTransform, but the scale "
@@ -96,9 +96,12 @@ void setLocalFromMatrix(flecs::entity e, const glm::mat4 &matrix) {
     auto pos_matrix = glm::mat3(matrix);
 
 #ifndef NDEBUG
-    glm::float64 dot_product1 = glm::dot(pos_matrix[0], pos_matrix[1]);
-    glm::float64 dot_product2 = glm::dot(pos_matrix[0], pos_matrix[2]);
-    glm::float64 dot_product3 = glm::dot(pos_matrix[1], pos_matrix[2]);
+    auto dot_product1 =
+            static_cast<double>(glm::dot(pos_matrix[0], pos_matrix[1]));
+    auto dot_product2 =
+            static_cast<double>(glm::dot(pos_matrix[0], pos_matrix[2]));
+    auto dot_product3 =
+            static_cast<double>(glm::dot(pos_matrix[1], pos_matrix[2]));
     if (abs(dot_product1) > epsilon || abs(dot_product2) > epsilon ||
         abs(dot_product3) > epsilon) {
         LOGW("Trying to convert a float4x4 to a LocalTransform, but the "
@@ -127,19 +130,19 @@ glm::f64mat4 getMatrixFromLocal(flecs::entity e) {
     if (!e.has<LocalTransform>()) {
         LOGW("Trying to convert a LocalTransform to a float4x4, but the entity "
              "does not have a LocalTransform");
-        return glm::f64mat4(1.0f);
+        return glm::f64mat4(1.0);
     }
 #endif
     auto *transform = e.get_mut<LocalTransform>();
-    return glm::translate(glm::f64mat4(1.0f), transform->position) *
+    return glm::translate(glm::f64mat4(1.0), transform->position) *
            glm::mat4_cast(transform->rotation) *
-           glm::scale(glm::f64mat4(1.0f), glm::f64vec3(transform->scale));
+           glm::scale(glm::f64mat4(1.0), glm::f64vec3(transform->scale));
 }
 
 glm::f64mat4 getMatrixFromLocal(const LocalTransform &t) {
-    return glm::translate(glm::f64mat4(1.0f), t.position) *
+    return glm::translate(glm::f64mat4(1.0), t.position) *
            glm::mat4_cast(t.rotation) *
-           glm::scale(glm::f64mat4(1.0f), glm::f64vec3(t.scale));
+           glm::scale(glm::f64mat4(1.0), glm::f64vec3(t.scale));
 }
 
 void localRotate(flecs::entity e, const glm::f64quat &rot) {
@@ -282,7 +285,7 @@ void inverseLocal(flecs::entity e) {
 }
 
 void setGlobalFromPosition(flecs::entity e, const glm::f64vec3 &pos) {
-    e.set(GlobalTransform{glm::translate(glm::f64mat4(1.0f), pos)});
+    e.set(GlobalTransform{glm::translate(glm::f64mat4(1.0), pos)});
 }
 
 void setGlobalFromRotation(flecs::entity e, const glm::f64quat &rot) {
@@ -290,52 +293,52 @@ void setGlobalFromRotation(flecs::entity e, const glm::f64quat &rot) {
 }
 
 void setGlobalFromScale(flecs::entity e, const glm::float64 &scale) {
-    e.set(GlobalTransform{glm::scale(glm::f64mat4(1.0f), glm::f64vec3(scale))});
+    e.set(GlobalTransform{glm::scale(glm::f64mat4(1.0), glm::f64vec3(scale))});
 }
 
 void globalRotate(flecs::entity e, const glm::f64quat &rot) {
-    e.set(GlobalTransform{glm::f64mat4(1.0f) * glm::mat4_cast(rot)});
+    e.set(GlobalTransform{glm::f64mat4(1.0) * glm::mat4_cast(rot)});
 }
 
 void globalRotateX(flecs::entity e, const glm::float64 &angle) {
     e.set(GlobalTransform{
-            glm::f64mat4(1.0f) *
+            glm::f64mat4(1.0) *
             glm::mat4_cast(glm::f64quat(angle, glm::f64vec3(1, 0, 0)))});
 }
 
 void globalRotateY(flecs::entity e, const glm::float64 &angle) {
     e.set(GlobalTransform{
-            glm::f64mat4(1.0f) *
+            glm::f64mat4(1.0) *
             glm::mat4_cast(glm::f64quat(angle, glm::f64vec3(0, 1, 0)))});
 }
 
 void globalRotateZ(flecs::entity e, const glm::float64 &angle) {
     e.set(GlobalTransform{
-            glm::f64mat4(1.0f) *
+            glm::f64mat4(1.0) *
             glm::mat4_cast(glm::f64quat(angle, glm::f64vec3(0, 0, 1)))});
 }
 
 void globalTranslate(flecs::entity e, const glm::f64vec3 &pos) {
-    e.set(GlobalTransform{glm::translate(glm::f64mat4(1.0f), pos)});
+    e.set(GlobalTransform{glm::translate(glm::f64mat4(1.0), pos)});
 }
 
 void globalTranslateX(flecs::entity e, const glm::float64 &distance) {
     e.set(GlobalTransform{
-            glm::translate(glm::f64mat4(1.0f), glm::f64vec3(distance, 0, 0))});
+            glm::translate(glm::f64mat4(1.0), glm::f64vec3(distance, 0, 0))});
 }
 
 void globalTranslateY(flecs::entity e, const glm::float64 &distance) {
     e.set(GlobalTransform{
-            glm::translate(glm::f64mat4(1.0f), glm::f64vec3(0, distance, 0))});
+            glm::translate(glm::f64mat4(1.0), glm::f64vec3(0, distance, 0))});
 }
 
 void globalTranslateZ(flecs::entity e, const glm::float64 &distance) {
     e.set(GlobalTransform{
-            glm::translate(glm::f64mat4(1.0f), glm::f64vec3(0, 0, distance))});
+            glm::translate(glm::f64mat4(1.0), glm::f64vec3(0, 0, distance))});
 }
 
 void globalSetScale(flecs::entity e, const glm::float64 &scale) {
-    e.set(GlobalTransform{glm::scale(glm::f64mat4(1.0f), glm::f64vec3(scale))});
+    e.set(GlobalTransform{glm::scale(glm::f64mat4(1.0), glm::f64vec3(scale))});
 }
 
 void setGlobalFromEntity(flecs::entity e, const flecs::entity &parent) {
