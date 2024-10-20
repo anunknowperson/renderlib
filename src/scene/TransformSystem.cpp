@@ -12,10 +12,10 @@ void UpdateChildrenGlobal(flecs::entity e, GlobalTransform &t) {
             auto *child_global_transform = child.get_mut<GlobalTransform>();
             child_global_transform->TransformMatrix =
                     t.TransformMatrix *
-                    glm::translate(glm::f64mat4(1.0f),
+                    glm::translate(glm::f64mat4(1.0),
                                    child_transform->position) *
                     glm::mat4_cast(child_transform->rotation) *
-                    glm::scale(glm::f64mat4(1.0f),
+                    glm::scale(glm::f64mat4(1.0),
                                glm::f64vec3(child_transform->scale));
         }
     }
@@ -73,7 +73,7 @@ void UpdateChildLocalIfGlobalChanged(flecs::entity e, GlobalTransform &t) {
 }
 
 void UpdateChildGlobalIfLocalChanged(flecs::entity e, LocalTransform &t) {
-    auto global = e.get_mut<GlobalTransform>()->TransformMatrix =
+    [[maybe_unused]] auto global = e.get_mut<GlobalTransform>()->TransformMatrix =
             getMatrixFromLocal(t) *
             e.get<Parent>()->parent.get<GlobalTransform>()->TransformMatrix;
 }
