@@ -413,7 +413,7 @@ void VulkanEngine::init_descriptors() {
         _frame._frameDescriptors = DescriptorAllocatorGrowable{};
         _frame._frameDescriptors.init(_device, 1000, frame_sizes);
 
-        _mainDeletionQueue.push_function([&, &_frame]() {
+        _mainDeletionQueue.push_function([&]() {
             _frame._frameDescriptors.destroy_pools(_device);
         });
     }
