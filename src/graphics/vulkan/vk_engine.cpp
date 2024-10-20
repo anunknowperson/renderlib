@@ -401,7 +401,7 @@ void VulkanEngine::init_descriptors() {
 
     writer.update_set(_device, _drawImageDescriptors);
 
-    for (int i = 0; i < FRAME_OVERLAP; i++) {
+    for (auto & _frame : _frames) {
         // create a descriptor pool
         std::vector<DescriptorAllocatorGrowable::PoolSizeRatio> frame_sizes = {
                 {VK_DESCRIPTOR_TYPE_STORAGE_IMAGE, 3},
@@ -410,11 +410,11 @@ void VulkanEngine::init_descriptors() {
                 {VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 4},
         };
 
-        _frames[i]._frameDescriptors = DescriptorAllocatorGrowable{};
-        _frames[i]._frameDescriptors.init(_device, 1000, frame_sizes);
+        _frame._frameDescriptors = DescriptorAllocatorGrowable{};
+        _frame._frameDescriptors.init(_device, 1000, frame_sizes);
 
-        _mainDeletionQueue.push_function([&, i]() {
-            _frames[i]._frameDescriptors.destroy_pools(_device);
+        _mainDeletionQueue.push_function([&, &_frame]() {
+            _frame._frameDescriptors.destroy_pools(_device);
         });
     }
 }
@@ -625,17 +625,17 @@ void VulkanEngine::init_commands() {
             _graphicsQueueFamily,
             VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT);
 
-    for (int i = 0; i < FRAME_OVERLAP; i++) {
+    for (auto & _frame : _frames) {
         VK_CHECK(vkCreateCommandPool(_device, &commandPoolInfo, nullptr,
-                                     &_frames[i]._commandPool));
+                                     &_frame._commandPool));
 
         // allocate the default command buffer that we will use for rendering
         VkCommandBufferAllocateInfo cmdAllocInfo =
-                vkinit::command_buffer_allocate_info(_frames[i]._commandPool,
+                vkinit::command_buffer_allocate_info(_frame._commandPool,
                                                      1);
 
         VK_CHECK(vkAllocateCommandBuffers(_device, &cmdAllocInfo,
-                                          &_frames[i]._mainCommandBuffer));
+                                          &_frame._mainCommandBuffer));
     }
 
     VK_CHECK(vkCreateCommandPool(_device, &commandPoolInfo, nullptr,
@@ -658,14 +658,14 @@ void VulkanEngine::init_sync_structures() {
             vkinit::fence_create_info(VK_FENCE_CREATE_SIGNALED_BIT);
     VkSemaphoreCreateInfo semaphoreCreateInfo = vkinit::semaphore_create_info();
 
-    for (int i = 0; i < FRAME_OVERLAP; i++) {
+    for (auto & _frame : _frames) {
         VK_CHECK(vkCreateFence(_device, &fenceCreateInfo, nullptr,
-                               &_frames[i]._renderFence));
+                               &_frame._renderFence));
 
         VK_CHECK(vkCreateSemaphore(_device, &semaphoreCreateInfo, nullptr,
-                                   &_frames[i]._swapchainSemaphore));
+                                   &_frame._swapchainSemaphore));
         VK_CHECK(vkCreateSemaphore(_device, &semaphoreCreateInfo, nullptr,
-                                   &_frames[i]._renderSemaphore));
+                                   &_frame._renderSemaphore));
     }
 
     VK_CHECK(vkCreateFence(_device, &fenceCreateInfo, nullptr, &_immFence));
@@ -752,8 +752,8 @@ void VulkanEngine::destroy_swapchain() {
     vkDestroySwapchainKHR(_device, _swapchain, nullptr);
 
     // destroy swapchain resources
-    for (int i = 0; i < _swapchainImageViews.size(); i++) {
-        vkDestroyImageView(_device, _swapchainImageViews[i], nullptr);
+    for (auto & _swapchainImageView : _swapchainImageViews) {
+        vkDestroyImageView(_device, _swapchainImageView, nullptr);
     }
 }
 
@@ -766,14 +766,14 @@ void VulkanEngine::cleanup() {
 
         _mainDeletionQueue.flush();
 
-        for (int i = 0; i < FRAME_OVERLAP; i++) {
+        for (auto & _frame : _frames) {
             // already written from before
-            vkDestroyCommandPool(_device, _frames[i]._commandPool, nullptr);
+            vkDestroyCommandPool(_device, _frame._commandPool, nullptr);
 
             // destroy sync objects
-            vkDestroyFence(_device, _frames[i]._renderFence, nullptr);
-            vkDestroySemaphore(_device, _frames[i]._renderSemaphore, nullptr);
-            vkDestroySemaphore(_device, _frames[i]._swapchainSemaphore,
+            vkDestroyFence(_device, _frame._renderFence, nullptr);
+            vkDestroySemaphore(_device, _frame._renderSemaphore, nullptr);
+            vkDestroySemaphore(_device, _frame._swapchainSemaphore,
                                nullptr);
         }
 
