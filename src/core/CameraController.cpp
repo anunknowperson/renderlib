@@ -3,34 +3,32 @@
 #include <glm/gtx/quaternion.hpp>
 
 CameraController::CameraController(Camera& cam)
-    : _camera(cam), _pitch(0.0f), _yaw(0.0f) {
-    updateViewMatrix();
-}
+    : _camera(cam), _pitch(0.0f), _yaw(0.0f) {}
 
 void CameraController::setPosition(const glm::vec3& newPosition) {
     _camera.position = newPosition;
-    updateViewMatrix();
+    _camera.updateViewMatrix();  // Обновляем матрицу вида в самом классе Camera
 }
 
 void CameraController::setRotation(const glm::quat& newRotation) {
     _camera.rotation = newRotation;
-    updateViewMatrix();
+    _camera.updateViewMatrix();  // Обновляем матрицу вида в самом классе Camera
 }
 
 void CameraController::lookAt(const glm::vec3& target) {
     glm::vec3 direction = glm::normalize(target - _camera.position);
     _camera.rotation = glm::quatLookAt(direction, glm::vec3(0.0f, 1.0f, 0.0f));
-    updateViewMatrix();
+    _camera.updateViewMatrix();  // Обновляем матрицу вида в самом классе Camera
 }
 
 void CameraController::setPitch(float newPitch) {
     _pitch = newPitch;
-    updateViewMatrix();
+    _camera.updateViewMatrix();  // Обновляем матрицу вида в самом классе Camera
 }
 
 void CameraController::setYaw(float newYaw) {
     _yaw = newYaw;
-    updateViewMatrix();
+    _camera.updateViewMatrix();  // Обновляем матрицу вида в самом классе Camera
 }
 
 void CameraController::setFOV(float newFOV) {
@@ -55,12 +53,6 @@ float CameraController::getYaw() const {
 
 float CameraController::getFOV() const {
     return _camera.fov;
-}
-
-glm::mat4 CameraController::getViewMatrix() const {
-    return glm::lookAt(_camera.position,
-                       _camera.position + glm::vec3(0.0f, 0.0f, -1.0f),
-                       glm::vec3(0.0f, 1.0f, 0.0f));
 }
 
 void CameraController::processSDLEvent(const SDL_Event& event) {

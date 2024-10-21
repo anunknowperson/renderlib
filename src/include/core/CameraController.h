@@ -15,46 +15,25 @@ public:
     // Позволяет управлять камерой через данный контроллер.
     explicit CameraController(Camera& camera);
 
-    // Устанавливает новую позицию камеры.
-    void setPosition(const glm::vec3& newPosition);
+    void setPosition(const glm::vec3& newPosition);  // Устанавливает новую
+                                                     // позицию камеры
+    glm::vec3 getPosition() const;  // Возвращает текущую позицию камеры
 
-    // Возвращает текущую позицию камеры.
-    glm::vec3 getPosition() const;
+    void setRotation(
+            const glm::quat& newRotation);  // Устанавливает ориентацию камеры
+    glm::quat getRotation() const;  // Возвращает текущую ориентацию камеры
 
-    // Устанавливает новое значение ориентации камеры.
-    // newRotation - новый кватернион, описывающий ориентацию камеры.
-    void setRotation(const glm::quat& newRotation);
+    void setPitch(float newPitch);  // Устанавливает угол наклона камеры (pitch)
+    float getPitch() const;  // Возвращает текущий угол наклона
 
-    // Возвращает текущую ориентацию камеры.
-    glm::quat getRotation() const;
+    void setYaw(float newYaw);  // Устанавливает угол поворота камеры (yaw)
+    float getYaw() const;  // Возвращает текущий угол поворота
 
-    // Устанавливает угол наклона камеры (pitch).
-    void setPitch(float newPitch);
+    void lookAt(const glm::vec3& target);  // Устанавливает ориентацию камеры,
+                                           // чтобы она смотрела на target
 
-    // Устанавливает угол поворота камеры (yaw).
-    void setYaw(float newYaw);
-
-    // Возвращает текущий угол наклона камеры (pitch).
-    float getPitch() const;
-
-    // Возвращает текущий угол поворота камеры (yaw).
-    float getYaw() const;
-
-    // Устанавливает ориентацию камеры так, чтобы она смотрела на заданную
-    // точку. target - точка, на которую должна смотреть камера.
-    void lookAt(const glm::vec3& target);
-
-    // Устанавливает новое значение угла обзора (FOV) камеры.
-    void setFOV(float newFOV);
-
-    // Возвращает текущий угол обзора (FOV) камеры.
-    float getFOV() const;
-
-    // Возвращает матрицу вида камеры
-    glm::mat4 getViewMatrix() const;
-
-    // Обновляет матрицу вида камеры на основе текущей позиции и ориентации.
-    void updateViewMatrix();
+    void setFOV(float newFOV);  // Устанавливает угол обзора
+    float getFOV() const;  // Возвращает текущий угол обзора
 
     // Обрабатывает события SDL, такие как нажатия клавиш (WASD) для перемещения
     // камеры и движения мыши для изменения ориентации камеры.

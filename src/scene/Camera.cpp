@@ -1,5 +1,7 @@
 #include "scene/Camera.h"
 
+#include <glm/gtc/matrix_transform.hpp>
+
 Camera::Camera()
     : position(glm::vec3(0.0f, 0.0f, 3.0f)),
       rotation(glm::quat(1.0f, 0.0f, 0.0f, 0.0f)),
@@ -28,4 +30,14 @@ glm::quat Camera::getRotation() const {
 
 float Camera::getFOV() const {
     return fov;
+}
+
+glm::mat4 Camera::getViewMatrix() const {
+    return glm::lookAt(position, position + _direction,
+                       glm::vec3(0.0f, 1.0f, 0.0f));
+}
+
+void Camera::updateViewMatrix() {
+    _viewMatrix = glm::lookAt(position, position + _direction,
+                              glm::vec3(0.0f, 1.0f, 0.0f));
 }
