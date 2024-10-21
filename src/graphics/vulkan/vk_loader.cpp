@@ -359,7 +359,7 @@ std::optional<std::shared_ptr<LoadedGLTF>> loadGltf(VulkanEngine* engine,
             newSurface.count =
                     (uint32_t)gltf.accessors[p.indicesAccessor.value()].count;
 
-            size_t initial_vtx = vertices.size();
+            auto initial_vtx = static_cast<uint32_t>(vertices.size());
 
             // load indexes
             {
@@ -478,7 +478,7 @@ std::optional<std::shared_ptr<LoadedGLTF>> loadGltf(VulkanEngine* engine,
     }
 
     // run loop again to setup transform hierarchy
-    for (int i = 0; i < gltf.nodes.size(); i++) {
+    for (size_t i = 0; i < gltf.nodes.size(); i++) {
         fastgltf::Node& node = gltf.nodes[i];
         std::shared_ptr<ENode>& sceneNode = nodes[i];
 

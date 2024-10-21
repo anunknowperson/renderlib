@@ -892,8 +892,8 @@ void VulkanEngine::draw_background(VkCommandBuffer cmd) {
 
     // execute the compute pipeline dispatch. We are using 16x16 workgroup size,
     // so we need to divide by it
-    vkCmdDispatch(cmd, std::ceil(_drawExtent.width / 16.0),
-                  std::ceil(_drawExtent.height / 16.0), 1);
+    vkCmdDispatch(cmd, static_cast<uint32_t>(std::ceil(_drawExtent.width / 16.0)),
+                  static_cast<uint32_t>(std::ceil(_drawExtent.height / 16.0)), 1);
 }
 
 void VulkanEngine::draw_imgui(VkCommandBuffer cmd,
@@ -949,8 +949,8 @@ void VulkanEngine::draw_geometry(VkCommandBuffer cmd) {
     VkViewport viewport = {};
     viewport.x = 0;
     viewport.y = 0;
-    viewport.width = _drawExtent.width;
-    viewport.height = _drawExtent.height;
+    viewport.width = static_cast<float>(_drawExtent.width);
+    viewport.height = static_cast<float>(_drawExtent.height);
     viewport.minDepth = 0.f;
     viewport.maxDepth = 1.f;
 
@@ -1040,12 +1040,14 @@ void VulkanEngine::draw() {
     VkCommandBufferBeginInfo cmdBeginInfo = vkinit::command_buffer_begin_info(
             VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT);
 
-    _drawExtent.height =
-            std::min(_swapchainExtent.height, _drawImage.imageExtent.height) *
-            renderScale;
-    _drawExtent.width =
-            std::min(_swapchainExtent.width, _drawImage.imageExtent.width) *
-            renderScale;
+    _drawExtent.height = static_cast<uint32_t>(
+            (float)std::min(_swapchainExtent.height,
+                            _drawImage.imageExtent.height) *
+            renderScale);
+    _drawExtent.width = static_cast<uint32_t>(
+            (float)std::min(_swapchainExtent.width,
+                            _drawImage.imageExtent.width) *
+            renderScale);
 
     VK_CHECK(vkBeginCommandBuffer(cmd, &cmdBeginInfo));
 
@@ -1147,8 +1149,8 @@ void VulkanEngine::resize_swapchain() {
 
     int w, h;
     SDL_GetWindowSize(_window, &w, &h);
-    _windowExtent.width = w;
-    _windowExtent.height = h;
+    _windowExtent.width = static_cast<uint32_t>(w);
+    _windowExtent.height = static_cast<uint32_t>(h);
 
     create_swapchain(_windowExtent.width, _windowExtent.height);
 
