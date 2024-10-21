@@ -1,24 +1,43 @@
 #include <gtest/gtest.h>
-#include "scene/Camera.h"
 #include <glm/glm.hpp>
+#include "scene/Camera.h"
 
-TEST(CameraTest, GetSetPosition) {
-    Camera camera;
-    glm::vec3 newPos(1.0f, 2.0f, 3.0f);
-    camera.setPosition(newPos);
-    EXPECT_EQ(camera.getPosition(), newPos);
+TEST(CameraTest, TestLookAt) {
+    Camera camera(glm::vec3(0.0f, 0.0f, 3.0f), 45.0f, 800.0f, 600.0f);
+    glm::vec3 target(0.0f, 0.0f, 0.0f);
+
+    // Проверяем, что поворот камеры меняется корректно при вызове lookAt
+    glm::quat initialRotation = camera.getRotation();
+    camera.lookAt(target);
+    glm::quat newRotation = camera.getRotation();
+
+    EXPECT_NE(initialRotation, newRotation);
 }
 
-TEST(CameraTest, GetSetRotation) {
+TEST(CameraTest, TestSetPosition) {
     Camera camera;
-    glm::quat newRotation = glm::quat(glm::vec3(0.0f, 0.0f, glm::radians(45.0f)));
+    glm::vec3 newPosition(5.0f, 5.0f, 5.0f);
+    camera.setPosition(newPosition);
+
+    EXPECT_EQ(camera.getPosition(), newPosition);
+}
+
+TEST(CameraTest, TestSetRotation) {
+    Camera camera;
+    glm::quat newRotation(0.707f, 0.707f, 0.0f, 0.0f);
     camera.setRotation(newRotation);
+
     EXPECT_EQ(camera.getRotation(), newRotation);
 }
 
-TEST(CameraTest, GetSetFOV) {
+TEST(CameraTest, TestSetFOVBoundaries) {
     Camera camera;
-    float newFOV = 90.0f;
-    camera.setFOV(newFOV);
-    EXPECT_FLOAT_EQ(camera.getFOV(), newFOV);
+
+    // Проверяем минимальное значение FOV
+    camera.setFOV(1.0f);
+    EXPECT_FLOAT_EQ(camera.getFOV(), 1.0f);
+
+    // Проверяем максимальное значение FOV
+    camera.setFOV(120.0f);
+    EXPECT_FLOAT_EQ(camera.getFOV(), 120.0f);
 }
