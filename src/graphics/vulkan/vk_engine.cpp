@@ -968,7 +968,6 @@ void VulkanEngine::draw_geometry(VkCommandBuffer cmd) {
     VkDescriptorSet imageSet = get_current_frame()._frameDescriptors.allocate(
             _device, _singleImageDescriptorLayout);
     {
-        DescriptorWriter writer;
         writer.write_image(0, _errorCheckerboardImage.imageView,
                            _defaultSamplerNearest,
                            VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
