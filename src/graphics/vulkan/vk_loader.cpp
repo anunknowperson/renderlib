@@ -271,7 +271,7 @@ std::optional<std::shared_ptr<LoadedGLTF>> loadGltf(VulkanEngine* engine,
     std::vector<std::shared_ptr<GLTFMaterial>> materials;
 
     // load all textures
-    for (fastgltf::Image& image : gltf.images) {
+    for (size_t i = 0; i < gltf.images.size(); i++) {
         images.push_back(engine->_errorCheckerboardImage);
     }
 
