@@ -241,7 +241,7 @@ std::optional<std::shared_ptr<LoadedGLTF>> loadGltf(VulkanEngine* engine,
             {VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 3},
             {VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 1}};
 
-    file.descriptorPool.init(engine->_device, gltf.materials.size(), sizes);
+    file.descriptorPool.init(engine->_device, static_cast<uint32_t>(gltf.materials.size()), sizes);
 
     // load samplers
     for (fastgltf::Sampler& sampler : gltf.samplers) {
@@ -280,7 +280,7 @@ std::optional<std::shared_ptr<LoadedGLTF>> loadGltf(VulkanEngine* engine,
             sizeof(GLTFMetallic_Roughness::MaterialConstants) *
                     gltf.materials.size(),
             VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VMA_MEMORY_USAGE_CPU_TO_GPU);
-    int data_index = 0;
+    uint32_t data_index = 0;
     GLTFMetallic_Roughness::MaterialConstants* sceneMaterialConstants =
             (GLTFMetallic_Roughness::MaterialConstants*)
                     file.materialDataBuffer.info.pMappedData;
