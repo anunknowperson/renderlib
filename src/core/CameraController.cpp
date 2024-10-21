@@ -1,8 +1,9 @@
 #include "core/CameraController.h"
+
 #include <glm/gtx/quaternion.hpp>
 
 CameraController::CameraController(Camera& cam)
-        : camera(cam), pitch(0.0f), yaw(0.0f) {
+    : camera(cam), pitch(0.0f), yaw(0.0f) {
     updateViewMatrix();
 }
 
@@ -58,16 +59,21 @@ float CameraController::getFOV() const {
 
 glm::mat4 CameraController::getViewMatrix() const {
     // Создаем матрицу вида на основе позиции и ориентации камеры
-    return glm::lookAt(camera.position, camera.position + glm::vec3(0.0f, 0.0f, -1.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+    return glm::lookAt(camera.position,
+                       camera.position + glm::vec3(0.0f, 0.0f, -1.0f),
+                       glm::vec3(0.0f, 1.0f, 0.0f));
 }
-// updateViewMatrix обновляет матрицу вида камеры на основе текущей позиции и ориентации
+
+// updateViewMatrix обновляет матрицу вида камеры на основе текущей позиции и
+// ориентации
 
 // Перемещение камеры с использованием клавиш WASD.
 // Изменение ориентации камеры (вращение) при движении мыши.
 // Изменение скорости движения камеры с помощью клавиш Shift или Ctrl.
 void CameraController::processSDLEvent(const SDL_Event& event) {
     const float moveSpeed = 0.1f;  // Скорость движения камеры
-    const float lookSpeed = 0.005f; // Скорость вращения камеры при движении мыши
+    const float lookSpeed =
+            0.005f;  // Скорость вращения камеры при движении мыши
 
     if (event.type == SDL_KEYDOWN) {
         switch (event.key.keysym.sym) {
@@ -88,9 +94,10 @@ void CameraController::processSDLEvent(const SDL_Event& event) {
 
     if (event.type == SDL_MOUSEMOTION) {
         pitch -= event.motion.yrel * lookSpeed;  // Изменяем угол наклона
-        yaw -= event.motion.xrel * lookSpeed;    // Изменяем угол поворота
+        yaw -= event.motion.xrel * lookSpeed;  // Изменяем угол поворота
 
-        glm::quat pitchQuat = glm::angleAxis(pitch, glm::vec3(1.0f, 0.0f, 0.0f));
+        glm::quat pitchQuat =
+                glm::angleAxis(pitch, glm::vec3(1.0f, 0.0f, 0.0f));
         glm::quat yawQuat = glm::angleAxis(yaw, glm::vec3(0.0f, 1.0f, 0.0f));
         camera.rotation = yawQuat * pitchQuat;  // Обновляем вращение камеры
     }

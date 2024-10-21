@@ -1,8 +1,9 @@
 #pragma once
 
+#include <SDL2/SDL.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/quaternion.hpp>
-#include <SDL2/SDL.h>
+
 #include "scene/Camera.h"
 
 class CameraController {
@@ -14,7 +15,7 @@ public:
 
     void setRotation(const glm::quat& newRotation);
     glm::quat getRotation() const;
-    
+
     void setPitch(float newPitch);
     void setYaw(float newYaw);
     float getPitch() const;
@@ -24,13 +25,14 @@ public:
     void setFOV(float newFOV);
     float getFOV() const;
 
-    glm::mat4 getViewMatrix() const; // Метод для получения матрицы вида
-    void updateViewMatrix(); // Метод для обновления матрицы вида
+    glm::mat4 getViewMatrix() const;  // Метод для получения матрицы вида
+    void updateViewMatrix();  // Метод для обновления матрицы вида
 
-    void processSDLEvent(const SDL_Event& event); // Метод для обработки событий SDL
+    void processSDLEvent(
+            const SDL_Event& event);  // Метод для обработки событий SDL
 
 private:
-    Camera& camera; // Ссылка на камеру
-    float pitch; // Угол наклона
-    float yaw; // Угол поворота
+    Camera& camera;  // Ссылка на камеру
+    float pitch;     // Угол наклона
+    float yaw;       // Угол поворота
 };
