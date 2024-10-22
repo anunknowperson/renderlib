@@ -82,9 +82,11 @@ struct GPUSceneData {
 };
 
 struct MeshNode : public ENode {
+    MeshNode() = default;
+
     std::shared_ptr<MeshAsset> mesh;
 
-    virtual void Draw(const glm::mat4& topMatrix, DrawContext& ctx) override;
+    void Draw(const glm::mat4& topMatrix, DrawContext& ctx) override;
 };
 
 struct RenderObject {
