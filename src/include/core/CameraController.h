@@ -1,36 +1,53 @@
 #pragma once
 
+#include <SDL2/SDL.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/quaternion.hpp>
-#include <SDL.h>
+
 #include "scene/Camera.h"
 
+// Класс CameraController отвечает за управление камерой, такие как
+// позиция, ориентация, угол наклона и поворота, а также обновление матрицы
+// вида.
 class CameraController {
 public:
+    // Конструктор, принимающий ссылку на объект камеры.
+    // Позволяет управлять камерой через данный контроллер.
     explicit CameraController(Camera& camera);
 
-    void setPosition(const glm::vec3& newPosition);
-    glm::vec3 getPosition() const;
+    void lookAt(const glm::vec3& target);  // Устанавливает ориентацию камеры,
+                                           // чтобы она смотрела на target
 
-    void setRotation(const glm::quat& newRotation);
-    glm::quat getRotation() const;
-    
-    void setPitch(float newPitch);
-    void setYaw(float newYaw);
-    float getPitch() const;
-    float getYaw() const;
+    void setPosition(const glm::vec3& newPosition);  // Устанавливает новую
+                                                     // позицию камеры
+    glm::vec3 getPosition() const;  // Возвращает текущую позицию камеры
 
-    void lookAt(const glm::vec3& target);
-    void setFOV(float newFOV);
-    float getFOV() const;
+    void setRotation(
+            const glm::quat& newRotation);  // Устанавливает ориентацию камеры
+    glm::quat getRotation() const;  // Возвращает текущую ориентацию камеры
 
-    glm::mat4 getViewMatrix() const; // Метод для получения матрицы вида
-    void updateViewMatrix(); // Метод для обновления матрицы вида
+    void setPitch(float newPitch);  // Устанавливает угол наклона камеры (pitch)
+    float getPitch() const;  // Возвращает текущий угол наклона
 
-    void processSDLEvent(const SDL_Event& event); // Метод для обработки событий SDL
+    void setYaw(float newYaw);  // Устанавливает угол поворота камеры (yaw)
+    float getYaw() const;  // Возвращает текущий угол поворота
+
+    void setFOV(float newFOV);  // Устанавливает угол обзора
+    float getFOV() const;  // Возвращает текущий угол обзора
+
+    void setScreenWidth(float screenWidth);  // Устанавливает ширину экрана
+    float getScreenWidth() const;  // Возвращает ширину экрана
+
+    void setScreenHeight(float screenHeight);  // Устанавливает высоту экрана
+    float getScreenHeight() const;  // Возвращает высоту экрана
+
+    // Обрабатывает события SDL, такие как нажатия клавиш (WASD) для перемещения
+    // камеры и движения мыши для изменения ориентации камеры.
+    // event - событие, которое нужно обработать.
+    void processSDLEvent(const SDL_Event& event);
 
 private:
-    Camera& camera; // Ссылка на камеру
-    float pitch; // Угол наклона
-    float yaw; // Угол поворота
+    Camera& _camera;  // Ссылка на объект камеры, управляемой этим контроллером
+    float _pitch;     // Угол наклона камеры (по оси X)
+    float _yaw;       // Угол поворота камеры (по оси Y)
 };
