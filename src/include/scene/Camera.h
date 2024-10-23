@@ -21,12 +21,12 @@ public:
     glm::mat4 getViewMatrix() const;  // Возвращает матрицу вида
 
 private:
-    // поля, которые контроллер будет использовать для управления камерой
-    glm::vec3 position;
-    glm::quat rotation;
-    float fov;             // Угол обзора в градусах
-    float width;           // Ширина экрана
-    float height;          // Высота экрана
+    // Поля, которые контроллер будет использовать для управления камерой
+    glm::vec3 _position;
+    glm::quat _rotation;
+    float _fov;            // Угол обзора в градусах
+    float _width;          // Ширина экрана
+    float _height;         // Высота экрана
     glm::vec3 _direction;  // Направление взгляда камеры
     glm::mat4 _viewMatrix;  // Матрица вида, используемая для преобразований
 
