@@ -16,7 +16,8 @@ public:
     // Конструктор с параметрами.
     // Позволяет задать положение камеры, угол обзора (в градусах) и размеры
     // экрана.
-    Camera(const glm::vec3& position, float fov, float width, float height);
+    Camera(const glm::vec3& position, float fov, float screenWidth,
+           float screenHeight);
 
     glm::mat4 getViewMatrix() const;  // Возвращает матрицу вида
 
@@ -25,8 +26,8 @@ private:
     glm::vec3 _position;
     glm::quat _rotation;
     float _fov;            // Угол обзора в градусах
-    float _width;          // Ширина экрана
-    float _height;         // Высота экрана
+    float _screenWidth;    // Ширина экрана
+    float _screenHeight;   // Высота экрана
     glm::vec3 _direction;  // Направление взгляда камеры
     glm::mat4 _viewMatrix;  // Матрица вида, используемая для преобразований
 

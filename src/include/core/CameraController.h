@@ -35,11 +35,11 @@ public:
     void setFOV(float newFOV);  // Устанавливает угол обзора
     float getFOV() const;  // Возвращает текущий угол обзора
 
-    void setWidth(float width);  // Устанавливает ширину экрана
-    float getWidth() const;  // Возвращает ширину экрана
+    void setScreenWidth(float screenWidth);  // Устанавливает ширину экрана
+    float getScreenWidth() const;  // Возвращает ширину экрана
 
-    void setHeight(float height);  // Устанавливает высоту экрана
-    float getHeight() const;  // Возвращает высоту экрана
+    void setScreenHeight(float screenHeight);  // Устанавливает высоту экрана
+    float getScreenHeight() const;  // Возвращает высоту экрана
 
     // Обрабатывает события SDL, такие как нажатия клавиш (WASD) для перемещения
     // камеры и движения мыши для изменения ориентации камеры.

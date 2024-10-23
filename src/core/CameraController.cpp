@@ -5,22 +5,22 @@
 CameraController::CameraController(Camera& cam)
     : _camera(cam), _pitch(0.0f), _yaw(0.0f) {}
 
-void CameraController::lookAt(const glm::vec3& target) {
-    glm::vec3 direction = glm::normalize(target - _camera.position);
-    _camera.rotation = glm::quatLookAt(direction, glm::vec3(0.0f, 1.0f, 0.0f));
+void CameraController::setPosition(const glm::vec3& newPosition) {
+    _camera._position = newPosition;
     _camera.updateViewMatrix();
 }
 
-// Setters and getters
-// Setters:
-void CameraController::setPosition(const glm::vec3& newPosition) {
-    _camera.position = newPosition;
-    _camera.updateViewMatrix();
+glm::vec3 CameraController::getPosition() const {
+    return _camera._position;
 }
 
 void CameraController::setRotation(const glm::quat& newRotation) {
-    _camera.rotation = newRotation;
+    _camera._rotation = newRotation;
     _camera.updateViewMatrix();
+}
+
+glm::quat CameraController::getRotation() const {
+    return _camera._rotation;
 }
 
 void CameraController::setPitch(float newPitch) {
@@ -28,50 +28,47 @@ void CameraController::setPitch(float newPitch) {
     _camera.updateViewMatrix();
 }
 
+float CameraController::getPitch() const {
+    return _pitch;
+}
+
 void CameraController::setYaw(float newYaw) {
     _yaw = newYaw;
     _camera.updateViewMatrix();
-}
-
-void CameraController::setFOV(float newFOV) {
-    _camera.fov = newFOV;
-}
-
-void CameraController::setWidth(float width) {
-    _camera.width = width;
-}
-
-void CameraController::setHeight(float height) {
-    _camera.height = height;
-}
-
-// Getters:
-glm::vec3 CameraController::getPosition() const {
-    return _camera.position;
-}
-
-glm::quat CameraController::getRotation() const {
-    return _camera.rotation;
-}
-
-float CameraController::getPitch() const {
-    return _pitch;
 }
 
 float CameraController::getYaw() const {
     return _yaw;
 }
 
+void CameraController::lookAt(const glm::vec3& target) {
+    glm::vec3 direction = glm::normalize(target - _camera._position);
+    _camera._rotation = glm::quatLookAt(direction, glm::vec3(0.0f, 1.0f, 0.0f));
+    _camera.updateViewMatrix();
+}
+
+void CameraController::setFOV(float newFOV) {
+    _camera._fov = newFOV;
+}
+
 float CameraController::getFOV() const {
-    return _camera.fov;
+    return _camera._fov;
 }
 
-float CameraController::getWidth() const {
-    return _camera.width;
+void CameraController::setScreenWidth(float screenWidth) {
+    _camera._screenWidth = screenWidth;
 }
 
-float CameraController::getHeight() const {
-    return _camera.height;
+float CameraController::getScreenWidth() const {
+    return _camera._screenWidth;
+}
+
+void CameraController::setScreenHeight(float screenHeight) {
+    _camera._screenHeight = screenHeight;
+}
+
+float CameraController::getScreenHeight() const {
+    return _camera._screenHeight;
 }
 
 void CameraController::processSDLEvent(const SDL_Event& event) {
@@ -81,16 +78,16 @@ void CameraController::processSDLEvent(const SDL_Event& event) {
     if (event.type == SDL_KEYDOWN) {
         switch (event.key.keysym.sym) {
             case SDLK_w:
-                _camera.position += glm::vec3(0.0f, 0.0f, -moveSpeed);
+                _camera._position += glm::vec3(0.0f, 0.0f, -moveSpeed);
                 break;
             case SDLK_s:
-                _camera.position += glm::vec3(0.0f, 0.0f, moveSpeed);
+                _camera._position += glm::vec3(0.0f, 0.0f, moveSpeed);
                 break;
             case SDLK_a:
-                _camera.position += glm::vec3(-moveSpeed, 0.0f, 0.0f);
+                _camera._position += glm::vec3(-moveSpeed, 0.0f, 0.0f);
                 break;
             case SDLK_d:
-                _camera.position += glm::vec3(moveSpeed, 0.0f, 0.0f);
+                _camera._position += glm::vec3(moveSpeed, 0.0f, 0.0f);
                 break;
         }
     }
@@ -102,6 +99,6 @@ void CameraController::processSDLEvent(const SDL_Event& event) {
         glm::quat pitchQuat =
                 glm::angleAxis(_pitch, glm::vec3(1.0f, 0.0f, 0.0f));
         glm::quat yawQuat = glm::angleAxis(_yaw, glm::vec3(0.0f, 1.0f, 0.0f));
-        _camera.rotation = yawQuat * pitchQuat;
+        _camera._rotation = yawQuat * pitchQuat;
     }
 }
