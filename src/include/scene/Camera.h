@@ -2,6 +2,7 @@
 
 #include <glm/glm.hpp>
 #include <glm/gtc/quaternion.hpp>
+#include <glm/mat4x4.hpp>
 
 // Класс Camera отвечает только за хранение данных о камере
 // Имплементация содержится в CameraController
@@ -17,22 +18,20 @@ public:
     // экрана.
     Camera(const glm::vec3& position, float fov, float width, float height);
 
-    glm::vec3 getPosition() const;  // Возвращает текущее положение камеры
-    glm::quat getRotation() const;  // Возвращает текущую ориентацию камеры
-    float getFOV() const;  // Возвращает текущее значение угла обзора
-
     glm::mat4 getViewMatrix() const;  // Возвращает матрицу вида
-    void updateViewMatrix();  // Обновляет матрицу вида
-
-    // Публичные поля, которые контроллер будет использовать для управления
-    // камерой
-    glm::vec3 position;
-    glm::quat rotation;
-    float fov;     // Угол обзора в градусах
-    float width;   // Ширина экрана
-    float height;  // Высота экрана
 
 private:
+    // поля, которые контроллер будет использовать для управления камерой
+    glm::vec3 position;
+    glm::quat rotation;
+    float fov;             // Угол обзора в градусах
+    float width;           // Ширина экрана
+    float height;          // Высота экрана
     glm::vec3 _direction;  // Направление взгляда камеры
     glm::mat4 _viewMatrix;  // Матрица вида, используемая для преобразований
+
+    void updateViewMatrix();  // Обновляет матрицу вида
+
+    friend class CameraController;  // Чтобы контроллер имел доступ к приватным
+                                    // полям
 };

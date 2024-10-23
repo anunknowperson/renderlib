@@ -15,6 +15,9 @@ public:
     // Позволяет управлять камерой через данный контроллер.
     explicit CameraController(Camera& camera);
 
+    void lookAt(const glm::vec3& target);  // Устанавливает ориентацию камеры,
+                                           // чтобы она смотрела на target
+
     void setPosition(const glm::vec3& newPosition);  // Устанавливает новую
                                                      // позицию камеры
     glm::vec3 getPosition() const;  // Возвращает текущую позицию камеры
@@ -29,11 +32,14 @@ public:
     void setYaw(float newYaw);  // Устанавливает угол поворота камеры (yaw)
     float getYaw() const;  // Возвращает текущий угол поворота
 
-    void lookAt(const glm::vec3& target);  // Устанавливает ориентацию камеры,
-                                           // чтобы она смотрела на target
-
     void setFOV(float newFOV);  // Устанавливает угол обзора
     float getFOV() const;  // Возвращает текущий угол обзора
+
+    void setWidth(float width);  // Устанавливает ширину экрана
+    float getWidth() const;  // Возвращает ширину экрана
+
+    void setHeight(float height);  // Устанавливает высоту экрана
+    float getHeight() const;  // Возвращает высоту экрана
 
     // Обрабатывает события SDL, такие как нажатия клавиш (WASD) для перемещения
     // камеры и движения мыши для изменения ориентации камеры.
