@@ -1,5 +1,6 @@
 #include "core/CameraController.h"
 
+#define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/quaternion.hpp>
 
 CameraController::CameraController(Camera& cam)
@@ -69,6 +70,10 @@ void CameraController::setScreenHeight(float screenHeight) {
 
 float CameraController::getScreenHeight() const {
     return _camera._screenHeight;
+}
+
+void CameraController::update() {
+    _camera.updateViewMatrix();  // Обновляем матрицу вида
 }
 
 void CameraController::processSDLEvent(const SDL_Event& event) {
