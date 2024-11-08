@@ -20,6 +20,7 @@ public:
            float screenHeight);
 
     glm::mat4 getViewMatrix() const;  // Возвращает матрицу вида
+    void updateViewMatrix();  // Обновляет матрицу вида
 
 private:
     // Поля, которые контроллер будет использовать для управления камерой
@@ -30,8 +31,6 @@ private:
     float _screenHeight;   // Высота экрана
     glm::vec3 _direction;  // Направление взгляда камеры
     glm::mat4 _viewMatrix;  // Матрица вида, используемая для преобразований
-
-    void updateViewMatrix();  // Обновляет матрицу вида
 
     friend class CameraController;  // Чтобы контроллер имел доступ к приватным
                                     // полям

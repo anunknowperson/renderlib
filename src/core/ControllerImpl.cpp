@@ -5,6 +5,9 @@
 #include <iostream>
 #include <utility>
 
+#include "core/CameraController.h"
+#include "scene/Camera.h"
+
 #define GLM_ENABLE_EXPERIMENTAL
 #include <core/View.h>
 #include <glm/gtx/transform.hpp>
@@ -43,13 +46,13 @@ void updateCubes(const std::shared_ptr<IModel> &_model) {
 void ControllerImpl::update() const {
     _model->updateVulkan();
 
-    _model->getCamera()->update();
+    _model->getCameraController()->update();
 
     updateCubes(_model);
 }
 
 void ControllerImpl::processEvent(SDL_Event &e) const {
-    _model->getCamera()->processSDLEvent(e);
+    _model->getCameraController()->processSDLEvent(e);
 }
 
 void ControllerImpl::init() const {
