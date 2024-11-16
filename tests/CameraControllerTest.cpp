@@ -1,5 +1,9 @@
+#define GLM_ENABLE_EXPERIMENTAL
 #include <SDL2/SDL.h>
 #include <gtest/gtest.h>
+#include <glm/gtx/string_cast.hpp>
+#include <iostream>
+#include <glm/gtx/dual_quaternion.hpp>
 
 #include "core/CameraController.h"
 #include "scene/Camera.h"
@@ -67,7 +71,11 @@ TEST(CameraControllerTest, ProcessEventRotation) {
     event.motion.xrel = 10;
     event.motion.yrel = 5;
 
+    std::cout << "Initial Rotation: " << glm::to_string(controller.getRotation()) << std::endl;
+
     controller.processSDLEvent(event);
-    EXPECT_GT(controller.getRotation().x,
-              0.0f);  // Ожидаем, что угол наклона изменился
+
+    std::cout << "New Rotation: " << glm::to_string(controller.getRotation()) << std::endl;
+
+    EXPECT_GT(controller.getRotation().x, 0.0f);  // Ожидаем, что угол наклона изменился
 }
