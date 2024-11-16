@@ -27,6 +27,51 @@ TEST(CameraControllerTest, SetRotation) {
     EXPECT_EQ(controller.getRotation(), newRotation);
 }
 
+TEST(CameraControllerTest, SetPitch) {
+    Camera camera;
+    CameraController controller(camera);
+    float newPitch = 45.0f;
+
+    controller.setPitch(newPitch);
+    EXPECT_FLOAT_EQ(controller.getPitch(), newPitch);
+}
+
+TEST(CameraControllerTest, SetYaw) {
+    Camera camera;
+    CameraController controller(camera);
+    float newYaw = 90.0f;
+
+    controller.setYaw(newYaw);
+    EXPECT_FLOAT_EQ(controller.getYaw(), newYaw);
+}
+
+TEST(CameraControllerTest, SetScreenWidth) {
+    Camera camera;
+    CameraController controller(camera);
+    float newScreenWidth = 1920.0f;
+
+    controller.setScreenWidth(newScreenWidth);
+    EXPECT_FLOAT_EQ(controller.getScreenWidth(), newScreenWidth);
+}
+
+TEST(CameraControllerTest, SetScreenHeight) {
+    Camera camera;
+    CameraController controller(camera);
+    float newScreenHeight = 1080.0f;
+
+    controller.setScreenHeight(newScreenHeight);
+    EXPECT_FLOAT_EQ(controller.getScreenHeight(), newScreenHeight);
+}
+
+TEST(CameraControllerTest, SetFOV) {
+    Camera camera;
+    CameraController controller(camera);
+    float newFOV = 60.0f;
+
+    controller.setFOV(newFOV);
+    EXPECT_FLOAT_EQ(controller.getFOV(), newFOV);
+}
+
 TEST(CameraControllerTest, LookAtTarget) {
     Camera camera;
     CameraController controller(camera);
@@ -38,15 +83,6 @@ TEST(CameraControllerTest, LookAtTarget) {
                                     glm::normalize(target -
                                                    controller.getPosition()),
                                     glm::vec3(0.0f, 1.0f, 0.0f))) < 0.01f);
-}
-
-TEST(CameraControllerTest, SetFOV) {
-    Camera camera;
-    CameraController controller(camera);
-    float newFOV = 60.0f;
-
-    controller.setFOV(newFOV);
-    EXPECT_FLOAT_EQ(controller.getFOV(), newFOV);
 }
 
 TEST(CameraControllerTest, ProcessEventMovement) {
@@ -78,4 +114,13 @@ TEST(CameraControllerTest, ProcessEventRotation) {
     std::cout << "New Rotation: " << glm::to_string(controller.getRotation()) << std::endl;
 
     EXPECT_GT(controller.getRotation().x, 0.0f);  // Ожидаем, что угол наклона изменился
+}
+
+TEST(CameraControllerTest, Update) {
+    Camera camera;
+    CameraController controller(camera);
+
+    // Assuming updateViewMatrix() modifies some internal state
+    controller.update();
+    // Add assertions to verify the state change if possible
 }
