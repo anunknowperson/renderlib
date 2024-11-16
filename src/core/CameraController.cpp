@@ -77,33 +77,15 @@ void CameraController::update() {
 }
 
 void CameraController::processSDLEvent(const SDL_Event& event) {
-    const float moveSpeed = 0.1f;
-    const float lookSpeed = 0.005f;
-
-    if (event.type == SDL_KEYDOWN) {
-        switch (event.key.keysym.sym) {
-            case SDLK_w:
-                _camera._position += glm::vec3(0.0f, 0.0f, -moveSpeed);
-                break;
-            case SDLK_s:
-                _camera._position += glm::vec3(0.0f, 0.0f, moveSpeed);
-                break;
-            case SDLK_a:
-                _camera._position += glm::vec3(-moveSpeed, 0.0f, 0.0f);
-                break;
-            case SDLK_d:
-                _camera._position += glm::vec3(moveSpeed, 0.0f, 0.0f);
-                break;
-        }
-    }
-
     if (event.type == SDL_MOUSEMOTION) {
-        _pitch -= event.motion.yrel * lookSpeed;
-        _yaw -= event.motion.xrel * lookSpeed;
+        float sensitivity = 0.001f; // Adjust sensitivity as needed
+        float yaw = event.motion.xrel * sensitivity;
+        float pitch = event.motion.yrel * sensitivity;
 
-        glm::quat pitchQuat =
-                glm::angleAxis(_pitch, glm::vec3(1.0f, 0.0f, 0.0f));
-        glm::quat yawQuat = glm::angleAxis(_yaw, glm::vec3(0.0f, 1.0f, 0.0f));
-        _camera._rotation = yawQuat * pitchQuat;
+        glm::quat yawQuat = glm::angleAxis(yaw, glm::vec3(0.0f, 1.0f, 0.0f));
+        glm::quat pitchQuat = glm::angleAxis(pitch, glm::vec3(1.0f, 0.0f, 0.0f));
+
+        glm::quat newRotation = yawQuat * pitchQuat * getRotation();
+        setRotation(newRotation);
     }
 }
