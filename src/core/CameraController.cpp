@@ -87,5 +87,25 @@ void CameraController::processSDLEvent(const SDL_Event& event) {
 
         glm::quat newRotation = yawQuat * pitchQuat * getRotation();
         setRotation(newRotation);
+    } else if (event.type == SDL_KEYDOWN) {
+        float moveSpeed = 0.1f; // Adjust movement speed as needed
+        glm::vec3 position = getPosition();
+
+        switch (event.key.keysym.sym) {
+            case SDLK_w:
+                position.z -= moveSpeed;
+                break;
+            case SDLK_s:
+                position.z += moveSpeed;
+                break;
+            case SDLK_a:
+                position.x -= moveSpeed;
+                break;
+            case SDLK_d:
+                position.x += moveSpeed;
+                break;
+        }
+
+        setPosition(position);
     }
 }
