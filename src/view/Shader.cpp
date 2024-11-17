@@ -6,7 +6,7 @@
 
 // Конструктор, принимающий путь к шейдеру и устройство
 Shader::Shader(const std::string& shaderPath, VkDevice device)
-    : _device(device) {
+    : _device(device), _shaderModule(VK_NULL_HANDLE) {
     // Попытка загрузить шейдер в модуль. Если неудачно, выводим ошибку.
     if (!loadShaderModule(shaderPath, &_shaderModule)) {
         fmt::print("Error when building the shader from {}\n", shaderPath);
@@ -29,7 +29,7 @@ bool Shader::loadShaderModule(const std::string& filePath,
 
     // Считываем данные файла в буфер
     file.seekg(0);  // Возвращаем курсор в начало файла
-    file.read(buffer.data(), fileSize);  // Чтение данных в буфер
+    file.read(buffer.data(), static_cast<std::streamsize>(fileSize));  // Чтение данных в буфер
     file.close();  // Закрытие файла после чтения
 
     // Настройка структуры VkShaderModuleCreateInfo для создания модуля
