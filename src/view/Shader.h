@@ -13,7 +13,7 @@ public:
     // Метод для получения Vulkan модуля шейдера, который может быть
     // использован при настройке Vulkan пайплайнов и других операций.
     // Возвращает объект VkShaderModule, представляющий загруженный шейдер.
-    VkShaderModule getShaderModule() const;
+    [[nodiscard]] VkShaderModule getShaderModule() const;
 
     // Деструктор для очистки ресурсов
     ~Shader();
