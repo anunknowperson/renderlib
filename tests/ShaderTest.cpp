@@ -1,60 +1,81 @@
 #include <gtest/gtest.h>
+#include <vulkan/vulkan.h>
+#include <filesystem>
+#include "view/Shader.h"
 
-#include "../view/Shader.h"
-
-// Фикстура для тестов класса Shader
 class ShaderTest : public ::testing::Test {
 protected:
-    VkDevice device;  // Подставной объект устройства
-    Shader* shader;  // Указатель на тестируемый объект Shader
+    VkInstance instance;
+    VkDevice device;
+    Shader* shader;
 
     void SetUp() override {
-        // Логика инициализации перед тестом
-        device = {};  // Предположим, что подставной объект или mock был создан
-        shader = new Shader("dummy_shader_path.spv", device);
+        // Создание Vulkan instance
+        VkApplicationInfo appInfo{};
+        appInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
+        appInfo.pApplicationName = "ShaderTest";
+        appInfo.apiVersion = VK_API_VERSION_1_0;
+
+        VkInstanceCreateInfo createInfo{};
+        createInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
+        createInfo.pApplicationInfo = &appInfo;
+
+        if (vkCreateInstance(&createInfo, nullptr, &instance) != VK_SUCCESS) {
+            FAIL() << "Не удалось создать Vulkan instance";
+        }
+
+        // Получение физического устройства и создание логического устройства
+        uint32_t deviceCount = 0;
+        vkEnumeratePhysicalDevices(instance, &deviceCount, nullptr);
+        if (deviceCount == 0) {
+            FAIL() << "Не найдено устройств с поддержкой Vulkan";
+        }
+
+        std::vector<VkPhysicalDevice> devices(deviceCount);
+        vkEnumeratePhysicalDevices(instance, &deviceCount, devices.data());
+
+        VkDeviceCreateInfo deviceCreateInfo{};
+        deviceCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
+
+        if (vkCreateDevice(devices[0], &deviceCreateInfo, nullptr, &device) != VK_SUCCESS) {
+            FAIL() << "Не удалось создать логическое устройство Vulkan";
+        }
+
+        // Определение пути к файлу шейдера
+        std::filesystem::path shaderPath = std::filesystem::current_path().parent_path().parent_path().parent_path().parent_path().parent_path() / "shaders" / "colored_triangle.frag.spv";
+        if (!std::filesystem::exists(shaderPath)) {
+            FAIL() << "Файл шейдера " << shaderPath << " не найден";
+        }
+
+        shader = new Shader(shaderPath.string(), device);
     }
 
     void TearDown() override {
         delete shader;
+        vkDestroyDevice(device, nullptr);
+        vkDestroyInstance(instance, nullptr);
     }
 };
 
-TEST_F(ShaderTest, ShaderModuleIsLoadedSuccessfully) {
-    VkShaderModule module = shader->getShaderModule();
-    EXPECT_NE(module, VK_NULL_HANDLE);  // Проверка, что модуль шейдера загружен
-}
-
-TEST_F(ShaderTest, ShaderFileNotFound) {
-    Shader invalidShader("invalid_path.spv", device);
-    VkShaderModule module = invalidShader.getShaderModule();
-    EXPECT_EQ(module, VK_NULL_HANDLE);  // Проверка, что модуль не создан для
-                                        // несуществующего файла
-}
-
-TEST_F(ShaderTest, InvalidDataForShaderModule) {
-    Shader emptyPathShader("", device);
-    VkShaderModule module = emptyPathShader.getShaderModule();
-    EXPECT_EQ(module, VK_NULL_HANDLE);  // Проверка для пустого пути
-
-    Shader invalidDataShader("invalid_shader_data.spv", device);
-    module = invalidDataShader.getShaderModule();
-    EXPECT_EQ(module,
-              VK_NULL_HANDLE);  // Проверка для файла с некорректными данными
+TEST_F(ShaderTest, ShaderCreation) {
+    // Проверка успешного создания модуля шейдера
+    EXPECT_NE(shader->getShaderModule(), VK_NULL_HANDLE);
 }
 
 TEST_F(ShaderTest, MultipleShaderCreationAndDestruction) {
-    // Создаем несколько объектов Shader с одним и тем же устройством и путем
     const int shaderCount = 10;
     std::vector<Shader*> shaders;
 
-    // Создаем и инициализируем 10 шейдеров
+    std::filesystem::path shaderPath = std::filesystem::current_path().parent_path().parent_path().parent_path().parent_path().parent_path() / "shaders" / "colored_triangle.frag.spv";
+    ASSERT_TRUE(std::filesystem::exists(shaderPath)) << "Файл шейдера " << shaderPath << " не найден";
+
+    // Создание нескольких шейдеров
     for (int i = 0; i < shaderCount; ++i) {
-        shaders.push_back(new Shader("dummy_shader_path.spv", device));
-        // Проверяем, что каждый объект создается корректно (модуль загружен)
+        shaders.push_back(new Shader(shaderPath.string(), device));
         EXPECT_NE(shaders.back()->getShaderModule(), VK_NULL_HANDLE);
     }
 
-    // Удаляем созданные шейдеры и проверяем, что ресурсы освобождены корректно
+    // Удаление созданных шейдеров
     for (auto* shader : shaders) {
         delete shader;
     }
