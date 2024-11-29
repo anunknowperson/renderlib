@@ -4,14 +4,14 @@
 #include <glm/glm.hpp>
 
 void MeshNode::Draw(const glm::mat4& topMatrix, DrawContext& ctx) {
-    glm::mat4 nodeMatrix = topMatrix * worldTransform;
+    const glm::mat4 nodeMatrix = topMatrix * worldTransform;
 
-    for (auto& s : mesh->surfaces) {
+    for (auto& [startIndex, count, material] : mesh->surfaces) {
         RenderObject def{};
-        def.indexCount = s.count;
-        def.firstIndex = s.startIndex;
+        def.indexCount = count;
+        def.firstIndex = startIndex;
         def.indexBuffer = mesh->meshBuffers.indexBuffer.buffer;
-        def.material = &s.material->data;
+        def.material = &material->data;
 
         def.transform = nodeMatrix;
         def.vertexBufferAddress = mesh->meshBuffers.vertexBufferAddress;
