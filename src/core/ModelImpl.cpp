@@ -62,7 +62,7 @@ void ModelImpl::createMesh(VulkanEngine& engine, std::string_view file_path) {
 
     constexpr glm::mat4 transform{1.};
     _meshes[rid].transform = transform;
-
+// TODO вернуть возвращаемое значение
     // return rid;
 }
 
