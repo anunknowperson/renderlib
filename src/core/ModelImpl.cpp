@@ -67,7 +67,7 @@ bool load_file(fastgltf::Asset& gltf, std::string_view filePath) {
 
     std::filesystem::path path = filePath;
 
-    auto type = fastgltf::determineGltfFileType(&data);
+    const auto type = fastgltf::determineGltfFileType(&data);
     if (type == fastgltf::GltfType::glTF) {
         auto load = parser.loadGltf(&data, path.parent_path(), kOptionsGLTF);
         if (!check_parser_result(gltf, load)) {
