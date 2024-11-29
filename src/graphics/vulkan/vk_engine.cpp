@@ -2,6 +2,10 @@
 
 #include "core/config.h"
 
+#include <fastgltf/core.hpp>
+#include <fastgltf/tools.hpp>
+#include <iostream>
+
 #define VMA_IMPLEMENTATION
 #include "SDL_vulkan.h"
 #include "VkBootstrap.h"
@@ -74,10 +78,6 @@ VKAPI_ATTR VkBool32 VKAPI_CALL VulkanEngine::debugCallback(
 
     return VK_FALSE;
 }
-
-#include <fastgltf/core.hpp>
-#include <fastgltf/tools.hpp>
-#include <iostream>
 
 void VulkanEngine::init_default_data() {
     std::array<Vertex, 4> rect_vertices{};
