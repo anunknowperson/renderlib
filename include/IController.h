@@ -32,7 +32,7 @@ public:
      */
     virtual void init() = 0;
 
-    [[nodiscard]] virtual MeshController& getMeshController() = 0;
+    [[nodiscard]] virtual std::weak_ptr<const MeshController> getMeshController() = 0;
     /*!
      * \brief Shared pointer type for IController.
      */

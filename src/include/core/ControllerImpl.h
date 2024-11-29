@@ -9,10 +9,10 @@ public:
     explicit ControllerImpl(IModel::Ptr model, IView::Ptr view);
 
     void init() override;
-    MeshController& getMeshController() final;
+    std::weak_ptr<const MeshController> getMeshController() final;
 
 private:
     IModel::Ptr _model;
     IView::Ptr _view;
-    MeshController _mesh_controller;
+    std::shared_ptr<MeshController> _mesh_controller;
 };
