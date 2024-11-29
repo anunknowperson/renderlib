@@ -7,9 +7,10 @@
 
 #define GLM_ENABLE_EXPERIMENTAL
 #include <core/View.h>
+#include <glm/gtx/string_cast.hpp>
 #include <glm/gtx/transform.hpp>
 #include <graphics/vulkan/vk_engine.h>
-#include <glm/gtx/string_cast.hpp>
+#include <ranges>
 
 ControllerImpl::ControllerImpl(IModel::Ptr model, IView::Ptr view)
     : _model(std::move(model)), _view(std::move(view)), _mesh_controller(_model) {}
@@ -39,7 +40,7 @@ void updateCube(const MeshController& mesh_controller, Mesh::rid_t rid, int8_t i
 
 void updateCubes(const IModel::Ptr& model, const MeshController& mesh_controller) {
     auto meshes = model->get_meshes();
-    for (int8_t i {}; const auto& [key, value] : meshes) {
+    for (int8_t i {}; const auto& key : std::views::keys(meshes)) {
         updateCube(mesh_controller, key, i);
         ++i;
     }
