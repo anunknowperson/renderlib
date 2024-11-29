@@ -49,6 +49,8 @@ public:
      */
     virtual void createMesh(VulkanEngine& engine, std::string_view file_path) = 0;
 
+    virtual void delete_mesh(Mesh::rid_t rid) = 0;
+
     /*!
      * \brief Sets the transformation matrix for a mesh.
      *
@@ -58,9 +60,6 @@ public:
      * This method sets the transformation matrix for the mesh identified by the
      * provided name.
      */
-
-    virtual void delete_mesh(Mesh::rid_t rid) = 0;
-
     virtual void setMeshTransform(Mesh::rid_t rid, glm::mat4x4 transform) = 0;
 
     virtual glm::mat4 get_mesh_transform(Mesh::rid_t) = 0;
