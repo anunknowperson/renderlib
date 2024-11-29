@@ -35,9 +35,6 @@ public:
     VulkanEngine& get_engine() final;
 
 private:
-    // std::unordered_map<Mesh::rid_t, std::shared_ptr<Mesh>> _meshes;
-
-  // TODO: move meshes and transforms to one map
     MeshMap _meshes;
 
     VulkanEngine _engine;
