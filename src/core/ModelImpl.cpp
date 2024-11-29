@@ -50,13 +50,12 @@ constexpr auto kOptionsGLTF = fastgltf::Options::DontRequireValidAssetMember |
 
 bool check_parser_result(fastgltf::Asset& gltf,
                          fastgltf::Expected<fastgltf::Asset>& load) {
-    if (load) {
-        gltf = std::move(load.get());
-    } else {
+    if (!load) {
         std::cerr << "Failed to load glTF: "
                   << fastgltf::to_underlying(load.error()) << std::endl;
         return false;
     }
+    gltf = std::move(load.get());
     return true;
 }
 
