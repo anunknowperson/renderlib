@@ -80,7 +80,7 @@ bool load_file(fastgltf::Asset& gltf, std::string_view filePath) {
     std::cerr << "Failed to determine glTF container" << std::endl;
     return false;
 }
-eInfo samp
+
 void init_descriptor_pool(const VulkanEngine& engine,
                           Mesh::GLTF::LoadedGLTF& file,
                           const fastgltf::Asset& gltf) {
@@ -103,7 +103,7 @@ void load_samplers(const VulkanEngine& engine, Mesh::GLTF::LoadedGLTF& file,
                     extract_filter(magFilter.value_or(fastgltf::Filter::Nearest)),
                 .minFilter =
                     extract_filter(minFilter.value_or(fastgltf::Filter::Nearest)),
-                .mipmapMode = extract_mipmap_mode(
+            .mipmapMode = extract_mipmap_mode(
                 minFilter.value_or(fastgltf::Filter::Nearest)),
                 .minLod = 0,
                 .maxLod = VK_LOD_CLAMP_NONE};
