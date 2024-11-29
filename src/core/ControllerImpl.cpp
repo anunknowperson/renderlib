@@ -16,13 +16,13 @@ ControllerImpl::ControllerImpl(IModel::Ptr model, IView::Ptr view)
 
 double getCurrentGlobalTime() {
     // Get the current time point
-    auto now = std::chrono::system_clock::now();
+    const auto now = std::chrono::system_clock::now();
 
     // Cast to a time duration since the epoch
-    auto durationSinceEpoch = now.time_since_epoch();
+    const auto durationSinceEpoch = now.time_since_epoch();
 
     // Convert to seconds in double precision
-    std::chrono::duration<double> seconds = durationSinceEpoch;
+    const std::chrono::duration<double> seconds = durationSinceEpoch;
 
     // Return the double value
     return seconds.count();
