@@ -317,7 +317,7 @@ void upload_mesh_to_engine(
             newSurface.count = static_cast<uint32_t>(
                     gltf.accessors[p.indicesAccessor.value()].count);
 
-            size_t initial_vtx = vertices.size();
+            const size_t initial_vtx = vertices.size();
 
             load_indexes(gltf, indices, p, initial_vtx);
             load_vertex_positions(gltf, vertices, p,
