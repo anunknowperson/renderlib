@@ -1439,7 +1439,6 @@ void VulkanEngine::update_scene(const IModel::Ptr& model) {
     auto meshes = model->get_meshes();
     for (const auto& [id, mesh_info] : meshes) {
         const auto renderable_gltf = createRenderableGLTF(mesh_info.ptr);
-        // const std::shared_ptr<const Mesh::GLTF::LoadedGLTF> loadedMesh = mesh_info.ptr;
         renderable_gltf->Draw(mesh_info.transform, mainDrawContext);
     }
 }
