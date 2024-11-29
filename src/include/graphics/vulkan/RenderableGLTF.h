@@ -1,9 +1,7 @@
 ﻿#pragma once
 
 #include <filesystem>
-#include <unordered_map>
 
-#include "vk_descriptors.h"
 #include "vk_types.h"
 #include "scene/Mesh.h"
 
