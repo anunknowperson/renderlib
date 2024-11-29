@@ -60,17 +60,8 @@ void ModelImpl::createMesh(VulkanEngine& engine, std::string_view file_path) {
     assert(_engine._isInitialized);
     Mesh::rid_t rid = registerMesh(engine, _meshes, file_path);
 
-    // auto mesh = std::make_shared<Mesh>("/basicmesh.glb");
-
     constexpr glm::mat4 transform{1.};
     _meshes[rid].transform = transform;
-    // engine.setMeshTransform(rid, transform);
-
-    // mesh->set_transform(glm::mat4(1.0f));
-
-    // Mesh::rid_t rid = registerMesh(file_path);
-
-    // _meshes[name] = mesh;
 
     // return rid;
 }
