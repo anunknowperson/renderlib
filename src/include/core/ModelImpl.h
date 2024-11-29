@@ -21,7 +21,6 @@ public:
 
     void registerWindow(struct SDL_Window *window) override;
 
-    // Mesh::rid_t registerMesh(std::string_view file_path);
     void createMesh(VulkanEngine& engine, std::string_view file_path) final;
     void delete_mesh(Mesh::rid_t rid) final;
 
