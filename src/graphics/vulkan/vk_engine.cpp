@@ -1443,35 +1443,3 @@ void VulkanEngine::update_scene(const IModel::Ptr& model) {
         renderable_gltf->Draw(mesh_info.transform, mainDrawContext);
     }
 }
-
-// Mesh::rid_t VulkanEngine::registerMesh(std::string_view filePath) {
-//     std::random_device rd;
-//
-//     // Use the Mersenne Twister engine for high-quality random numbers
-//     std::mt19937_64 generator(rd());
-//
-//     // Create a uniform distribution for int64_t
-//     std::uniform_int_distribution<Mesh::rid_t> distribution;
-//
-//     // Generate and print a random int64_t value
-//     Mesh::rid_t random_rid_t = distribution(generator);
-//
-//     std::string structurePath = {std::string(ASSETS_DIR) + std::string(filePath)};
-//     auto structureFile = loadGltf(this, structurePath);
-//
-//     assert(structureFile.has_value());
-//
-//     meshes[random_rid_t] = *structureFile;
-//     transforms[random_rid_t] = glm::mat4(1.0f);
-//
-//     return random_rid_t;
-// }
-
-// void VulkanEngine::unregisterMesh(int64_t id) {
-//     meshes.erase(id);
-//     transforms.erase(id);
-// }
-
-// void VulkanEngine::setMeshTransform(int64_t id, glm::mat4 mat) {
-//     transforms[id] = mat;
-// }
