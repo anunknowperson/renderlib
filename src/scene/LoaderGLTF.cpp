@@ -1,4 +1,5 @@
 #include "graphics/vulkan/vk_engine.h"
+#include "graphics/vulkan/MeshNode.h"
 #include "scene/LoaderGLTF.h"
 
 #define GLM_ENABLE_EXPERIMENTAL
