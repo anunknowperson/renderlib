@@ -1,4 +1,6 @@
 #include "core/ModelImpl.h"
+#include "core/config.h"
+#include "scene/LoaderGLTF.h"
 
 #include <cassert>
 #include <cstring>
@@ -24,9 +26,6 @@ VulkanEngine& ModelImpl::get_engine() {
 Camera* ModelImpl::getCamera() {
     return &_camera;
 }
-
-#include "core/config.h"
-#include "scene/LoaderGLTF.h"
 
 Mesh::rid_t registerMesh(
         VulkanEngine& engine,
