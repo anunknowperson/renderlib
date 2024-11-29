@@ -80,7 +80,7 @@ bool load_file(fastgltf::Asset& gltf, std::string_view filePath) {
     std::cerr << "Failed to determine glTF container" << std::endl;
     return false;
 }
-
+eInfo samp
 void init_descriptor_pool(const VulkanEngine& engine,
                           Mesh::GLTF::LoadedGLTF& file,
                           const fastgltf::Asset& gltf) {
@@ -98,17 +98,15 @@ void load_samplers(const VulkanEngine& engine, Mesh::GLTF::LoadedGLTF& file,
     for (auto& [magFilter, minFilter, wrapS, wrapT, name] : gltf.samplers) {
         VkSamplerCreateInfo sample = {
                 .sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO,
-                .pNext = nullptr};
-        sample.maxLod = VK_LOD_CLAMP_NONE;
-        sample.minLod = 0;
-
-        sample.magFilter =
-                extract_filter(magFilter.value_or(fastgltf::Filter::Nearest));
-        sample.minFilter =
-                extract_filter(minFilter.value_or(fastgltf::Filter::Nearest));
-
-        sample.mipmapMode = extract_mipmap_mode(
-                minFilter.value_or(fastgltf::Filter::Nearest));
+                .pNext = nullptr,
+                .magFilter =
+                    extract_filter(magFilter.value_or(fastgltf::Filter::Nearest)),
+                .minFilter =
+                    extract_filter(minFilter.value_or(fastgltf::Filter::Nearest)),
+                .mipmapMode = extract_mipmap_mode(
+                minFilter.value_or(fastgltf::Filter::Nearest)),
+                .minLod = 0,
+                .maxLod = VK_LOD_CLAMP_NONE};
 
         VkSampler newSampler;
         vkCreateSampler(engine._device, &sample, nullptr, &newSampler);
