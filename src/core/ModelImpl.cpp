@@ -164,22 +164,21 @@ void load_material_data(
         materials.push_back(newMat);
         file.materials[mat.name.c_str()] = newMat;
 
-        const GLTFMetallic_Roughness::MaterialConstants constants{
-                .colorFactors{
-                    mat.pbrData.baseColorFactor[0],
-                    mat.pbrData.baseColorFactor[1],
-                    mat.pbrData.baseColorFactor[2],
-                    mat.pbrData.baseColorFactor[3],
-                },
-                .metal_rough_factors{
-                        mat.pbrData.metallicFactor,
-                        mat.pbrData.roughnessFactor,
-                        {},
-                        {},
-                },
-        };
         // write material parameters to buffer
-        sceneMaterialConstants[data_index] = constants;
+        sceneMaterialConstants[data_index] = {
+            .colorFactors{
+                mat.pbrData.baseColorFactor[0],
+                mat.pbrData.baseColorFactor[1],
+                mat.pbrData.baseColorFactor[2],
+                mat.pbrData.baseColorFactor[3],
+            },
+            .metal_rough_factors{
+                mat.pbrData.metallicFactor,
+                mat.pbrData.roughnessFactor,
+                {},
+                {},
+        },
+};;
 
         auto passType = MaterialPass::MainColor;
         if (mat.alphaMode == fastgltf::AlphaMode::Blend) {
