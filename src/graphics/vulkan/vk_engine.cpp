@@ -14,7 +14,6 @@
 #include "graphics/vulkan/RenderableGLTF.h"
 #include "graphics/vulkan/vk_images.h"
 #include "graphics/vulkan/vk_initializers.h"
-#include "graphics/vulkan/vk_loader.h"
 #include "graphics/vulkan/vk_pipelines.h"
 #include "graphics/vulkan/vk_types.h"
 #include "imgui.h"

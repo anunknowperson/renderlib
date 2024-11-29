@@ -6,7 +6,7 @@
 #include "scene/Mesh.h"
 #include "scene/Camera.h"
 #include "vk_descriptors.h"
-#include "vk_loader.h"
+#include "RenderableGLTF.h"
 #include "vk_pipelines.h"
 #include "vk_types.h"
 
