@@ -642,13 +642,6 @@ void VulkanEngine::init(struct SDL_Window* window) {
     mainCamera->pitch = 0;
     mainCamera->yaw = 0;
 
-    // TODO: возможно, здесь вылезет проблема
-    // std::string structurePath = {std::string(ASSETS_DIR) + "/basicmesh.glb"};
-    // auto structureFile = loadGltf(this, structurePath);
-    //
-    // assert(structureFile.has_value());
-    // loadedScenes["structure"] = *structureFile;
-
     _isInitialized = true;
 }
 
