@@ -185,8 +185,6 @@ public:
     GPUMeshBuffers uploadMesh(std::span<uint32_t> indices,
                               std::span<Vertex> vertices);
 
-    // std::vector<std::shared_ptr<Mesh::GLTF::MeshAsset>> testMeshes;
-
     bool resize_requested;
 
     GPUSceneData sceneData;

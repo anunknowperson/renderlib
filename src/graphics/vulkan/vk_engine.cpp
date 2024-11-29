@@ -99,7 +99,6 @@ void VulkanEngine::init_default_data() {
     rect_indices[2] = 2;
 
     auto path_to_assets = std::string(ASSETS_DIR) + "/basicmesh.glb";
-    // testMeshes = loadGltfMeshes(this, path_to_assets).value();
 
     // 3 default textures, white, grey, black. 1 pixel each
     uint32_t white = glm::packUnorm4x8(glm::vec4(1, 1, 1, 1));
