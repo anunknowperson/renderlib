@@ -53,10 +53,6 @@ void update(const IModel::Ptr& model, const MeshController& mesh_controller) {
     updateCubes(model, mesh_controller);
 }
 
-// void ControllerImpl::processEvent(SDL_Event &e) const {
-//     _model->getCamera()->processSDLEvent(e);
-// }
-//
 void createCubes(const MeshController& mesh_controller) {
     for (int i = 0; i < 5; i++) {
         mesh_controller.create_mesh("/basicmesh.glb");
