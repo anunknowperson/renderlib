@@ -5,6 +5,7 @@
 #include <fastgltf/core.hpp>
 #include <fastgltf/tools.hpp>
 #include <iostream>
+#include <ranges>
 
 #define VMA_IMPLEMENTATION
 #include "SDL_vulkan.h"
@@ -1437,7 +1438,7 @@ void VulkanEngine::update_scene(const IModel::Ptr& model) {
     sceneData.sunlightDirection = glm::vec4(0, 1, 0.5, 1.f);
 
     auto meshes = model->get_meshes();
-    for (const auto& [id, mesh_info] : meshes) {
+    for (const auto& mesh_info : std::views::values(meshes)) {
         const auto renderable_gltf = createRenderableGLTF(mesh_info.ptr);
         renderable_gltf->Draw(mesh_info.transform, mainDrawContext);
     }
