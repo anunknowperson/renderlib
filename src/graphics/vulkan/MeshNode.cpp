@@ -6,7 +6,7 @@
 void MeshNode::Draw(const glm::mat4& topMatrix, DrawContext& ctx) {
     const glm::mat4 nodeMatrix = topMatrix * worldTransform;
 
-    for (auto& [startIndex, count, material] : mesh->surfaces) {
+    for (const auto& [startIndex, count, material] : mesh->surfaces) {
         RenderObject def{};
         def.indexCount = count;
         def.firstIndex = startIndex;
