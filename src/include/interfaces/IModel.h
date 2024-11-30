@@ -47,7 +47,7 @@ public:
      *
      * This method creates a new mesh identified by the provided name.
      */
-    virtual void createMesh(std::string_view file_path) = 0;
+    virtual void createMesh(const std::filesystem::path& file_path) = 0;
 
     virtual void delete_mesh(Mesh::rid_t rid) = 0;
 

@@ -21,7 +21,7 @@ public:
 
     void registerWindow(struct SDL_Window *window) override;
 
-    void createMesh(std::string_view file_path) final;
+    void createMesh(const std::filesystem::path& file_path) final;
     void delete_mesh(Mesh::rid_t rid) final;
 
     void setMeshTransform(Mesh::rid_t rid, glm::mat4x4 transform) final;
