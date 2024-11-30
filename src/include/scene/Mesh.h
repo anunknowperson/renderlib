@@ -7,16 +7,7 @@
 class VulkanEngine;
 
 namespace Mesh {
-// Mesh(std::string filePath);
-// ~Mesh();
-//
-// void set_transform(glm::mat4 t);
-// glm::mat4 get_transform(glm::mat4 t);
 using rid_t = int64_t;
-
-// ид меша
-// матрица трансформации
-// glm::mat4 transform;
 
 namespace GLTF {
 struct GLTFMaterial {
