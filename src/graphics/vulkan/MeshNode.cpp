@@ -1,7 +1,8 @@
 #include "graphics/vulkan/MeshNode.h"
-#include "graphics/vulkan/vk_engine.h"
 
 #include <glm/glm.hpp>
+
+#include "graphics/vulkan/vk_engine.h"
 
 void MeshNode::Draw(const glm::mat4& topMatrix, DrawContext& ctx) {
     const glm::mat4 nodeMatrix = topMatrix * worldTransform;

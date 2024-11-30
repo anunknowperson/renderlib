@@ -14,4 +14,3 @@ public:
 
     using Ptr = std::shared_ptr<IView>;
 };
-

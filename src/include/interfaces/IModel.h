@@ -42,7 +42,8 @@ public:
     /*!
      * \brief Loads (parses) a new mesh to the model
      * \param file_path The path to the mesh
-     * \return Returns render-id of the mesh that helps identify the provided mesh.
+     * \return Returns render-id of the mesh that helps identify the provided
+     * mesh.
      */
     virtual Mesh::rid_t createMesh(const std::filesystem::path& file_path) = 0;
     /*!
@@ -57,33 +58,34 @@ public:
      * \param transform Transformation matrix to be applied to the mesh.
      */
     virtual void setMeshTransform(Mesh::rid_t rid, glm::mat4x4 transform) = 0;
-     /*!
-    * \brief Gets the transformation matrix of a mesh.
-    * \param rid Render-id of the mesh
-    * \return Returns a transform matrix of the mesh
-    */
+    /*!
+     * \brief Gets the transformation matrix of a mesh.
+     * \param rid Render-id of the mesh
+     * \return Returns a transform matrix of the mesh
+     */
     virtual glm::mat4 get_mesh_transform(Mesh::rid_t rid) = 0;
 
     /*!
      * \brief Stores mesh data
      */
-struct MeshPair {
+    struct MeshPair {
         /*!
          * \brief Pointer to the loaded mesh (GLTF)
          */
-std::shared_ptr<const Mesh::GLTF::LoadedGLTF> ptr;
+        std::shared_ptr<const Mesh::GLTF::LoadedGLTF> ptr;
         /*!
          * \brief Transform matrix of the mesh
          */
-glm::mat4 transform;
+        glm::mat4 transform;
     };
+
     using MeshMap = std::unordered_map<Mesh::rid_t, MeshPair>;
-/*!
- * \brief Gets all the stored meshes
- * \return Returns a MeshMap that stores pairs of the render-id of the mesh and
- * the mesh data
- */
-virtual const MeshMap& get_meshes() = 0;
+    /*!
+     * \brief Gets all the stored meshes
+     * \return Returns a MeshMap that stores pairs of the render-id of the mesh
+     * and the mesh data
+     */
+    virtual const MeshMap& get_meshes() = 0;
 
     /*!
      * \brief Retrieves the camera instance.
@@ -95,11 +97,11 @@ virtual const MeshMap& get_meshes() = 0;
      */
     [[nodiscard]] virtual Camera* getCamera() = 0;
 
-     /*!
-      * \brief Gets the stored engine
-      * \return Returns a ref to the engine
-      */
-virtual VulkanEngine& get_engine() = 0;
+    /*!
+     * \brief Gets the stored engine
+     * \return Returns a ref to the engine
+     */
+    virtual VulkanEngine& get_engine() = 0;
 
     using Ptr = std::shared_ptr<IModel>;
 };

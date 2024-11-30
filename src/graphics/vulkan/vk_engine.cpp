@@ -1,16 +1,17 @@
 ﻿#include "graphics/vulkan/vk_engine.h"
 
-#include "core/config.h"
-
 #include <fastgltf/core.hpp>
 #include <fastgltf/tools.hpp>
 #include <iostream>
 #include <ranges>
 
+#include "core/config.h"
+
 #define VMA_IMPLEMENTATION
+#include <fastgltf/glm_element_traits.hpp>
+
 #include "SDL_vulkan.h"
 #include "VkBootstrap.h"
-#include <fastgltf/glm_element_traits.hpp>
 #include "graphics/vulkan/RenderableGLTF.h"
 #include "graphics/vulkan/vk_images.h"
 #include "graphics/vulkan/vk_initializers.h"

@@ -2,8 +2,8 @@
 
 #include <filesystem>
 
-#include "vk_types.h"
 #include "scene/Mesh.h"
+#include "vk_types.h"
 
 class RenderableGLTF : public IRenderable {
 public:
@@ -15,5 +15,3 @@ public:
 private:
     std::shared_ptr<const Mesh::GLTF::LoadedGLTF> _gltf;
 };
-
-

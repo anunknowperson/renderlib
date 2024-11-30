@@ -17,8 +17,7 @@
 #include "imgui_impl_sdl2.h"
 #include "imgui_impl_vulkan.h"
 
-ViewImpl::ViewImpl(IModel::Ptr model)
-    : _model(std::move(model)) {
+ViewImpl::ViewImpl(IModel::Ptr model) : _model(std::move(model)) {
     SDL_Init(SDL_INIT_VIDEO);
 
     auto window_flags =
@@ -36,7 +35,7 @@ void ViewImpl::run() const {
     ImGui::NewFrame();
 
     if (ImGui::Begin("background")) {
-        VulkanEngine &engine = VulkanEngine::Get();
+        VulkanEngine& engine = VulkanEngine::Get();
         ImGui::SliderFloat("Render Scale", &engine.renderScale, 0.3f, 1.f);
         // other code
     }

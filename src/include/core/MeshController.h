@@ -3,8 +3,8 @@
 #include <glm/detail/type_mat4x4.hpp>
 #include <string_view>
 
-#include "scene/Mesh.h"
 #include "interfaces/IModel.h"
+#include "scene/Mesh.h"
 
 /*! \brief
  * A class that allows you to add, delete, modify meshes
@@ -38,6 +38,7 @@ public:
      * \return Returns a vector of all render-ids
      */
     [[nodiscard]] std::vector<Mesh::rid_t> get_meshes() const;
+
 private:
     IModel::Ptr _model;
 };

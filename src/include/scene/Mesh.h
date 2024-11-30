@@ -46,5 +46,5 @@ struct LoadedGLTF {
 
     VulkanEngine* creator;
 };
-}
-};
+}  // namespace GLTF
+};  // namespace Mesh

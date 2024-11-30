@@ -2,11 +2,11 @@
 
 #include <random>
 
-#include "interfaces/IModel.h"
-#include "scene/Mesh.h"
-#include "scene/Camera.h"
-#include "vk_descriptors.h"
 #include "RenderableGLTF.h"
+#include "interfaces/IModel.h"
+#include "scene/Camera.h"
+#include "scene/Mesh.h"
+#include "vk_descriptors.h"
 #include "vk_pipelines.h"
 #include "vk_types.h"
 
@@ -99,7 +99,9 @@ struct DrawContext {
 
 class VulkanEngine {
 public:
-    std::unordered_map<std::string, std::shared_ptr<const Mesh::GLTF::LoadedGLTF>> loadedScenes;
+    std::unordered_map<std::string,
+                       std::shared_ptr<const Mesh::GLTF::LoadedGLTF>>
+            loadedScenes;
 
     Camera* mainCamera;
 
