@@ -47,7 +47,6 @@ void ViewImpl::run() const {
 }
 
 void ViewImpl::process_event(const SDL_Event& e) {
-    _model->getCamera()->processSDLEvent(e);
     ImGui_ImplSDL2_ProcessEvent(&e);
 }
 

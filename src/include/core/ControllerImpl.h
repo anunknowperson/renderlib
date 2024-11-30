@@ -8,8 +8,10 @@ class ControllerImpl : public IController {
 public:
     explicit ControllerImpl(IModel::Ptr model, IView::Ptr view);
 
-    void init() override;
+    void run() final;
+    void update() final;
     std::weak_ptr<const MeshController> getMeshController() final;
+    void process_event(const SDL_Event& e) final;
 
 private:
     IModel::Ptr _model;

@@ -1,6 +1,7 @@
 #include "core/MeshController.h"
 
 #include <graphics/vulkan/vk_engine.h>
+#include <ranges>
 
 #include "scene/Mesh.h"
 
@@ -25,4 +26,14 @@ void MeshController::set_transform(Mesh::rid_t id, glm::mat4 t) const {
 glm::mat4 MeshController::get_transform(Mesh::rid_t id) const {
     const auto transform = _model->get_mesh_transform(id);
     return transform;
+}
+
+std::vector<Mesh::rid_t> MeshController::get_meshes() const {
+    const auto map = _model->get_meshes();
+    std::vector<Mesh::rid_t> v;
+    v.reserve(map.size());
+    for (const auto rid : std::views::keys(map)) {
+        v.push_back(rid);
+    }
+    return v;
 }

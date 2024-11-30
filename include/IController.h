@@ -25,14 +25,12 @@ public:
      */
     virtual ~IController() = default;
 
-    /*!
-     * \brief Initializes the controller.
-     *
-     * This method initializes the necessary components for the controller.
-     */
-    virtual void init() = 0;
+    virtual void run() = 0;
+    virtual void update() = 0;
 
     [[nodiscard]] virtual std::weak_ptr<const MeshController> getMeshController() = 0;
+
+    virtual void process_event(const SDL_Event& e) = 0;
     /*!
      * \brief Shared pointer type for IController.
      */
