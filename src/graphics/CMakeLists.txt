@@ -1,5 +1,6 @@
 target_sources(${PROJECT_NAME}
         PRIVATE
+        vulkan/RenderableGLTF.cpp
         vulkan/vk_descriptors.cpp
         vulkan/vk_engine.cpp
         vulkan/vk_images.cpp

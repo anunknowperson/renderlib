@@ -2,16 +2,17 @@
 
 #include "IController.h"
 #include "interfaces/IModel.h"
+#include "interfaces/IView.h"
 
-class ControllerImpl : public IController,
-                       public std::enable_shared_from_this<ControllerImpl> {
+class ControllerImpl : public IController {
 public:
-    explicit ControllerImpl(IModel::Ptr model);
+    explicit ControllerImpl(IModel::Ptr model, IView::Ptr view);
 
-    void init() const override;
-    void update() const override;
-    void processEvent(SDL_Event& e) const override;
+    void init() override;
+    MeshController& getMeshController() final;
 
 private:
-    std::shared_ptr<IModel> _model;
+    IModel::Ptr _model;
+    IView::Ptr _view;
+    MeshController _mesh_controller;
 };

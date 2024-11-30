@@ -6,6 +6,7 @@
 #include <string_view>
 
 #include "SDL2/SDL.h"
+#include "core/MeshController.h"
 
 /*! \brief
  * Interface for interacting with the chip that allows changing keyboard
@@ -29,24 +30,7 @@ public:
      *
      * This method initializes the necessary components for the controller.
      */
-    virtual void init() const = 0;
-
-    /*!
-     * \brief Updates the controller status.
-     *
-     * This method updates the internal state or status of the controller.
-     */
-    virtual void update() const = 0;
-
-    /*!
-     * \brief Processes incoming events.
-     *
-     * \param e Event to be processed.
-     *
-     * This method processes the incoming SDL event and performs necessary
-     * actions.
-     */
-    virtual void processEvent(SDL_Event &e) const = 0;
+    virtual void init() = 0;
 
     /*!
      * \brief Sends data to change the brightness of the backlight.
@@ -69,11 +53,11 @@ public:
      * 0 to 255.
      */
     // virtual void setColor(Color color) const = 0;
-
+    [[nodiscard]] virtual MeshController& getMeshController() = 0;
     /*!
      * \brief Shared pointer type for IController.
      */
-    using Ptr = std::shared_ptr<const IController>;
+    using Ptr = std::shared_ptr<IController>;
 };
 
 IController::Ptr createInstance();

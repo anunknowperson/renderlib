@@ -5,6 +5,8 @@
 #define VMA_IMPLEMENTATION
 #include "SDL_vulkan.h"
 #include "VkBootstrap.h"
+#include <fastgltf/glm_element_traits.hpp>
+#include "graphics/vulkan/RenderableGLTF.h"
 #include "graphics/vulkan/vk_images.h"
 #include "graphics/vulkan/vk_initializers.h"
 #include "graphics/vulkan/vk_loader.h"
@@ -13,6 +15,7 @@
 #include "imgui.h"
 #include "imgui_impl_sdl2.h"
 #include "imgui_impl_vulkan.h"
+#include "interfaces/IModel.h"
 #include "vk_mem_alloc.h"
 
 #define GLM_ENABLE_EXPERIMENTAL
@@ -72,6 +75,153 @@ VKAPI_ATTR VkBool32 VKAPI_CALL VulkanEngine::debugCallback(
     return VK_FALSE;
 }
 
+#include <fastgltf/core.hpp>
+#include <fastgltf/tools.hpp>
+#include <iostream>
+
+// std::optional<std::vector<std::shared_ptr<Mesh::GLTF::MeshAsset>>> loadGltfMeshes(
+//         VulkanEngine* engine, std::filesystem::path filePath) {
+//     if (!std::filesystem::exists(filePath)) {
+//         std::cout << "Failed to find " << filePath << '\n';
+//         return {};
+//     }
+//
+//     std::cout << "Loading " << filePath << '\n';
+//
+//     fastgltf::Asset gltf;
+//
+//     // Parse the glTF file and get the constructed asset
+//
+//     static constexpr auto supportedExtensions =
+//             fastgltf::Extensions::KHR_mesh_quantization |
+//             fastgltf::Extensions::KHR_texture_transform |
+//             fastgltf::Extensions::KHR_materials_variants;
+//
+//     fastgltf::Parser parser(supportedExtensions);
+//
+//     auto path = std::filesystem::path{filePath};
+//
+//     constexpr auto gltfOptions =
+//             fastgltf::Options::DontRequireValidAssetMember |
+//             fastgltf::Options::AllowDouble | fastgltf::Options::LoadGLBBuffers |
+//             fastgltf::Options::LoadExternalBuffers |
+//             fastgltf::Options::LoadExternalImages |
+//             fastgltf::Options::GenerateMeshIndices;
+//
+//     fastgltf::GltfDataBuffer data;
+//     data.loadFromFile(path);
+//
+//     auto asset = parser.loadGltf(&data, path.parent_path(), gltfOptions);
+//
+//     if (asset) {
+//         gltf = std::move(asset.get());
+//     } else {
+//         fmt::print("Failed to load glTF: {} \n",
+//                    fastgltf::to_underlying(asset.error()));
+//         return {};
+//     }
+//
+//     std::vector<std::shared_ptr<Mesh::GLTF::MeshAsset>> meshes;
+//
+//     // use the same vectors for all meshes so that the memory doesnt reallocate
+//     // as often
+//     std::vector<uint32_t> indices;
+//     std::vector<Vertex> vertices;
+//     for (fastgltf::Mesh& mesh : gltf.meshes) {
+//         Mesh::GLTF::MeshAsset newmesh;
+//
+//         newmesh.name = mesh.name;
+//
+//         // clear the mesh arrays each mesh, we dont want to merge them by error
+//         indices.clear();
+//         vertices.clear();
+//
+//         for (auto&& p : mesh.primitives) {
+//             Mesh::GLTF::GeoSurface newSurface;
+//             newSurface.startIndex = (uint32_t)indices.size();
+//             newSurface.count =
+//                     (uint32_t)gltf.accessors[p.indicesAccessor.value()].count;
+//
+//             size_t initial_vtx = vertices.size();
+//
+//             // load indexes
+//             {
+//                 fastgltf::Accessor& indexaccessor =
+//                         gltf.accessors[p.indicesAccessor.value()];
+//                 indices.reserve(indices.size() + indexaccessor.count);
+//
+//                 fastgltf::iterateAccessor<std::uint32_t>(
+//                         gltf, indexaccessor, [&](std::uint32_t idx) {
+//                             indices.push_back(idx + initial_vtx);
+//                         });
+//             }
+//
+//             // load vertex positions
+//             {
+//                 fastgltf::Accessor& posAccessor =
+//                         gltf.accessors[p.findAttribute("POSITION")->second];
+//                 vertices.resize(vertices.size() + posAccessor.count);
+//
+//                 fastgltf::iterateAccessorWithIndex<glm::vec3>(
+//                         gltf, posAccessor, [&](glm::vec3 v, size_t index) {
+//                             Vertex newvtx;
+//                             newvtx.position = v;
+//                             newvtx.normal = {1, 0, 0};
+//                             newvtx.color = glm::vec4{1.f};
+//                             newvtx.uv_x = 0;
+//                             newvtx.uv_y = 0;
+//                             vertices[initial_vtx + index] = newvtx;
+//                         });
+//             }
+//
+//             // load vertex normals
+//             auto normals = p.findAttribute("NORMAL");
+//             if (normals != p.attributes.end()) {
+//                 fastgltf::iterateAccessorWithIndex<glm::vec3>(
+//                         gltf, gltf.accessors[(*normals).second],
+//                         [&](glm::vec3 v, size_t index) {
+//                             vertices[initial_vtx + index].normal = v;
+//                         });
+//             }
+//
+//             // load UVs
+//             auto uv = p.findAttribute("TEXCOORD_0");
+//             if (uv != p.attributes.end()) {
+//                 fastgltf::iterateAccessorWithIndex<glm::vec2>(
+//                         gltf, gltf.accessors[(*uv).second],
+//                         [&](glm::vec2 v, size_t index) {
+//                             vertices[initial_vtx + index].uv_x = v.x;
+//                             vertices[initial_vtx + index].uv_y = v.y;
+//                         });
+//             }
+//
+//             // load vertex colors
+//             auto colors = p.findAttribute("COLOR_0");
+//             if (colors != p.attributes.end()) {
+//                 fastgltf::iterateAccessorWithIndex<glm::vec4>(
+//                         gltf, gltf.accessors[(*colors).second],
+//                         [&](glm::vec4 v, size_t index) {
+//                             vertices[initial_vtx + index].color = v;
+//                         });
+//             }
+//             newmesh.surfaces.push_back(newSurface);
+//         }
+//
+//         // display the vertex normals
+//         constexpr bool OverrideColors = true;
+//         if (OverrideColors) {
+//             for (Vertex& vtx : vertices) {
+//                 vtx.color = glm::vec4(vtx.normal, 1.f);
+//             }
+//         }
+//         newmesh.meshBuffers = engine->uploadMesh(indices, vertices);
+//
+//         meshes.emplace_back(std::make_shared<Mesh::GLTF::MeshAsset>(std::move(newmesh)));
+//     }
+//
+//     return meshes;
+// }
+
 void VulkanEngine::init_default_data() {
     std::array<Vertex, 4> rect_vertices{};
 
@@ -92,7 +242,7 @@ void VulkanEngine::init_default_data() {
     rect_indices[2] = 2;
 
     auto path_to_assets = std::string(ASSETS_DIR) + "/basicmesh.glb";
-    testMeshes = loadGltfMeshes(this, path_to_assets).value();
+    // testMeshes = loadGltfMeshes(this, path_to_assets).value();
 
     // 3 default textures, white, grey, black. 1 pixel each
     uint32_t white = glm::packUnorm4x8(glm::vec4(1, 1, 1, 1));
@@ -492,11 +642,12 @@ void VulkanEngine::init(struct SDL_Window* window) {
     mainCamera->pitch = 0;
     mainCamera->yaw = 0;
 
-    std::string structurePath = {std::string(ASSETS_DIR) + "/basicmesh.glb"};
-    auto structureFile = loadGltf(this, structurePath);
-
-    assert(structureFile.has_value());
-    loadedScenes["structure"] = *structureFile;
+    // TODO: возможно, здесь вылезет проблема
+    // std::string structurePath = {std::string(ASSETS_DIR) + "/basicmesh.glb"};
+    // auto structureFile = loadGltf(this, structurePath);
+    //
+    // assert(structureFile.has_value());
+    // loadedScenes["structure"] = *structureFile;
 
     _isInitialized = true;
 }
@@ -1005,8 +1156,8 @@ void VulkanEngine::draw_geometry(VkCommandBuffer cmd) {
     vkCmdEndRendering(cmd);
 }
 
-void VulkanEngine::draw() {
-    update_scene();
+void VulkanEngine::draw(const IModel::Ptr model) {
+    update_scene(model);
 
     // wait until the gpu has finished rendering the last frame. Timeout of 1
     // second
@@ -1181,12 +1332,12 @@ void VulkanEngine::immediate_submit(
     VK_CHECK(vkWaitForFences(_device, 1, &_immFence, true, 9999999999));
 }
 
-void VulkanEngine::update() {
+void VulkanEngine::update(const IModel::Ptr model) {
     if (resize_requested) {
         resize_swapchain();
     }
 
-    draw();
+    draw(model);
 }
 
 AllocatedImage VulkanEngine::create_image(VkExtent3D size, VkFormat format,
@@ -1412,7 +1563,7 @@ void MeshNode::Draw(const glm::mat4& topMatrix, DrawContext& ctx) {
     ENode::Draw(topMatrix, ctx);
 }
 
-void VulkanEngine::update_scene() {
+void VulkanEngine::update_scene(const IModel::Ptr& model) {
     mainCamera->update();
 
     glm::mat4 view = mainCamera->getViewMatrix();
@@ -1435,40 +1586,42 @@ void VulkanEngine::update_scene() {
     sceneData.sunlightColor = glm::vec4(1.f);
     sceneData.sunlightDirection = glm::vec4(0, 1, 0.5, 1.f);
 
-    for (const auto& [key, mesh] : meshes) {
-        std::shared_ptr<LoadedGLTF> loadedMesh = mesh;
-        loadedMesh->Draw(transforms[key], mainDrawContext);
+    auto meshes = model->get_meshes();
+    for (const auto& [id, mesh_info] : meshes) {
+        const auto renderable_gltf = createRenderableGLTF(mesh_info.ptr);
+        // const std::shared_ptr<const Mesh::GLTF::LoadedGLTF> loadedMesh = mesh_info.ptr;
+        renderable_gltf->Draw(mesh_info.transform, mainDrawContext);
     }
 }
 
-int64_t VulkanEngine::registerMesh(std::string filePath) {
-    std::random_device rd;
+// Mesh::rid_t VulkanEngine::registerMesh(std::string_view filePath) {
+//     std::random_device rd;
+//
+//     // Use the Mersenne Twister engine for high-quality random numbers
+//     std::mt19937_64 generator(rd());
+//
+//     // Create a uniform distribution for int64_t
+//     std::uniform_int_distribution<Mesh::rid_t> distribution;
+//
+//     // Generate and print a random int64_t value
+//     Mesh::rid_t random_rid_t = distribution(generator);
+//
+//     std::string structurePath = {std::string(ASSETS_DIR) + std::string(filePath)};
+//     auto structureFile = loadGltf(this, structurePath);
+//
+//     assert(structureFile.has_value());
+//
+//     meshes[random_rid_t] = *structureFile;
+//     transforms[random_rid_t] = glm::mat4(1.0f);
+//
+//     return random_rid_t;
+// }
 
-    // Use the Mersenne Twister engine for high-quality random numbers
-    std::mt19937_64 generator(rd());
+// void VulkanEngine::unregisterMesh(int64_t id) {
+//     meshes.erase(id);
+//     transforms.erase(id);
+// }
 
-    // Create a uniform distribution for int64_t
-    std::uniform_int_distribution<int64_t> distribution;
-
-    // Generate and print a random int64_t value
-    int64_t random_int64 = distribution(generator);
-
-    std::string structurePath = {std::string(ASSETS_DIR) + filePath};
-    auto structureFile = loadGltf(this, structurePath);
-
-    assert(structureFile.has_value());
-
-    meshes[random_int64] = *structureFile;
-    transforms[random_int64] = glm::mat4(1.0f);
-
-    return random_int64;
-}
-
-void VulkanEngine::unregisterMesh(int64_t id) {
-    meshes.erase(id);
-    transforms.erase(id);
-}
-
-void VulkanEngine::setMeshTransform(int64_t id, glm::mat4 mat) {
-    transforms[id] = mat;
-}
+// void VulkanEngine::setMeshTransform(int64_t id, glm::mat4 mat) {
+//     transforms[id] = mat;
+// }

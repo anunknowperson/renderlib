@@ -3,39 +3,91 @@
 #include <cassert>
 #include <cstring>
 #include <iostream>
-
+#define GLM_ENABLE_EXPERIMENTAL
+#include <glm/gtx/string_cast.hpp>
 ModelImpl::~ModelImpl() {
     _engine.cleanup();
 }
 
 ModelImpl::ModelImpl() = default;
 
-void ModelImpl::registerWindow(struct SDL_Window *window) {
+void ModelImpl::registerWindow(struct SDL_Window* window) {
     _engine.mainCamera = &_camera;
     _engine.init(window);
 }
 
-void ModelImpl::updateVulkan() {
-    _engine.update();
+VulkanEngine& ModelImpl::get_engine() {
+    assert(_engine._isInitialized);
+    return _engine;
 }
 
-Camera *ModelImpl::getCamera() {
+Camera* ModelImpl::getCamera() {
     return &_camera;
 }
 
-void ModelImpl::createMesh(std::string name) {
-    auto mesh = std::make_shared<Mesh>("/basicmesh.glb");
+#include "core/config.h"
+#include "scene/LoaderGLTF.h"
 
-    mesh->set_transform(glm::mat4(1.0f));
+Mesh::rid_t registerMesh(
+        VulkanEngine& engine,
+        ModelImpl::MeshMap& meshes,
+        std::string_view filePath) {
+    std::random_device rd;
 
-    _meshes[name] = mesh;
+    // Use the Mersenne Twister engine for high-quality random numbers
+    std::mt19937_64 generator(rd());
+
+    // Create a uniform distribution for int64_t
+    std::uniform_int_distribution<Mesh::rid_t> distribution;
+
+    // Generate and print a random int64_t value
+    const Mesh::rid_t random_rid_t = distribution(generator);
+
+    std::string structurePath = {std::string(ASSETS_DIR) +
+                                 std::string(filePath)};
+    auto structureFile = LoaderGLTF::loadGLTF(engine, structurePath);
+
+    assert(structureFile.has_value());
+
+    engine.loadedScenes["structure"] = *structureFile;
+
+    meshes[random_rid_t] = {structureFile.value(), glm::mat4(1.)};
+
+    return random_rid_t;
 }
 
-void ModelImpl::setMeshTransform(std::string name, glm::mat4x4 transform) {
-    _meshes[name]->set_transform(transform);
+void ModelImpl::createMesh(VulkanEngine& engine, std::string_view file_path) {
+    assert(_engine._isInitialized);
+    Mesh::rid_t rid = registerMesh(engine, _meshes, file_path);
+
+    // auto mesh = std::make_shared<Mesh>("/basicmesh.glb");
+
+    constexpr glm::mat4 transform{1.};
+    _meshes[rid].transform = transform;
+    // engine.setMeshTransform(rid, transform);
+
+    // mesh->set_transform(glm::mat4(1.0f));
+
+    // Mesh::rid_t rid = registerMesh(file_path);
+
+    // _meshes[name] = mesh;
+
+    // return rid;
 }
 
-/*        : _dev { openDevice() }
-        , _brightness { collectBrightness(_dev) }
-        , _rgb { collectRGB(_dev) }
-{*/
+void ModelImpl::setMeshTransform(Mesh::rid_t rid, glm::mat4x4 transform) {
+    _meshes[rid].transform = transform;
+}
+
+glm::mat4 ModelImpl::get_mesh_transform(Mesh::rid_t rid) {
+    return _meshes[rid].transform;
+}
+
+void ModelImpl::delete_mesh(Mesh::rid_t rid) {
+    _meshes.erase(rid);
+}
+
+const ModelImpl::MeshMap& ModelImpl::get_meshes() {
+    return _meshes;
+}
+

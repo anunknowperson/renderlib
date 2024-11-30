@@ -8,6 +8,7 @@
 #include "SDL2/SDL.h"
 #include "SDL2/SDL_vulkan.h"
 #include "scene/Camera.h"
+#include "scene/Mesh.h"
 
 /*!
  * \brief Interface for managing models and their integration with Vulkan.
@@ -39,33 +40,37 @@ public:
     virtual void registerWindow(struct SDL_Window* window) = 0;
 
     /*!
-     * \brief Updates Vulkan-related states.
-     *
-     * This method updates internal Vulkan-related states or data structures.
-     * Should be called regularly to keep Vulkan rendering in sync with the
-     * application state.
-     */
-    virtual void updateVulkan() = 0;
-
-    /*!
      * \brief Creates a new mesh with the given name.
      *
-     * \param name Name of the mesh to be created.
+     * \param engine
+     * \param file_path
      *
      * This method creates a new mesh identified by the provided name.
      */
-    virtual void createMesh(std::string name) = 0;
+    virtual void createMesh(VulkanEngine& engine, std::string_view file_path) = 0;
 
     /*!
      * \brief Sets the transformation matrix for a mesh.
      *
-     * \param name Name of the mesh.
+     * \param rid
      * \param transform Transformation matrix to be applied to the mesh.
      *
      * This method sets the transformation matrix for the mesh identified by the
      * provided name.
      */
-    virtual void setMeshTransform(std::string name, glm::mat4x4 transform) = 0;
+
+    virtual void delete_mesh(Mesh::rid_t rid) = 0;
+
+    virtual void setMeshTransform(Mesh::rid_t rid, glm::mat4x4 transform) = 0;
+
+    virtual glm::mat4 get_mesh_transform(Mesh::rid_t) = 0;
+
+    struct MeshPair {
+     std::shared_ptr<const Mesh::GLTF::LoadedGLTF> ptr;
+     glm::mat4 transform;
+    };
+    using MeshMap = std::unordered_map<Mesh::rid_t, MeshPair>;
+    virtual const MeshMap& get_meshes() = 0;
 
     /*!
      * \brief Retrieves the camera instance.
@@ -76,6 +81,8 @@ public:
      * model. Can be used to access and modify camera properties.
      */
     [[nodiscard]] virtual Camera* getCamera() = 0;
+
+     virtual VulkanEngine& get_engine() = 0;
 
     /*! \brief
      * Gets the chip handler from HIDAPI required to change the settings by the

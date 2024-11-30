@@ -74,8 +74,11 @@ struct MaterialInstance {
 struct DrawContext;
 
 // base class for a renderable dynamic object
-class IRenderable {
+struct IRenderable {
+    virtual ~IRenderable() = default;
     virtual void Draw(const glm::mat4& topMatrix, DrawContext& ctx) = 0;
+
+    using Ptr = std::shared_ptr<IRenderable>;
 };
 
 // implementation of a drawable scene node.
