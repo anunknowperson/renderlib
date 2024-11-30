@@ -16,8 +16,9 @@ public:
     ~MeshController() = default;
     /*! \brief Adds a mesh to the ones to be rendered
      * \param file_path The path to the mesh
+     * \return Returns render-id of the added mesh
      */
-    void create_mesh(std::filesystem::path file_path) const;
+    Mesh::rid_t create_mesh(std::filesystem::path file_path) const;
     /*! \brief Removes meshes from those to be rendered
      * \param id Render-id of the mesh
      */
