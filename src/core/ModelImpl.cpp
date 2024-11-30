@@ -90,7 +90,7 @@ void init_descriptor_pool(const VulkanEngine& engine,
             {VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 3},
             {VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 1}};
 
-    file.descriptorPool.init(engine._device, gltf.materials.size(), sizes);
+    file.descriptorPool.init(engine._device, static_cast<uint32_t>(gltf.materials.size()), sizes);
 }
 
 void load_samplers(const VulkanEngine& engine, Mesh::GLTF::LoadedGLTF& file,
