@@ -388,7 +388,7 @@ void setup_nodes_relationships(Mesh::GLTF::LoadedGLTF& file,
                                fastgltf::Asset& gltf,
                                std::vector<std::shared_ptr<ENode>>& nodes) {
     // run loop again to set up transform hierarchy
-    for (int i = 0; i < gltf.nodes.size(); i++) {
+    for (size_t i = 0; i < gltf.nodes.size(); i++) {
         fastgltf::Node& node = gltf.nodes[i];
         const std::shared_ptr<ENode>& sceneNode = nodes[i];
 
