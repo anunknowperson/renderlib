@@ -64,12 +64,26 @@ public:
     */
     virtual glm::mat4 get_mesh_transform(Mesh::rid_t rid) = 0;
 
-    struct MeshPair {
-     std::shared_ptr<const Mesh::GLTF::LoadedGLTF> ptr;
-     glm::mat4 transform;
+    /*!
+     * \brief Stores mesh data
+     */
+struct MeshPair {
+        /*!
+         * \brief Pointer to the loaded mesh (GLTF)
+         */
+std::shared_ptr<const Mesh::GLTF::LoadedGLTF> ptr;
+        /*!
+         * \brief Transform matrix of the mesh
+         */
+glm::mat4 transform;
     };
     using MeshMap = std::unordered_map<Mesh::rid_t, MeshPair>;
-    virtual const MeshMap& get_meshes() = 0;
+/*!
+ * \brief Gets all the stored meshes
+ * \return Returns a MeshMap that stores pairs of the render-id of the mesh and
+ * the mesh data
+ */
+virtual const MeshMap& get_meshes() = 0;
 
     /*!
      * \brief Retrieves the camera instance.
@@ -81,7 +95,11 @@ public:
      */
     [[nodiscard]] virtual Camera* getCamera() = 0;
 
-     virtual VulkanEngine& get_engine() = 0;
+     /*!
+      * \brief Gets the stored engine
+      * \return Returns a ref to the engine
+      */
+virtual VulkanEngine& get_engine() = 0;
 
     using Ptr = std::shared_ptr<IModel>;
 };
