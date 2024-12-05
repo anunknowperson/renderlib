@@ -30,7 +30,7 @@ ViewImpl::ViewImpl(IController::Ptr controller, IModel::Ptr model)
 
 void createCubes(const std::shared_ptr<IModel> &_model) {
     for (int i = 0; i < 5; i++) {
-        _model->createMesh(&"cube"[i]);
+        _model->createMesh(std::move("cube" + std::to_string(i)));
     }
 }
 
