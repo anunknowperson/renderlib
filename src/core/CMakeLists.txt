@@ -1,6 +1,5 @@
 target_sources(${PROJECT_NAME}
         PRIVATE
-        CameraController.cpp
         Controller.cpp
         ControllerImpl.cpp
         Mesh.cpp
