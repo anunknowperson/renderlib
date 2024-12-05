@@ -24,13 +24,21 @@ public:
     void setFOV(float newFOV);
     float getFOV() const;
 
-    glm::mat4 getViewMatrix() const; // Метод для получения матрицы вида
-    void updateViewMatrix(); // Метод для обновления матрицы вида
+    void setScreenWidth(float screenWidth);
+    float getScreenWidth() const;
 
-    void processSDLEvent(const SDL_Event& event); // Метод для обработки событий SDL
+    void setScreenHeight(float screenHeight);
+    float getScreenHeight() const;
+
+    glm::mat4 getViewMatrix() const; // Method to get the view matrix
+    void updateViewMatrix(); // Method to update the view matrix
+
+    void processSDLEvent(const SDL_Event& event); // Method to process SDL events
+
+    void update(); // Method to update the camera
 
 private:
-    Camera& camera; // Ссылка на камеру
-    float pitch; // Угол наклона
-    float yaw; // Угол поворота
+    Camera& _camera; // Reference to the camera
+    float _pitch; // Pitch angle
+    float _yaw; // Yaw angle
 };
