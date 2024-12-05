@@ -17,6 +17,8 @@ endif()
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON CACHE INTERNAL "")
 
+add_library(${PROJECT_NAME})
+
 add_subdirectory(src)
 include(linkPackages)
 
