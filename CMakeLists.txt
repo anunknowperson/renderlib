@@ -1,6 +1,6 @@
-﻿cmake_minimum_required(VERSION 3.24)
+﻿cmake_minimum_required (VERSION 3.24)
 
-project("renderlib")
+project ("renderlib")
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -16,9 +16,6 @@ if (POLICY CMP0141)
 endif ()
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON CACHE INTERNAL "")
-
-add_library(${PROJECT_NAME}
-        src/core/CameraController.cpp)
 
 add_subdirectory(src)
 include(linkPackages)
