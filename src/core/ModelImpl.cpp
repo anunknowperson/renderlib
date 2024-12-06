@@ -493,11 +493,11 @@ Mesh::rid_t ModelImpl::createMesh(const std::filesystem::path& file_path) {
 }
 
 void ModelImpl::setMeshTransform(Mesh::rid_t rid, glm::mat4x4 transform) {
-    _meshes[rid].transform = transform;
+    _meshes.at(rid).transform = transform;
 }
 
 glm::mat4 ModelImpl::get_mesh_transform(Mesh::rid_t rid) {
-    return _meshes[rid].transform;
+    return _meshes.at(rid).transform;
 }
 
 void ModelImpl::delete_mesh(Mesh::rid_t rid) {
