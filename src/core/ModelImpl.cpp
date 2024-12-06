@@ -501,7 +501,9 @@ glm::mat4 ModelImpl::get_mesh_transform(Mesh::rid_t rid) {
 }
 
 void ModelImpl::delete_mesh(Mesh::rid_t rid) {
-    _meshes.erase(rid);
+    if(!_meshes.erase(rid)) {
+        throw std::invalid_argument("Invalid id of the mesh");
+    }
 }
 
 const ModelImpl::MeshMap& ModelImpl::get_meshes() {
