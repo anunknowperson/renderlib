@@ -9,7 +9,6 @@ MeshController::MeshController(IModel::Ptr model) : _model(std::move(model)) {}
 
 Mesh::rid_t MeshController::create_mesh(
         const std::filesystem::path& file_path) const {
-    // TODO: вернуть возвращемое значение
     return _model->createMesh(file_path);
 }
 
