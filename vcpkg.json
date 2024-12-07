@@ -22,7 +22,6 @@
     "spdlog",
     "stb",
     "vk-bootstrap",
-    "vulkan-memory-allocator",
-    "gtest"
+    "vulkan-memory-allocator"
   ]
 }
