@@ -16,17 +16,21 @@ bool vkutil::load_shader_module(const char* filePath, VkDevice device,
     // find what the size of the file is by looking up the location of the
     // cursor because the cursor is at the end, it gives the size directly in
     // bytes
-    auto fileSize = static_cast<uint32_t>(file.tellg());
+    const auto fileSize = file.tellg();
 
+    if (fileSize == -1) {
+        spdlog::error("Failed to open file {}", filePath);
+        return false;
+    }
     // spirv expects the buffer to be on uint32, so make sure to reserve a int
     // vector big enough for the entire file
-    std::vector<uint32_t> buffer(fileSize / sizeof(uint32_t));
+    std::vector<uint32_t> buffer(static_cast<uint32_t>(fileSize) / sizeof(uint32_t));
 
     // put file cursor at beginning
     file.seekg(0);
 
     // load the entire file into the buffer
-    file.read((char*)buffer.data(), fileSize);
+    file.read(reinterpret_cast<char*>(buffer.data()), fileSize);
 
     // now that the file is loaded into the buffer, we can close it
     file.close();
