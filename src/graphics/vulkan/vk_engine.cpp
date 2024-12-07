@@ -488,8 +488,8 @@ void VulkanEngine::init(struct SDL_Window* window) {
 
     cameraController->setPosition(glm::vec3(0, 0, 5));
 
-    cameraController->setPitch(0.0f);
-    cameraController->setYaw(0.0f);
+    glm::quat initialRotation = glm::quat(glm::vec3(0.0f, 0.0f, 0.0f)); // pitch, yaw, roll
+    cameraController->setRotation(initialRotation);
 
     std::string structurePath = {std::string(ASSETS_DIR) + "/basicmesh.glb"};
     auto structureFile = loadGltf(this, structurePath);
@@ -1412,7 +1412,6 @@ void MeshNode::Draw(const glm::mat4& topMatrix, DrawContext& ctx) {
 }
 
 void VulkanEngine::update_scene() {
-    mainCamera->updateViewMatrix();
 
     glm::mat4 view = mainCamera->getViewMatrix();
 

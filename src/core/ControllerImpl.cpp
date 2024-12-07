@@ -46,8 +46,6 @@ void updateCubes(const std::shared_ptr<IModel> &_model) {
 void ControllerImpl::update() const {
     _model->updateVulkan();
 
-    _model->getCameraController()->update();
-
     updateCubes(_model);
 }
 

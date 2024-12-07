@@ -9,36 +9,20 @@ class CameraController {
 public:
     explicit CameraController(Camera& camera);
 
-    void setPosition(const glm::vec3& newPosition);
+    // Управление позицией и вращением
+    void setPosition(const glm::vec3& position);
     glm::vec3 getPosition() const;
 
-    void setRotation(const glm::quat& newRotation);
+    void setRotation(const glm::quat& rotation);
     glm::quat getRotation() const;
 
-    void setPitch(float newPitch);
-    void setYaw(float newYaw);
-    float getPitch() const;
-    float getYaw() const;
-
     void lookAt(const glm::vec3& target);
-    void setFOV(float newFOV);
-    float getFOV() const;
 
-    void setScreenWidth(float screenWidth);
-    float getScreenWidth() const;
-
-    void setScreenHeight(float screenHeight);
-    float getScreenHeight() const;
-
-    glm::mat4 getViewMatrix() const; // Method to get the view matrix
-    void updateViewMatrix(); // Method to update the view matrix
-
-    void processSDLEvent(const SDL_Event& event); // Method to process SDL events
-
-    void update(); // Method to update the camera
+    // Обработка событий ввода
+    void processSDLEvent(const SDL_Event& event);
 
 private:
-    Camera& _camera; // Reference to the camera
-    float _pitch; // Pitch angle
-    float _yaw; // Yaw angle
+    Camera& _camera;  // Ссылка на управляемую камеру
+    float _pitch;     // Угол наклона (по вертикали)
+    float _yaw;       // Угол поворота (по горизонтали)
 };
