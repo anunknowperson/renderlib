@@ -1,4 +1,5 @@
 #include "core/CameraController.h"
+
 #include "iostream"
 
 #define GLM_ENABLE_EXPERIMENTAL
@@ -26,13 +27,14 @@ glm::quat CameraController::getRotation() const {
 
 void CameraController::lookAt(const glm::vec3& target) {
     glm::vec3 direction = glm::normalize(target - _camera.getPosition());
-    glm::quat rotation = glm::quatLookAt(direction, glm::vec3(0.0f, 1.0f, 0.0f));
+    glm::quat rotation =
+            glm::quatLookAt(direction, glm::vec3(0.0f, 1.0f, 0.0f));
     setRotation(rotation);
 }
 
 void CameraController::processSDLEvent(const SDL_Event& event) {
     if (event.type == SDL_MOUSEMOTION) {
-        float sensitivity = 0.0001f; // Adjusted sensitivity
+        float sensitivity = 0.0001f;  // Adjusted sensitivity
         _yaw -= event.motion.xrel * sensitivity;
         _pitch -= event.motion.yrel * sensitivity;
 
@@ -42,7 +44,8 @@ void CameraController::processSDLEvent(const SDL_Event& event) {
 
         // Convert yaw and pitch to quaternion
         glm::quat yawQuat = glm::angleAxis(_yaw, glm::vec3(0.0f, 1.0f, 0.0f));
-        glm::quat pitchQuat = glm::angleAxis(_pitch, glm::vec3(1.0f, 0.0f, 0.0f));
+        glm::quat pitchQuat =
+                glm::angleAxis(_pitch, glm::vec3(1.0f, 0.0f, 0.0f));
         glm::quat rotation = yawQuat * pitchQuat;
         setRotation(rotation);
     }

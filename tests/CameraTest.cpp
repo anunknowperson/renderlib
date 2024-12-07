@@ -24,13 +24,12 @@ TEST(CameraTest, TestSetRotation) {
 
 TEST(CameraTest, TestSetFOVBoundaries) {
     Camera camera;
-    CameraController controller(camera);
 
     // Проверяем минимальное значение FOV
-    controller.setFOV(1.0f);
-    EXPECT_FLOAT_EQ(controller.getFOV(), 1.0f);
+    camera.setFOV(1.0f);
+    EXPECT_FLOAT_EQ(camera.getFOV(), 1.0f);
 
     // Проверяем максимальное значение FOV
-    controller.setFOV(120.0f);
-    EXPECT_FLOAT_EQ(controller.getFOV(), 120.0f);
+    camera.setFOV(120.0f);
+    EXPECT_FLOAT_EQ(camera.getFOV(), 120.0f);
 }

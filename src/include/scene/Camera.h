@@ -7,7 +7,8 @@
 class Camera {
 public:
     Camera();
-    Camera(const glm::vec3& position, float fov, float screenWidth, float screenHeight);
+    Camera(const glm::vec3& position, float fov, float screenWidth,
+           float screenHeight);
 
     // Методы доступа
     glm::vec3 getPosition() const;
@@ -28,7 +29,7 @@ public:
     glm::mat4 getViewMatrix() const;
 
 private:
-    void updateViewMatrix(); // Обновление матрицы вида
+    void updateViewMatrix();  // Обновление матрицы вида
 
     glm::vec3 _position;
     glm::quat _rotation;
