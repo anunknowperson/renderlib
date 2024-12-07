@@ -1,6 +1,7 @@
+#include <filesystem>
 #include <gtest/gtest.h>
 #include <vulkan/vulkan.h>
-#include <filesystem>
+
 #include "view/Shader.h"
 
 class ShaderTest : public ::testing::Test {
@@ -37,12 +38,20 @@ protected:
         VkDeviceCreateInfo deviceCreateInfo{};
         deviceCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
 
-        if (vkCreateDevice(devices[0], &deviceCreateInfo, nullptr, &device) != VK_SUCCESS) {
+        if (vkCreateDevice(devices[0], &deviceCreateInfo, nullptr, &device) !=
+            VK_SUCCESS) {
             FAIL() << "Не удалось создать логическое устройство Vulkan";
         }
 
         // Определение пути к файлу шейдера
-        std::filesystem::path shaderPath = std::filesystem::current_path().parent_path().parent_path().parent_path().parent_path().parent_path() / "shaders" / "colored_triangle.frag.spv";
+        std::filesystem::path shaderPath = std::filesystem::current_path()
+                                                   .parent_path()
+                                                   .parent_path()
+                                                   .parent_path()
+                                                   .parent_path()
+                                                   .parent_path() /
+                                           "shaders" /
+                                           "colored_triangle.frag.spv";
         if (!std::filesystem::exists(shaderPath)) {
             FAIL() << "Файл шейдера " << shaderPath << " не найден";
         }
@@ -66,8 +75,15 @@ TEST_F(ShaderTest, MultipleShaderCreationAndDestruction) {
     const int shaderCount = 10;
     std::vector<Shader*> shaders;
 
-    std::filesystem::path shaderPath = std::filesystem::current_path().parent_path().parent_path().parent_path().parent_path().parent_path() / "shaders" / "colored_triangle.frag.spv";
-    ASSERT_TRUE(std::filesystem::exists(shaderPath)) << "Файл шейдера " << shaderPath << " не найден";
+    std::filesystem::path shaderPath = std::filesystem::current_path()
+                                               .parent_path()
+                                               .parent_path()
+                                               .parent_path()
+                                               .parent_path()
+                                               .parent_path() /
+                                       "shaders" / "colored_triangle.frag.spv";
+    ASSERT_TRUE(std::filesystem::exists(shaderPath))
+            << "Файл шейдера " << shaderPath << " не найден";
 
     // Создание нескольких шейдеров
     for (int i = 0; i < shaderCount; ++i) {

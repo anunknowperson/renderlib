@@ -13,7 +13,8 @@ Shader::Shader(const std::string& shaderPath, VkDevice device)
 }
 
 // Загрузка данных шейдера и создание VkShaderModule
-bool Shader::loadShaderModule(const std::string& filePath, VkShaderModule* outShaderModule) {
+bool Shader::loadShaderModule(const std::string& filePath,
+                              VkShaderModule* outShaderModule) {
     std::ifstream file(filePath, std::ios::ate | std::ios::binary);
     if (!file.is_open()) {
         fmt::print("Не удалось открыть файл шейдера {}\n", filePath);
@@ -32,7 +33,8 @@ bool Shader::loadShaderModule(const std::string& filePath, VkShaderModule* outSh
     createInfo.codeSize = buffer.size();
     createInfo.pCode = reinterpret_cast<const uint32_t*>(buffer.data());
 
-    if (vkCreateShaderModule(_device, &createInfo, nullptr, outShaderModule) != VK_SUCCESS) {
+    if (vkCreateShaderModule(_device, &createInfo, nullptr, outShaderModule) !=
+        VK_SUCCESS) {
         fmt::print("Не удалось создать модуль шейдера\n");
         return false;
     }

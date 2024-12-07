@@ -17,7 +17,8 @@ public:
 
 private:
     // Метод для загрузки данных шейдера и создания модуля шейдера
-    bool loadShaderModule(const std::string& filePath, VkShaderModule* outShaderModule);
+    bool loadShaderModule(const std::string& filePath,
+                          VkShaderModule* outShaderModule);
 
     VkDevice _device;  // Устройство Vulkan, необходимое для создания шейдеров
     VkShaderModule _shaderModule;  // VkShaderModule, содержащий данные шейдера
