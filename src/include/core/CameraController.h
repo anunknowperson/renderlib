@@ -2,7 +2,7 @@
 
 #include <glm/glm.hpp>
 #include <glm/gtc/quaternion.hpp>
-#include <SDL.h>
+#include <SDL2/SDL.h>
 #include "scene/Camera.h"
 
 class CameraController {

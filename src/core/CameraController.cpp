@@ -1,11 +1,15 @@
 #include "core/CameraController.h"
+#include "iostream"
+
+#define GLM_ENABLE_EXPERIMENTAL
+#include <glm/gtx/component_wise.hpp>
 #include <glm/gtx/quaternion.hpp>
 
 CameraController::CameraController(Camera& camera)
     : _camera(camera), _pitch(0.0f), _yaw(0.0f) {}
 
 void CameraController::setPosition(const glm::vec3& position) {
-    _camera.setPosition(position); // Логика обновления внутри модели
+    _camera.setPosition(position);
 }
 
 glm::vec3 CameraController::getPosition() const {
@@ -13,7 +17,7 @@ glm::vec3 CameraController::getPosition() const {
 }
 
 void CameraController::setRotation(const glm::quat& rotation) {
-    _camera.setRotation(rotation); // Логика обновления внутри модели
+    _camera.setRotation(rotation);
 }
 
 glm::quat CameraController::getRotation() const {
@@ -28,19 +32,24 @@ void CameraController::lookAt(const glm::vec3& target) {
 
 void CameraController::processSDLEvent(const SDL_Event& event) {
     if (event.type == SDL_MOUSEMOTION) {
-        float sensitivity = 0.001f;
-        _yaw += event.motion.xrel * sensitivity;
-        _pitch += event.motion.yrel * sensitivity;
+        float sensitivity = 0.0001f; // Adjusted sensitivity
+        _yaw -= event.motion.xrel * sensitivity;
+        _pitch -= event.motion.yrel * sensitivity;
 
+        // Clamp pitch to avoid gimbal lock
         if (_pitch > glm::radians(89.0f)) _pitch = glm::radians(89.0f);
         if (_pitch < glm::radians(-89.0f)) _pitch = glm::radians(-89.0f);
 
+        // Convert yaw and pitch to quaternion
         glm::quat yawQuat = glm::angleAxis(_yaw, glm::vec3(0.0f, 1.0f, 0.0f));
         glm::quat pitchQuat = glm::angleAxis(_pitch, glm::vec3(1.0f, 0.0f, 0.0f));
-        setRotation(yawQuat * pitchQuat);
-    } else if (event.type == SDL_KEYDOWN) {
+        glm::quat rotation = yawQuat * pitchQuat;
+        setRotation(rotation);
+    }
+
+    if (event.type == SDL_KEYDOWN) {
         float moveSpeed = 0.1f;
-        glm::vec3 position = getPosition();
+        glm::vec3 position = _camera.getPosition();
 
         switch (event.key.keysym.sym) {
             case SDLK_w:
@@ -57,6 +66,6 @@ void CameraController::processSDLEvent(const SDL_Event& event) {
                 break;
         }
 
-        setPosition(position);
+        _camera.setPosition(position);
     }
 }
