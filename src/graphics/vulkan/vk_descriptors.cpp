@@ -86,7 +86,7 @@ VkDescriptorPool DescriptorAllocatorGrowable::get_pool(VkDevice device) {
         // need to create a new pool
         newPool = create_pool(device, setsPerPool, ratios);
 
-        setsPerPool = setsPerPool * 1.5;
+        setsPerPool = static_cast<uint32_t>(setsPerPool * 1.5);
         if (setsPerPool > 4092) {
             setsPerPool = 4092;
         }
@@ -127,7 +127,8 @@ void DescriptorAllocatorGrowable::init(VkDevice device, uint32_t maxSets,
 
     VkDescriptorPool newPool = create_pool(device, maxSets, poolRatios);
 
-    setsPerPool = maxSets * 1.5;  // grow it next allocation
+    setsPerPool =
+            static_cast<uint32_t>(maxSets * 1.5);  // grow it next allocation
 
     readyPools.push_back(newPool);
 }
@@ -193,7 +194,7 @@ void DescriptorWriter::write_buffer(int binding, VkBuffer buffer, size_t size,
     VkWriteDescriptorSet write = {
             .sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET};
 
-    write.dstBinding = binding;
+    write.dstBinding = static_cast<uint32_t>(binding);
     write.dstSet =
             VK_NULL_HANDLE;  // left empty for now until we need to write it
     write.descriptorCount = 1;
@@ -212,7 +213,7 @@ void DescriptorWriter::write_image(int binding, VkImageView image,
     VkWriteDescriptorSet write = {
             .sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET};
 
-    write.dstBinding = binding;
+    write.dstBinding = static_cast<uint32_t>(binding);
     write.dstSet =
             VK_NULL_HANDLE;  // left empty for now until we need to write it
     write.descriptorCount = 1;

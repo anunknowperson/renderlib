@@ -1,7 +1,7 @@
 #include "scene/Node.h"
 
 Node::Node(std::shared_ptr<Node> parent, std::string name)
-    : _name(name), _parent(parent) {
+    : _parent(parent), _name(name) {
     if (parent != nullptr) {
         parent->_child.push_back(shared_from_this());
     }

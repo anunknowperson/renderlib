@@ -82,6 +82,9 @@ class IRenderable {
 // the scene node can hold children and will also keep a transform to propagate
 // to them
 struct ENode : public IRenderable {
+    ENode() = default;
+
+    virtual ~ENode() = default;
     // parent pointer must be a weak pointer to avoid circular dependencies
     std::weak_ptr<ENode> parent;
     std::vector<std::shared_ptr<ENode>> children;

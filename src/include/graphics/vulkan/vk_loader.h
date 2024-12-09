@@ -29,7 +29,9 @@ class VulkanEngine;
 std::optional<std::vector<std::shared_ptr<MeshAsset>>> loadGltfMeshes(
         VulkanEngine* engine, std::filesystem::path filePath);
 
-struct LoadedGLTF : public IRenderable {
+struct LoadedGLTF final : public IRenderable {
+    LoadedGLTF() = default;
+
     // storage for all the data on a given glTF file
     std::unordered_map<std::string, std::shared_ptr<MeshAsset>> meshes;
     std::unordered_map<std::string, std::shared_ptr<ENode>> nodes;
@@ -52,7 +54,7 @@ struct LoadedGLTF : public IRenderable {
         clearAll();
     };
 
-    virtual void Draw(const glm::mat4& topMatrix, DrawContext& ctx);
+    void Draw(const glm::mat4& topMatrix, DrawContext& ctx);
 
 private:
     void clearAll();

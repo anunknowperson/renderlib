@@ -34,7 +34,7 @@ VKAPI_ATTR VkBool32 VKAPI_CALL VulkanEngine::debugCallback(
         VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
         VkDebugUtilsMessageTypeFlagsEXT messageType,
         const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData,
-        void* pUserData) {
+        [[maybe_unused]] void* pUserData) {
     std::string type;
 
     switch (messageType) {
@@ -113,8 +113,8 @@ void VulkanEngine::init_default_data() {
     // checkerboard image
     uint32_t magenta = glm::packUnorm4x8(glm::vec4(1, 0, 1, 1));
     std::array<uint32_t, 16 * 16> pixels{};  // for 16x16 checkerboard texture
-    for (int x = 0; x < 16; x++) {
-        for (int y = 0; y < 16; y++) {
+    for (size_t x = 0; x < 16; x++) {
+        for (size_t y = 0; y < 16; y++) {
             pixels[y * 16 + x] = ((x % 2) ^ (y % 2)) ? magenta : black;
         }
     }
@@ -401,7 +401,7 @@ void VulkanEngine::init_descriptors() {
 
     writer.update_set(_device, _drawImageDescriptors);
 
-    for (int i = 0; i < FRAME_OVERLAP; i++) {
+    for (auto & _frame : _frames) {
         // create a descriptor pool
         std::vector<DescriptorAllocatorGrowable::PoolSizeRatio> frame_sizes = {
                 {VK_DESCRIPTOR_TYPE_STORAGE_IMAGE, 3},
@@ -410,11 +410,11 @@ void VulkanEngine::init_descriptors() {
                 {VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 4},
         };
 
-        _frames[i]._frameDescriptors = DescriptorAllocatorGrowable{};
-        _frames[i]._frameDescriptors.init(_device, 1000, frame_sizes);
+        _frame._frameDescriptors = DescriptorAllocatorGrowable{};
+        _frame._frameDescriptors.init(_device, 1000, frame_sizes);
 
-        _mainDeletionQueue.push_function([&, i]() {
-            _frames[i]._frameDescriptors.destroy_pools(_device);
+        _mainDeletionQueue.push_function([&]() {
+            _frame._frameDescriptors.destroy_pools(_device);
         });
     }
 }
@@ -625,17 +625,17 @@ void VulkanEngine::init_commands() {
             _graphicsQueueFamily,
             VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT);
 
-    for (int i = 0; i < FRAME_OVERLAP; i++) {
+    for (auto & _frame : _frames) {
         VK_CHECK(vkCreateCommandPool(_device, &commandPoolInfo, nullptr,
-                                     &_frames[i]._commandPool));
+                                     &_frame._commandPool));
 
         // allocate the default command buffer that we will use for rendering
         VkCommandBufferAllocateInfo cmdAllocInfo =
-                vkinit::command_buffer_allocate_info(_frames[i]._commandPool,
+                vkinit::command_buffer_allocate_info(_frame._commandPool,
                                                      1);
 
         VK_CHECK(vkAllocateCommandBuffers(_device, &cmdAllocInfo,
-                                          &_frames[i]._mainCommandBuffer));
+                                          &_frame._mainCommandBuffer));
     }
 
     VK_CHECK(vkCreateCommandPool(_device, &commandPoolInfo, nullptr,
@@ -658,14 +658,14 @@ void VulkanEngine::init_sync_structures() {
             vkinit::fence_create_info(VK_FENCE_CREATE_SIGNALED_BIT);
     VkSemaphoreCreateInfo semaphoreCreateInfo = vkinit::semaphore_create_info();
 
-    for (int i = 0; i < FRAME_OVERLAP; i++) {
+    for (auto & _frame : _frames) {
         VK_CHECK(vkCreateFence(_device, &fenceCreateInfo, nullptr,
-                               &_frames[i]._renderFence));
+                               &_frame._renderFence));
 
         VK_CHECK(vkCreateSemaphore(_device, &semaphoreCreateInfo, nullptr,
-                                   &_frames[i]._swapchainSemaphore));
+                                   &_frame._swapchainSemaphore));
         VK_CHECK(vkCreateSemaphore(_device, &semaphoreCreateInfo, nullptr,
-                                   &_frames[i]._renderSemaphore));
+                                   &_frame._renderSemaphore));
     }
 
     VK_CHECK(vkCreateFence(_device, &fenceCreateInfo, nullptr, &_immFence));
@@ -752,8 +752,8 @@ void VulkanEngine::destroy_swapchain() {
     vkDestroySwapchainKHR(_device, _swapchain, nullptr);
 
     // destroy swapchain resources
-    for (int i = 0; i < _swapchainImageViews.size(); i++) {
-        vkDestroyImageView(_device, _swapchainImageViews[i], nullptr);
+    for (auto & _swapchainImageView : _swapchainImageViews) {
+        vkDestroyImageView(_device, _swapchainImageView, nullptr);
     }
 }
 
@@ -766,14 +766,14 @@ void VulkanEngine::cleanup() {
 
         _mainDeletionQueue.flush();
 
-        for (int i = 0; i < FRAME_OVERLAP; i++) {
+        for (auto & _frame : _frames) {
             // already written from before
-            vkDestroyCommandPool(_device, _frames[i]._commandPool, nullptr);
+            vkDestroyCommandPool(_device, _frame._commandPool, nullptr);
 
             // destroy sync objects
-            vkDestroyFence(_device, _frames[i]._renderFence, nullptr);
-            vkDestroySemaphore(_device, _frames[i]._renderSemaphore, nullptr);
-            vkDestroySemaphore(_device, _frames[i]._swapchainSemaphore,
+            vkDestroyFence(_device, _frame._renderFence, nullptr);
+            vkDestroySemaphore(_device, _frame._renderSemaphore, nullptr);
+            vkDestroySemaphore(_device, _frame._swapchainSemaphore,
                                nullptr);
         }
 
@@ -892,8 +892,8 @@ void VulkanEngine::draw_background(VkCommandBuffer cmd) {
 
     // execute the compute pipeline dispatch. We are using 16x16 workgroup size,
     // so we need to divide by it
-    vkCmdDispatch(cmd, std::ceil(_drawExtent.width / 16.0),
-                  std::ceil(_drawExtent.height / 16.0), 1);
+    vkCmdDispatch(cmd, static_cast<uint32_t>(std::ceil(_drawExtent.width / 16.0)),
+                  static_cast<uint32_t>(std::ceil(_drawExtent.height / 16.0)), 1);
 }
 
 void VulkanEngine::draw_imgui(VkCommandBuffer cmd,
@@ -949,8 +949,8 @@ void VulkanEngine::draw_geometry(VkCommandBuffer cmd) {
     VkViewport viewport = {};
     viewport.x = 0;
     viewport.y = 0;
-    viewport.width = _drawExtent.width;
-    viewport.height = _drawExtent.height;
+    viewport.width = static_cast<float>(_drawExtent.width);
+    viewport.height = static_cast<float>(_drawExtent.height);
     viewport.minDepth = 0.f;
     viewport.maxDepth = 1.f;
 
@@ -968,7 +968,6 @@ void VulkanEngine::draw_geometry(VkCommandBuffer cmd) {
     VkDescriptorSet imageSet = get_current_frame()._frameDescriptors.allocate(
             _device, _singleImageDescriptorLayout);
     {
-        DescriptorWriter writer;
         writer.write_image(0, _errorCheckerboardImage.imageView,
                            _defaultSamplerNearest,
                            VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
@@ -1040,12 +1039,14 @@ void VulkanEngine::draw() {
     VkCommandBufferBeginInfo cmdBeginInfo = vkinit::command_buffer_begin_info(
             VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT);
 
-    _drawExtent.height =
-            std::min(_swapchainExtent.height, _drawImage.imageExtent.height) *
-            renderScale;
-    _drawExtent.width =
-            std::min(_swapchainExtent.width, _drawImage.imageExtent.width) *
-            renderScale;
+    _drawExtent.height = static_cast<uint32_t>(
+            (float)std::min(_swapchainExtent.height,
+                            _drawImage.imageExtent.height) *
+            renderScale);
+    _drawExtent.width = static_cast<uint32_t>(
+            (float)std::min(_swapchainExtent.width,
+                            _drawImage.imageExtent.width) *
+            renderScale);
 
     VK_CHECK(vkBeginCommandBuffer(cmd, &cmdBeginInfo));
 
@@ -1147,8 +1148,8 @@ void VulkanEngine::resize_swapchain() {
 
     int w, h;
     SDL_GetWindowSize(_window, &w, &h);
-    _windowExtent.width = w;
-    _windowExtent.height = h;
+    _windowExtent.width = static_cast<uint32_t>(w);
+    _windowExtent.height = static_cast<uint32_t>(h);
 
     create_swapchain(_windowExtent.width, _windowExtent.height);
 

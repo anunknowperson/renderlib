@@ -26,12 +26,13 @@ double getCurrentGlobalTime() {
 }
 
 void updateCube(const std::shared_ptr<IModel> &_model, int name) {
-    double sinValue = std::sin(getCurrentGlobalTime() + name) * 5.0f;
+    double sinValue = std::sin(getCurrentGlobalTime() + name) * 5.0;
 
-    glm::mat4 scale = glm::scale(glm::vec3{0.2});
-    glm::mat4 translation = glm::translate(glm::vec3{name - 2.5f, sinValue, 0});
+    glm::mat4 scale = glm::scale(glm::vec3{0.2f});
+    glm::mat4 translation = glm::translate(
+            glm::vec3{static_cast<float>(name) - 2.5f, sinValue, 0});
 
-    _model->setMeshTransform("cube" + name, scale * translation);
+    _model->setMeshTransform("cube" + std::to_string(name), scale * translation);
 }
 
 void updateCubes(const std::shared_ptr<IModel> &_model) {
