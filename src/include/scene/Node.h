@@ -25,7 +25,7 @@ public:
      * @param name The name of the node. Default is "without name".
      */
     explicit Node(std::shared_ptr<Node> parent = nullptr,
-                  const std::string& name = "without name");
+                  std::string name = "without name");
 
     /**
      * @brief Destroy the Node object.
