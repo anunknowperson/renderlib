@@ -80,13 +80,13 @@ void UpdateChildGlobalIfLocalChanged(flecs::entity e, const LocalTransform &t) {
 }
 }  // namespace
 
-void setLocalFromMatrix(flecs::entity e, const glm::mat4 &matrix) {
-    const glm::vec3 position = matrix[3];
-    const auto scale = sqrt(static_cast<double>(glm::length(matrix[0])));
+void setLocalFromMatrix(flecs::entity e, const glm::mat4 &mat) {
+    const glm::vec3 position = mat[3];
+    const auto scale = sqrt(static_cast<double>(glm::length(mat[0])));
 #ifndef NDEBUG
     glm::float64 epsilon = 0.0001;
-    const auto scale_y = static_cast<double>(glm::length(matrix[1]));
-    const auto scale_z = static_cast<double>(glm::length(matrix[2]));
+    const auto scale_y = static_cast<double>(glm::length(mat[1]));
+    const auto scale_z = static_cast<double>(glm::length(mat[2]));
     if (abs(scale - scale_y) > epsilon || abs(scale - scale_z) > epsilon ||
         abs(scale_y - scale_z) > epsilon) {
         LOGW("Trying to convert a float4x4 to a LocalTransform, but the scale "
@@ -94,7 +94,7 @@ void setLocalFromMatrix(flecs::entity e, const glm::mat4 &matrix) {
     }
 #endif
 
-    auto pos_matrix = glm::mat3(matrix);
+    auto pos_matrix = glm::mat3(mat);
 
 #ifndef NDEBUG
     const auto dot_product1 =
