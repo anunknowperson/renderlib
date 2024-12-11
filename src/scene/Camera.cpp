@@ -45,7 +45,7 @@ void Camera::processSDLEvent(const SDL_Event& e) {
     }
 }
 
-glm::mat4 Camera::getViewMatrix() {
+glm::mat4 Camera::getViewMatrix() const {
     // to create a correct model view, we need to move the world in opposite
     // direction to the camera
     //  so we will create the camera model matrix and invert
@@ -55,7 +55,7 @@ glm::mat4 Camera::getViewMatrix() {
     return glm::inverse(cameraTranslation * cameraRotation);
 }
 
-glm::mat4 Camera::getRotationMatrix() {
+glm::mat4 Camera::getRotationMatrix() const {
     // fairly typical FPS style camera. we join the pitch and yaw rotations into
     // the final rotation matrix
 

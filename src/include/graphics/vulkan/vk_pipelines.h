@@ -27,7 +27,7 @@ public:
 
     void clear();
 
-    VkPipeline build_pipeline(VkDevice device);
+    VkPipeline build_pipeline(VkDevice device) const;
 
     void set_shaders(VkShaderModule vertexShader,
                      VkShaderModule fragmentShader);

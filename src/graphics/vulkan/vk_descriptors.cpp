@@ -54,16 +54,16 @@ void DescriptorAllocator::init_pool(VkDevice device, uint32_t maxSets,
     vkCreateDescriptorPool(device, &pool_info, nullptr, &pool);
 }
 
-void DescriptorAllocator::clear_descriptors(VkDevice device) {
+void DescriptorAllocator::clear_descriptors(VkDevice device) const {
     vkResetDescriptorPool(device, pool, 0);
 }
 
-void DescriptorAllocator::destroy_pool(VkDevice device) {
+void DescriptorAllocator::destroy_pool(VkDevice device) const {
     vkDestroyDescriptorPool(device, pool, nullptr);
 }
 
 VkDescriptorSet DescriptorAllocator::allocate(VkDevice device,
-                                              VkDescriptorSetLayout layout) {
+                                              VkDescriptorSetLayout layout) const {
     VkDescriptorSetAllocateInfo allocInfo = {
             .sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO};
     allocInfo.pNext = nullptr;
