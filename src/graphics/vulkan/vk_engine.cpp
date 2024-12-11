@@ -102,17 +102,17 @@ void VulkanEngine::init_default_data() {
     testMeshes = loadGltfMeshes(this, path_to_assets).value();
 
     // 3 default textures, white, grey, black. 1 pixel each
-    uint32_t white = glm::packUnorm4x8(glm::vec4(1, 1, 1, 1));
+    const uint32_t white = glm::packUnorm4x8(glm::vec4(1, 1, 1, 1));
     _whiteImage =
-            create_image(&white, VkExtent3D{1, 1, 1},
-                         VK_FORMAT_R8G8B8A8_UNORM, VK_IMAGE_USAGE_SAMPLED_BIT);
+            create_image(&white, VkExtent3D{1, 1, 1}, VK_FORMAT_R8G8B8A8_UNORM,
+                         VK_IMAGE_USAGE_SAMPLED_BIT);
 
-    uint32_t grey = glm::packUnorm4x8(glm::vec4(0.66f, 0.66f, 0.66f, 1));
+    const uint32_t grey = glm::packUnorm4x8(glm::vec4(0.66f, 0.66f, 0.66f, 1));
     _greyImage =
-            create_image(&grey, VkExtent3D{1, 1, 1},
-                         VK_FORMAT_R8G8B8A8_UNORM, VK_IMAGE_USAGE_SAMPLED_BIT);
+            create_image(&grey, VkExtent3D{1, 1, 1}, VK_FORMAT_R8G8B8A8_UNORM,
+                         VK_IMAGE_USAGE_SAMPLED_BIT);
 
-    uint32_t black = glm::packUnorm4x8(glm::vec4(0, 0, 0, 0));
+    const uint32_t black = glm::packUnorm4x8(glm::vec4(0, 0, 0, 0));
     _blackImage =
             create_image(&black, VkExtent3D{1, 1, 1},
                          VK_FORMAT_R8G8B8A8_UNORM, VK_IMAGE_USAGE_SAMPLED_BIT);
