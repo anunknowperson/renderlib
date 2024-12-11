@@ -1,11 +1,6 @@
 #include "graphics/Graphics.h"
 
 namespace engine::graphics {
-
-Graphics::Graphics() {}
-
-Graphics::~Graphics() {}
-
 Graphics* Graphics::getInstance() {
     static Graphics singleton;
     return &singleton;
