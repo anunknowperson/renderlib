@@ -1,6 +1,7 @@
 ﻿#pragma once
 
-#include "vk_types.h"
+#include <cstdint>
+#include <vulkan/vulkan_core.h>
 
 namespace vkinit {
 //> init_cmd
