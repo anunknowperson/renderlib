@@ -1,6 +1,7 @@
 ﻿#pragma once
 
 #include <random>
+#include <ranges>
 
 #include "core/Mesh.h"
 #include "scene/Camera.h"
@@ -53,8 +54,8 @@ struct DeletionQueue {
 
     void flush() {
         // reverse iterate the deletion queue to execute all the functions
-        for (auto it = deletors.rbegin(); it != deletors.rend(); it++) {
-            (*it)();  // call functors
+        for (auto & deletor : std::ranges::reverse_view(deletors)) {
+            deletor();  // call functors
         }
 
         deletors.clear();
