@@ -282,7 +282,7 @@ std::optional<std::shared_ptr<LoadedGLTF>> loadGltf(VulkanEngine* engine,
                     gltf.materials.size(),
             VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VMA_MEMORY_USAGE_CPU_TO_GPU);
     uint32_t data_index = 0;
-    GLTFMetallic_Roughness::MaterialConstants* sceneMaterialConstants =
+    auto* sceneMaterialConstants =
             (GLTFMetallic_Roughness::MaterialConstants*)
                     file.materialDataBuffer.info.pMappedData;
 
