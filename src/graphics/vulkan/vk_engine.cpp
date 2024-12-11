@@ -1445,7 +1445,7 @@ void VulkanEngine::update_scene() {
     }
 }
 
-int64_t VulkanEngine::registerMesh(std::string filePath) {
+int64_t VulkanEngine::registerMesh(const std::string& filePath) {
     std::random_device rd;
 
     // Use the Mersenne Twister engine for high-quality random numbers

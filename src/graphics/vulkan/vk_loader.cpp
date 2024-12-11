@@ -453,11 +453,11 @@ std::optional<std::shared_ptr<LoadedGLTF>> loadGltf(VulkanEngine* engine,
 
         std::visit(
                 fastgltf::visitor{
-                        [&](fastgltf::Node::TransformMatrix matrix) {
+                        [&](const fastgltf::Node::TransformMatrix& matrix) {
                             memcpy(&newNode->localTransform, matrix.data(),
                                    sizeof(matrix));
                         },
-                        [&](fastgltf::TRS transform) {
+                        [&](const fastgltf::TRS& transform) {
                             const glm::vec3 tl(transform.translation[0],
                                                transform.translation[1],
                                                transform.translation[2]);
