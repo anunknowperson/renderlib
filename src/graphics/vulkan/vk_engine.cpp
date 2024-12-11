@@ -52,6 +52,11 @@ VKAPI_ATTR VkBool32 VKAPI_CALL VulkanEngine::debugCallback(
             type = "Performance";
 
             break;
+        case VK_DEBUG_UTILS_MESSAGE_TYPE_DEVICE_ADDRESS_BINDING_BIT_EXT:
+            type = "Modified set of GPU-visible virtual addresses";
+            break;
+        default:
+            type = "Unknown";
     }
 
     std::string message = "(" + type + ")" + pCallbackData->pMessage;
