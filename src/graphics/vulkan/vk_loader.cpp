@@ -193,7 +193,7 @@ std::optional<std::shared_ptr<LoadedGLTF>> loadGltf(VulkanEngine* engine,
 
     std::shared_ptr<LoadedGLTF> scene = std::make_shared<LoadedGLTF>();
     scene->creator = engine;
-    LoadedGLTF& file = *scene.get();
+    LoadedGLTF& file = *scene;
 
     fastgltf::Parser parser{};
 
