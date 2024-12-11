@@ -79,7 +79,7 @@ VkDescriptorSet DescriptorAllocator::allocate(VkDevice device,
 
 VkDescriptorPool DescriptorAllocatorGrowable::get_pool(VkDevice device) {
     VkDescriptorPool newPool;
-    if (readyPools.size() != 0) {
+    if (!readyPools.empty()) {
         newPool = readyPools.back();
         readyPools.pop_back();
     } else {
