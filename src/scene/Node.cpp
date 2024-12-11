@@ -27,7 +27,7 @@ std::vector<std::shared_ptr<Node>> Node::get_children() const {
 
 std::shared_ptr<Node> Node::add_child() {
     Node child(*this);
-    std::shared_ptr<Node> child_ptr = std::make_shared<Node>(child);
+    auto child_ptr = std::make_shared<Node>(child);
     _child.push_back(child_ptr);
     return child_ptr;
 }
