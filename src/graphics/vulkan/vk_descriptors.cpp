@@ -125,7 +125,7 @@ void DescriptorAllocatorGrowable::init(VkDevice device, uint32_t maxSets,
         ratios.push_back(r);
     }
 
-    VkDescriptorPool newPool = create_pool(device, maxSets, poolRatios);
+    const VkDescriptorPool newPool = create_pool(device, maxSets, poolRatios);
 
     setsPerPool =
             static_cast<uint32_t>(maxSets * 1.5);  // grow it next allocation
@@ -134,7 +134,7 @@ void DescriptorAllocatorGrowable::init(VkDevice device, uint32_t maxSets,
 }
 
 void DescriptorAllocatorGrowable::clear_pools(VkDevice device) {
-    for (auto p : readyPools) {
+    for (const auto p : readyPools) {
         vkResetDescriptorPool(device, p, 0);
     }
     for (auto p : fullPools) {
@@ -145,11 +145,11 @@ void DescriptorAllocatorGrowable::clear_pools(VkDevice device) {
 }
 
 void DescriptorAllocatorGrowable::destroy_pools(VkDevice device) {
-    for (auto p : readyPools) {
+    for (const auto p : readyPools) {
         vkDestroyDescriptorPool(device, p, nullptr);
     }
     readyPools.clear();
-    for (auto p : fullPools) {
+    for (const auto p : fullPools) {
         vkDestroyDescriptorPool(device, p, nullptr);
     }
     fullPools.clear();
@@ -187,7 +187,7 @@ VkDescriptorSet DescriptorAllocatorGrowable::allocate(
 
 void DescriptorWriter::write_buffer(int binding, VkBuffer buffer, size_t size,
                                     size_t offset, VkDescriptorType type) {
-    VkDescriptorBufferInfo& info =
+    const VkDescriptorBufferInfo& info =
             bufferInfos.emplace_back(VkDescriptorBufferInfo{
                     .buffer = buffer, .offset = offset, .range = size});
 
@@ -207,7 +207,7 @@ void DescriptorWriter::write_buffer(int binding, VkBuffer buffer, size_t size,
 void DescriptorWriter::write_image(int binding, VkImageView image,
                                    VkSampler sampler, VkImageLayout layout,
                                    VkDescriptorType type) {
-    VkDescriptorImageInfo& info = imageInfos.emplace_back(VkDescriptorImageInfo{
+    const VkDescriptorImageInfo& info = imageInfos.emplace_back(VkDescriptorImageInfo{
             .sampler = sampler, .imageView = image, .imageLayout = layout});
 
     VkWriteDescriptorSet write = {

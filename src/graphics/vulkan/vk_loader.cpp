@@ -458,19 +458,21 @@ std::optional<std::shared_ptr<LoadedGLTF>> loadGltf(VulkanEngine* engine,
                                    sizeof(matrix));
                         },
                         [&](fastgltf::TRS transform) {
-                            glm::vec3 tl(transform.translation[0],
-                                         transform.translation[1],
-                                         transform.translation[2]);
-                            glm::quat rot(transform.rotation[3],
-                                          transform.rotation[0],
-                                          transform.rotation[1],
-                                          transform.rotation[2]);
-                            glm::vec3 sc(transform.scale[0], transform.scale[1],
-                                         transform.scale[2]);
+                            const glm::vec3 tl(transform.translation[0],
+                                               transform.translation[1],
+                                               transform.translation[2]);
+                            const glm::quat rot(transform.rotation[3],
+                                                transform.rotation[0],
+                                                transform.rotation[1],
+                                                transform.rotation[2]);
+                            const glm::vec3 sc(transform.scale[0],
+                                               transform.scale[1],
+                                               transform.scale[2]);
 
-                            glm::mat4 tm = glm::translate(glm::mat4(1.f), tl);
-                            glm::mat4 rm = glm::toMat4(rot);
-                            glm::mat4 sm = glm::scale(glm::mat4(1.f), sc);
+                            const glm::mat4 tm =
+                                    glm::translate(glm::mat4(1.f), tl);
+                            const glm::mat4 rm = glm::toMat4(rot);
+                            const glm::mat4 sm = glm::scale(glm::mat4(1.f), sc);
 
                             newNode->localTransform = tm * rm * sm;
                         }},
@@ -500,7 +502,7 @@ std::optional<std::shared_ptr<LoadedGLTF>> loadGltf(VulkanEngine* engine,
 
 void LoadedGLTF::Draw(const glm::mat4& topMatrix, DrawContext& ctx) {
     // create renderables from the scenenodes
-    for (auto& n : topNodes) {
+    for (const auto& n : topNodes) {
         n->Draw(topMatrix, ctx);
     }
 }
