@@ -4,8 +4,6 @@
 #include <string>
 #include <vector>
 
-#include "core/Logging.h"
-
 /**
  * @class Node
  * @brief A class representing a node in a tree structure.
