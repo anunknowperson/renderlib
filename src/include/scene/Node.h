@@ -25,7 +25,7 @@ public:
      * @param name The name of the node. Default is "without name".
      */
     explicit Node(std::shared_ptr<Node> parent = nullptr,
-                  std::string name = "without name");
+                  const std::string& name = "without name");
 
     /**
      * @brief Destroy the Node object.
@@ -72,7 +72,7 @@ public:
      *
      * @param new_name The new name of the node.
      */
-    void change_name(std::string new_name);
+    void change_name(const std::string& new_name);
 
 private:
     const std::weak_ptr<Node> _parent;
