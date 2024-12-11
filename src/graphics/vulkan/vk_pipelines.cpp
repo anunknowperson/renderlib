@@ -4,6 +4,10 @@
 
 #include "graphics/vulkan/vk_initializers.h"
 
+#include <fmt/base.h>
+#include <spdlog/spdlog.h>
+#include <cstdint>
+
 bool vkutil::load_shader_module(const char* filePath, VkDevice device,
                                 VkShaderModule* outShaderModule) {
     // open the file. With cursor at the end
