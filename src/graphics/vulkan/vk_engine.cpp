@@ -582,7 +582,7 @@ void VulkanEngine::init_vulkan() {
              physical_device_ret.error().message());
     }
 
-    vkb::PhysicalDevice physicalDevice = physical_device_ret.value();
+    const vkb::PhysicalDevice& physicalDevice = physical_device_ret.value();
 
     vkb::DeviceBuilder deviceBuilder{physicalDevice};
 
@@ -592,7 +592,7 @@ void VulkanEngine::init_vulkan() {
              dev_ret.error().message());
     }
 
-    vkb::Device vkbDevice = dev_ret.value();
+    const vkb::Device& vkbDevice = dev_ret.value();
 
     // Get the VkDevice handle used in the rest of a vulkan application
     _device = vkbDevice.device;
