@@ -1,4 +1,5 @@
 #include "scene/Node.h"
+#include "core/Logging.h"
 
 #include <utility>
 
