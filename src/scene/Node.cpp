@@ -33,7 +33,7 @@ std::shared_ptr<Node> Node::add_child() {
 }
 
 void Node::remove_child(std::shared_ptr<Node> del_child) {
-    std::vector<std::shared_ptr<Node>>::iterator child_iter = _child.begin();
+    auto child_iter = _child.begin();
     auto del_child_iter = _child.end();
     while (child_iter != _child.end()) {
         if (*child_iter == del_child) {
