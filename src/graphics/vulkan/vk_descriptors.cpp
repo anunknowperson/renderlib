@@ -41,7 +41,7 @@ void DescriptorAllocator::init_pool(VkDevice device, uint32_t maxSets,
     for (PoolSizeRatio ratio : poolRatios) {
         poolSizes.push_back(VkDescriptorPoolSize{
                 .type = ratio.type,
-                .descriptorCount = uint32_t(ratio.ratio * maxSets)});
+                .descriptorCount = static_cast<uint32_t>(ratio.ratio * maxSets)});
     }
 
     VkDescriptorPoolCreateInfo pool_info = {
@@ -102,7 +102,7 @@ VkDescriptorPool DescriptorAllocatorGrowable::create_pool(
     for (PoolSizeRatio ratio : poolRatios) {
         poolSizes.push_back(VkDescriptorPoolSize{
                 .type = ratio.type,
-                .descriptorCount = uint32_t(ratio.ratio * setCount)});
+                .descriptorCount = static_cast<uint32_t>(ratio.ratio * setCount)});
     }
 
     VkDescriptorPoolCreateInfo pool_info = {};
