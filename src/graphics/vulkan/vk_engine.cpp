@@ -519,8 +519,8 @@ void VulkanEngine::init_vulkan() {
 
     LOGI("Available extensions:")
 
-    for (auto& extension : system_info.available_extensions) {
-        LOGI(extension.extensionName);
+    for (auto& [extensionName, _] : system_info.available_extensions) {
+        LOGI(extensionName);
     }
 
     vkb::InstanceBuilder builder;
@@ -981,26 +981,27 @@ void VulkanEngine::draw_geometry(VkCommandBuffer cmd) {
     vkCmdBindDescriptorSets(cmd, VK_PIPELINE_BIND_POINT_GRAPHICS,
                             _meshPipelineLayout, 0, 1, &imageSet, 0, nullptr);
 
-    for (const RenderObject& draw : mainDrawContext.OpaqueSurfaces) {
+    for (const auto& [indexCount, firstIndex, indexBuffer, material, transform,
+                      vertexBufferAddress] : mainDrawContext.OpaqueSurfaces) {
         vkCmdBindPipeline(cmd, VK_PIPELINE_BIND_POINT_GRAPHICS,
-                          draw.material->pipeline->pipeline);
+                          material->pipeline->pipeline);
         vkCmdBindDescriptorSets(cmd, VK_PIPELINE_BIND_POINT_GRAPHICS,
-                                draw.material->pipeline->layout, 0, 1,
+                                material->pipeline->layout, 0, 1,
                                 &globalDescriptor, 0, nullptr);
         vkCmdBindDescriptorSets(cmd, VK_PIPELINE_BIND_POINT_GRAPHICS,
-                                draw.material->pipeline->layout, 1, 1,
-                                &draw.material->materialSet, 0, nullptr);
+                                material->pipeline->layout, 1, 1,
+                                &material->materialSet, 0, nullptr);
 
-        vkCmdBindIndexBuffer(cmd, draw.indexBuffer, 0, VK_INDEX_TYPE_UINT32);
+        vkCmdBindIndexBuffer(cmd, indexBuffer, 0, VK_INDEX_TYPE_UINT32);
 
         GPUDrawPushConstants pushConstants{};
-        pushConstants.vertexBuffer = draw.vertexBufferAddress;
-        pushConstants.worldMatrix = draw.transform;
-        vkCmdPushConstants(cmd, draw.material->pipeline->layout,
+        pushConstants.vertexBuffer = vertexBufferAddress;
+        pushConstants.worldMatrix = transform;
+        vkCmdPushConstants(cmd, material->pipeline->layout,
                            VK_SHADER_STAGE_VERTEX_BIT, 0,
                            sizeof(GPUDrawPushConstants), &pushConstants);
 
-        vkCmdDrawIndexed(cmd, draw.indexCount, 1, draw.firstIndex, 0, 0);
+        vkCmdDrawIndexed(cmd, indexCount, 1, firstIndex, 0, 0);
     }
 
     vkCmdEndRendering(cmd);
@@ -1400,12 +1401,12 @@ MaterialInstance GLTFMetallic_Roughness::write_material(
 void MeshNode::Draw(const glm::mat4& topMatrix, DrawContext& ctx) {
     const glm::mat4 nodeMatrix = topMatrix * worldTransform;
 
-    for (auto& s : mesh->surfaces) {
+    for (auto& [startIndex, count, material] : mesh->surfaces) {
         RenderObject def{};
-        def.indexCount = s.count;
-        def.firstIndex = s.startIndex;
+        def.indexCount = count;
+        def.firstIndex = startIndex;
         def.indexBuffer = mesh->meshBuffers.indexBuffer.buffer;
-        def.material = &s.material->data;
+        def.material = &material->data;
 
         def.transform = nodeMatrix;
         def.vertexBufferAddress = mesh->meshBuffers.vertexBufferAddress;

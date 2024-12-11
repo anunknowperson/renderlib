@@ -62,16 +62,16 @@ std::optional<std::vector<std::shared_ptr<MeshAsset>>> loadGltfMeshes(
     // as often
     std::vector<uint32_t> indices;
     std::vector<Vertex> vertices;
-    for (fastgltf::Mesh& mesh : gltf.meshes) {
+    for (auto& [primitives, _, name] : gltf.meshes) {
         MeshAsset newmesh;
 
-        newmesh.name = mesh.name;
+        newmesh.name = name;
 
         // clear the mesh arrays each mesh, we dont want to merge them by error
         indices.clear();
         vertices.clear();
 
-        for (auto&& p : mesh.primitives) {
+        for (auto&& p : primitives) {
             GeoSurface newSurface;
             newSurface.startIndex = (uint32_t)indices.size();
             newSurface.count =
@@ -343,17 +343,17 @@ std::optional<std::shared_ptr<LoadedGLTF>> loadGltf(VulkanEngine* engine,
     std::vector<uint32_t> indices;
     std::vector<Vertex> vertices;
 
-    for (fastgltf::Mesh& mesh : gltf.meshes) {
+    for (auto& [primitives, _, name] : gltf.meshes) {
         std::shared_ptr<MeshAsset> newmesh = std::make_shared<MeshAsset>();
         meshes.push_back(newmesh);
-        file.meshes[mesh.name.c_str()] = newmesh;
-        newmesh->name = mesh.name;
+        file.meshes[name.c_str()] = newmesh;
+        newmesh->name = name;
 
         // clear the mesh arrays each mesh, we dont want to merge them by error
         indices.clear();
         vertices.clear();
 
-        for (auto&& p : mesh.primitives) {
+        for (auto&& p : primitives) {
             GeoSurface newSurface;
             newSurface.startIndex = (uint32_t)indices.size();
             newSurface.count =
