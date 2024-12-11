@@ -161,7 +161,7 @@ void VulkanEngine::init_default_data() {
     sceneUniformData->metal_rough_factors = glm::vec4{1, 0.5, 0, 0};
 
     _mainDeletionQueue.push_function(
-            [=, this]() { destroy_buffer(materialConstants); });
+            [=, this] { destroy_buffer(materialConstants); });
 
     materialResources.dataBuffer = materialConstants.buffer;
     materialResources.dataBufferOffset = 0;
@@ -233,7 +233,7 @@ void VulkanEngine::init_mesh_pipeline() {
     vkDestroyShaderModule(_device, triangleFragShader, nullptr);
     vkDestroyShaderModule(_device, triangleVertexShader, nullptr);
 
-    _mainDeletionQueue.push_function([&]() {
+    _mainDeletionQueue.push_function([&] {
         vkDestroyPipelineLayout(_device, _meshPipelineLayout, nullptr);
         vkDestroyPipeline(_device, _meshPipeline, nullptr);
     });
@@ -294,7 +294,7 @@ void VulkanEngine::init_triangle_pipeline() {
     vkDestroyShaderModule(_device, triangleFragShader, nullptr);
     vkDestroyShaderModule(_device, triangleVertexShader, nullptr);
 
-    _mainDeletionQueue.push_function([&]() {
+    _mainDeletionQueue.push_function([&] {
         vkDestroyPipelineLayout(_device, _trianglePipelineLayout, nullptr);
         vkDestroyPipeline(_device, _trianglePipeline, nullptr);
     });
@@ -360,7 +360,7 @@ void VulkanEngine::init_imgui() {
     ImGui_ImplVulkan_CreateFontsTexture();
 
     // add destroy the imgui created structures
-    _mainDeletionQueue.push_function([=, this]() {
+    _mainDeletionQueue.push_function([=, this] {
         ImGui_ImplVulkan_Shutdown();
         vkDestroyDescriptorPool(_device, imguiPool, nullptr);
     });
@@ -420,7 +420,8 @@ void VulkanEngine::init_descriptors() {
         _frame._frameDescriptors = DescriptorAllocatorGrowable{};
         _frame._frameDescriptors.init(_device, 1000, frame_sizes);
 
-        _mainDeletionQueue.push_function([&]() {
+        _mainDeletionQueue.push_function(
+                [&] {
             _frame._frameDescriptors.destroy_pools(_device);
         });
     }
@@ -462,7 +463,7 @@ void VulkanEngine::init_background_pipelines() {
 
     vkDestroyShaderModule(_device, computeDrawShader, nullptr);
 
-    _mainDeletionQueue.push_function([&]() {
+    _mainDeletionQueue.push_function([&] {
         vkDestroyPipelineLayout(_device, _gradientPipelineLayout, nullptr);
         vkDestroyPipeline(_device, _gradientPipeline, nullptr);
     });
@@ -622,7 +623,7 @@ void VulkanEngine::init_vulkan() {
     vmaCreateAllocator(&allocatorInfo, &_allocator);
 
     _mainDeletionQueue.push_function(
-            [&]() { vmaDestroyAllocator(_allocator); });
+            [&] { vmaDestroyAllocator(_allocator); });
 }
 
 void VulkanEngine::init_commands() {
@@ -656,7 +657,7 @@ void VulkanEngine::init_commands() {
     VK_CHECK(vkAllocateCommandBuffers(_device, &cmdAllocInfo,
                                       &_immCommandBuffer));
 
-    _mainDeletionQueue.push_function([=, this]() {
+    _mainDeletionQueue.push_function([=, this] {
         vkDestroyCommandPool(_device, _immCommandPool, nullptr);
     });
 }
@@ -678,7 +679,7 @@ void VulkanEngine::init_sync_structures() {
 
     VK_CHECK(vkCreateFence(_device, &fenceCreateInfo, nullptr, &_immFence));
     _mainDeletionQueue.push_function(
-            [=, this]() { vkDestroyFence(_device, _immFence, nullptr); });
+            [=, this] { vkDestroyFence(_device, _immFence, nullptr); });
 }
 
 void VulkanEngine::create_swapchain(uint32_t width, uint32_t height) {
@@ -751,7 +752,7 @@ void VulkanEngine::init_swapchain() {
                                &_drawImage.imageView));
 
     // add to deletion queues
-    _mainDeletionQueue.push_function([=, this]() {
+    _mainDeletionQueue.push_function([=, this] {
         vkDestroyImageView(_device, _drawImage.imageView, nullptr);
         vmaDestroyImage(_allocator, _drawImage.image, _drawImage.allocation);
     });
@@ -928,7 +929,7 @@ void VulkanEngine::draw_geometry(VkCommandBuffer cmd) {
     // add it to the deletion queue of this frame, so it gets deleted once it's
     // been used
     get_current_frame()._deletionQueue.push_function(
-            [=, this]() { destroy_buffer(gpuSceneDataBuffer); });
+            [=, this] { destroy_buffer(gpuSceneDataBuffer); });
 
     // write the buffer
     auto* sceneUniformData =
