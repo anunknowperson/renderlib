@@ -11,7 +11,7 @@ struct DescriptorLayoutBuilder {
     void clear();
     VkDescriptorSetLayout build(VkDevice device,
                                 VkShaderStageFlags shaderStages,
-                                void* pNext = nullptr,
+                                const void* pNext = nullptr,
                                 VkDescriptorSetLayoutCreateFlags flags = 0);
 };
 
@@ -44,7 +44,7 @@ public:
     void destroy_pools(VkDevice device);
 
     VkDescriptorSet allocate(VkDevice device, VkDescriptorSetLayout layout,
-                             void* pNext = nullptr);
+                             const void* pNext = nullptr);
 
 private:
     VkDescriptorPool get_pool(VkDevice device);

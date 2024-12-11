@@ -4,7 +4,7 @@
 #include "scene/ParentSystem.h"
 
 namespace {
-void UpdateChildrenGlobal(flecs::entity e, GlobalTransform &t) {
+void UpdateChildrenGlobal(flecs::entity e, const GlobalTransform &t) {
     if (e.has<Child>()) {
         auto c = e.get<Child>();
         for (auto &child : c->children) {
@@ -21,7 +21,7 @@ void UpdateChildrenGlobal(flecs::entity e, GlobalTransform &t) {
     }
 }
 
-void CreateChildLocalIfParentSet(flecs::entity e, Parent &p) {
+void CreateChildLocalIfParentSet(flecs::entity e, const Parent &p) {
     if (e.has<GlobalTransform>()) {
         const auto t = e.get<GlobalTransform>();
         const auto local =
@@ -37,7 +37,7 @@ void CreateChildLocalIfParentSet(flecs::entity e, Parent &p) {
     }
 }
 
-void UpdateChildLocalIfParentChanged(flecs::entity e, Parent &p) {
+void UpdateChildLocalIfParentChanged(flecs::entity e, const Parent &p) {
     const auto t = e.get<GlobalTransform>();
     const auto local = t->TransformMatrix *
                  glm::inverse(p.parent.get<GlobalTransform>()->TransformMatrix);
@@ -53,7 +53,8 @@ void UpdateChildLocalIfParentChanged(flecs::entity e, Parent &p) {
     transform->scale = scale.x;
 }
 
-void UpdateChildLocalIfGlobalChanged(flecs::entity e, GlobalTransform &t) {
+void UpdateChildLocalIfGlobalChanged(flecs::entity e,
+                                     const GlobalTransform &t) {
     if (e.has<Parent>()) {
         const auto p = e.get<Parent>();
         const auto local =
@@ -72,7 +73,7 @@ void UpdateChildLocalIfGlobalChanged(flecs::entity e, GlobalTransform &t) {
     }
 }
 
-void UpdateChildGlobalIfLocalChanged(flecs::entity e, LocalTransform &t) {
+void UpdateChildGlobalIfLocalChanged(flecs::entity e, const LocalTransform &t) {
     [[maybe_unused]] auto global = e.get_mut<GlobalTransform>()->TransformMatrix =
             getMatrixFromLocal(t) *
             e.get<Parent>()->parent.get<GlobalTransform>()->TransformMatrix;
@@ -352,7 +353,7 @@ void inverseGlobal(flecs::entity e) {
     transform->TransformMatrix = glm::inverse(transform->TransformMatrix);
 }
 
-void TransformSystem(flecs::world &world) {
+void TransformSystem(const flecs::world &world) {
     world.system<GlobalTransform>("UpdateChildrenGlobal")
             .kind(flecs::OnSet)
             .each(UpdateChildrenGlobal);
