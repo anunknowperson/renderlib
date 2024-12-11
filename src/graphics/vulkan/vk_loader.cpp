@@ -191,7 +191,7 @@ std::optional<std::shared_ptr<LoadedGLTF>> loadGltf(VulkanEngine* engine,
                                                     std::string_view filePath) {
     fmt::print("Loading GLTF: {}", filePath);
 
-    std::shared_ptr<LoadedGLTF> scene = std::make_shared<LoadedGLTF>();
+    auto scene = std::make_shared<LoadedGLTF>();
     scene->creator = engine;
     LoadedGLTF& file = *scene;
 
@@ -287,7 +287,7 @@ std::optional<std::shared_ptr<LoadedGLTF>> loadGltf(VulkanEngine* engine,
                     file.materialDataBuffer.info.pMappedData;
 
     for (fastgltf::Material& mat : gltf.materials) {
-        std::shared_ptr<GLTFMaterial> newMat = std::make_shared<GLTFMaterial>();
+        auto newMat = std::make_shared<GLTFMaterial>();
         materials.push_back(newMat);
         file.materials[mat.name.c_str()] = newMat;
 
@@ -302,7 +302,7 @@ std::optional<std::shared_ptr<LoadedGLTF>> loadGltf(VulkanEngine* engine,
         // write material parameters to buffer
         sceneMaterialConstants[data_index] = constants;
 
-        MaterialPass passType = MaterialPass::MainColor;
+        auto passType = MaterialPass::MainColor;
         if (mat.alphaMode == fastgltf::AlphaMode::Blend) {
             passType = MaterialPass::Transparent;
         }
@@ -345,7 +345,7 @@ std::optional<std::shared_ptr<LoadedGLTF>> loadGltf(VulkanEngine* engine,
     std::vector<Vertex> vertices;
 
     for (auto& [primitives, _, name] : gltf.meshes) {
-        std::shared_ptr<MeshAsset> newmesh = std::make_shared<MeshAsset>();
+        auto newmesh = std::make_shared<MeshAsset>();
         meshes.push_back(newmesh);
         file.meshes[name.c_str()] = newmesh;
         newmesh->name = name;
