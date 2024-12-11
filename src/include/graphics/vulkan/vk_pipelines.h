@@ -1,5 +1,7 @@
 ﻿#pragma once
-#include "vk_types.h"
+
+#include <vulkan/vulkan_core.h>
+#include <vector>
 
 namespace vkutil {
 
