@@ -199,7 +199,7 @@ public:
 
     void immediate_submit(std::function<void(VkCommandBuffer cmd)>&& function) const;
     GPUMeshBuffers uploadMesh(std::span<uint32_t> indices,
-                              std::span<Vertex> vertices);
+                              std::span<Vertex> vertices) const;
 
     std::vector<std::shared_ptr<MeshAsset>> testMeshes;
 
@@ -214,7 +214,7 @@ public:
                                 bool mipmapped = false) const;
     AllocatedImage create_image(const void* data, VkExtent3D size, VkFormat format,
                                 VkImageUsageFlags usage,
-                                bool mipmapped = false);
+                                bool mipmapped = false) const;
     void destroy_image(const AllocatedImage& img) const;
 
     AllocatedImage _whiteImage;
