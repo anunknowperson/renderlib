@@ -105,7 +105,7 @@ VkPipeline PipelineBuilder::build_pipeline(VkDevice device) {
     colorBlending.pAttachments = &_colorBlendAttachment;
 
     // completely clear VertexInputStateCreateInfo, as we have no need for it
-    VkPipelineVertexInputStateCreateInfo _vertexInputInfo = {
+    const VkPipelineVertexInputStateCreateInfo _vertexInputInfo = {
             .sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO};
     // build the actual pipeline
     // we now use all of the info structs we have been writing into into this
@@ -126,7 +126,7 @@ VkPipeline PipelineBuilder::build_pipeline(VkDevice device) {
     pipelineInfo.pDepthStencilState = &_depthStencil;
     pipelineInfo.layout = _pipelineLayout;
 
-    VkDynamicState state[] = {VK_DYNAMIC_STATE_VIEWPORT,
+    const VkDynamicState state[] = {VK_DYNAMIC_STATE_VIEWPORT,
                               VK_DYNAMIC_STATE_SCISSOR};
 
     VkPipelineDynamicStateCreateInfo dynamicInfo = {

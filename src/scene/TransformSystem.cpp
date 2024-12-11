@@ -23,8 +23,8 @@ void UpdateChildrenGlobal(flecs::entity e, GlobalTransform &t) {
 
 void CreateChildLocalIfParentSet(flecs::entity e, Parent &p) {
     if (e.has<GlobalTransform>()) {
-        auto t = e.get<GlobalTransform>();
-        auto local =
+        const auto t = e.get<GlobalTransform>();
+        const auto local =
                 t->TransformMatrix *
                 glm::inverse(p.parent.get<GlobalTransform>()->TransformMatrix);
         glm::f64vec3 position;
@@ -38,8 +38,8 @@ void CreateChildLocalIfParentSet(flecs::entity e, Parent &p) {
 }
 
 void UpdateChildLocalIfParentChanged(flecs::entity e, Parent &p) {
-    auto t = e.get<GlobalTransform>();
-    auto local = t->TransformMatrix *
+    const auto t = e.get<GlobalTransform>();
+    const auto local = t->TransformMatrix *
                  glm::inverse(p.parent.get<GlobalTransform>()->TransformMatrix);
     glm::f64vec3 position;
     glm::f64quat rotation;
@@ -55,8 +55,8 @@ void UpdateChildLocalIfParentChanged(flecs::entity e, Parent &p) {
 
 void UpdateChildLocalIfGlobalChanged(flecs::entity e, GlobalTransform &t) {
     if (e.has<Parent>()) {
-        auto p = e.get<Parent>();
-        auto local =
+        const auto p = e.get<Parent>();
+        const auto local =
                 t.TransformMatrix *
                 glm::inverse(p->parent.get<GlobalTransform>()->TransformMatrix);
         glm::f64vec3 position;
@@ -80,12 +80,12 @@ void UpdateChildGlobalIfLocalChanged(flecs::entity e, LocalTransform &t) {
 }  // namespace
 
 void setLocalFromMatrix(flecs::entity e, const glm::mat4 &matrix) {
-    glm::vec3 position = matrix[3];
-    auto scale = sqrt(static_cast<double>(glm::length(matrix[0])));
+    const glm::vec3 position = matrix[3];
+    const auto scale = sqrt(static_cast<double>(glm::length(matrix[0])));
 #ifndef NDEBUG
     glm::float64 epsilon = 0.0001;
-    auto scale_y = static_cast<double>(glm::length(matrix[1]));
-    auto scale_z = static_cast<double>(glm::length(matrix[2]));
+    const auto scale_y = static_cast<double>(glm::length(matrix[1]));
+    const auto scale_z = static_cast<double>(glm::length(matrix[2]));
     if (abs(scale - scale_y) > epsilon || abs(scale - scale_z) > epsilon ||
         abs(scale_y - scale_z) > epsilon) {
         LOGW("Trying to convert a float4x4 to a LocalTransform, but the scale "
@@ -96,11 +96,11 @@ void setLocalFromMatrix(flecs::entity e, const glm::mat4 &matrix) {
     auto pos_matrix = glm::mat3(matrix);
 
 #ifndef NDEBUG
-    auto dot_product1 =
+    const auto dot_product1 =
             static_cast<double>(glm::dot(pos_matrix[0], pos_matrix[1]));
-    auto dot_product2 =
+    const auto dot_product2 =
             static_cast<double>(glm::dot(pos_matrix[0], pos_matrix[2]));
-    auto dot_product3 =
+    const auto dot_product3 =
             static_cast<double>(glm::dot(pos_matrix[1], pos_matrix[2]));
     if (abs(dot_product1) > epsilon || abs(dot_product2) > epsilon ||
         abs(dot_product3) > epsilon) {
@@ -109,7 +109,7 @@ void setLocalFromMatrix(flecs::entity e, const glm::mat4 &matrix) {
     }
 #endif
     pos_matrix = glm::orthonormalize(pos_matrix);
-    glm::quat rotation = glm::quat_cast(pos_matrix);
+    const glm::quat rotation = glm::quat_cast(pos_matrix);
     e.set<LocalTransform>({position, rotation, scale});
 }
 
@@ -133,7 +133,7 @@ glm::f64mat4 getMatrixFromLocal(flecs::entity e) {
         return glm::f64mat4(1.0);
     }
 #endif
-    auto *transform = e.get_mut<LocalTransform>();
+    const auto *transform = e.get_mut<LocalTransform>();
     return glm::translate(glm::f64mat4(1.0), transform->position) *
            glm::mat4_cast(transform->rotation) *
            glm::scale(glm::f64mat4(1.0), glm::f64vec3(transform->scale));
@@ -265,7 +265,7 @@ void setLocalFromEntity(flecs::entity e, const flecs::entity &parent) {
     }
 #endif
     auto *transform = e.get_mut<LocalTransform>();
-    auto *parent_transform = parent.get_mut<LocalTransform>();
+    const auto *parent_transform = parent.get_mut<LocalTransform>();
     transform->position = parent_transform->position;
     transform->rotation = parent_transform->rotation;
     transform->scale = parent_transform->scale;

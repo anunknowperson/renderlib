@@ -44,7 +44,7 @@ void Graphics::free_mesh_instance(uint64_t rid) {
 
     auto it = meshes.find(rid);
     if (it != meshes.end()) {
-        size_t index = it->second;
+        const size_t index = it->second;
         // VulkanRender::instances.erase( VulkanRender::instances.begin() +
         // index );
 

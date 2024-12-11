@@ -24,7 +24,7 @@ Camera *ModelImpl::getCamera() {
 }
 
 void ModelImpl::createMesh(std::string name) {
-    auto mesh = std::make_shared<Mesh>("/basicmesh.glb");
+    const auto mesh = std::make_shared<Mesh>("/basicmesh.glb");
 
     mesh->set_transform(glm::mat4(1.0f));
 

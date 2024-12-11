@@ -14,7 +14,7 @@ void updateParent(flecs::entity e, Parent &p) {
 
 void updateChild(Child &c) {
     auto &children = c.children;
-    auto newEnd = std::ranges::remove_if(children, [](const flecs::entity &child) {
+    const auto newEnd = std::ranges::remove_if(children, [](const flecs::entity &child) {
                 return (!child.is_alive() || !child.has<Parent>());
             }).begin();
     children.erase(newEnd, children.end());
@@ -29,7 +29,7 @@ void removeChild(flecs::entity e, Child &c) {
 void changeParent(flecs::entity e, Parent &p, PreviousParent &pp) {
     if (pp.parent.is_alive() and pp.parent.has<Child>()) {
         auto *child = pp.parent.get_mut<Child>();
-        auto newEnd = std::ranges::remove_if(child->children,
+        const auto newEnd = std::ranges::remove_if(child->children,
                                              [e](const flecs::entity &child) {
                                                  return child == e;
                                              })
@@ -113,7 +113,7 @@ void removeRelation(flecs::entity removing_child, flecs::entity parent) {
     }
 #endif
     auto &children = parent.get_mut<Child>()->children;
-    auto newEnd = std::ranges::remove_if(
+    const auto newEnd = std::ranges::remove_if(
                           children,
                           [removing_child](const flecs::entity &child) {
                               return child == removing_child;
