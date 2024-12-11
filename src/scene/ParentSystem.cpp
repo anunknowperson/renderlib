@@ -75,7 +75,7 @@ void setRelation(flecs::entity child, flecs::entity parent) {
     }
     if (parent.has<Child>()) {
         auto &children = parent.get_mut<Child>()->children;
-        if (std::find(children.begin(), children.end(), child) !=
+        if (std::ranges::find(children, child) !=
             children.end()) {
             return;
         }
