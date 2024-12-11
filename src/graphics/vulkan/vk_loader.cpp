@@ -443,7 +443,7 @@ std::optional<std::shared_ptr<LoadedGLTF>> loadGltf(VulkanEngine* engine,
         // pointer and allocate it with the meshnode class
         if (node.meshIndex.has_value()) {
             newNode = std::make_shared<MeshNode>();
-            static_cast<MeshNode*>(newNode.get())->mesh =
+            dynamic_cast<MeshNode*>(newNode.get())->mesh =
                     meshes[*node.meshIndex];
         } else {
             newNode = std::make_shared<ENode>();
