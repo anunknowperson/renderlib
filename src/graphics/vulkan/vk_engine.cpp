@@ -889,7 +889,7 @@ GPUMeshBuffers VulkanEngine::uploadMesh(std::span<uint32_t> indices,
     return newSurface;
 }
 
-void VulkanEngine::draw_background(VkCommandBuffer cmd) {
+void VulkanEngine::draw_background(VkCommandBuffer cmd) const {
     // bind the gradient drawing compute pipeline
     vkCmdBindPipeline(cmd, VK_PIPELINE_BIND_POINT_COMPUTE, _gradientPipeline);
 
@@ -1166,7 +1166,7 @@ void VulkanEngine::resize_swapchain() {
 }
 
 void VulkanEngine::immediate_submit(
-        std::function<void(VkCommandBuffer cmd)>&& function) {
+        std::function<void(VkCommandBuffer cmd)>&& function) const {
     VK_CHECK(vkResetFences(_device, 1, &_immFence));
     VK_CHECK(vkResetCommandBuffer(_immCommandBuffer, 0));
 

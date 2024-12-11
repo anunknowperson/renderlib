@@ -82,7 +82,7 @@ void PipelineBuilder::clear() {
     _shaderStages.clear();
 }
 
-VkPipeline PipelineBuilder::build_pipeline(VkDevice device) {
+VkPipeline PipelineBuilder::build_pipeline(VkDevice device) const {
     // make viewport state from our stored viewport and scissor.
     // at the moment we wont support multiple viewports or scissors
     VkPipelineViewportStateCreateInfo viewportState = {};
