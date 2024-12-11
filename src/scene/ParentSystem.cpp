@@ -30,8 +30,8 @@ void changeParent(flecs::entity e, Parent &p, const PreviousParent &pp) {
     if (pp.parent.is_alive() and pp.parent.has<Child>()) {
         auto *child = pp.parent.get_mut<Child>();
         const auto newEnd = std::ranges::remove_if(child->children,
-                                             [e](const flecs::entity &child) {
-                                                 return child == e;
+                                             [e](const flecs::entity &e_child) {
+                                                 return e_child == e;
                                              })
                               .begin();
         child->children.erase(newEnd, child->children.end());
