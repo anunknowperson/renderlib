@@ -10,7 +10,7 @@ ModelImpl::~ModelImpl() {
 
 ModelImpl::ModelImpl() = default;
 
-void ModelImpl::registerWindow(struct SDL_Window *window) {
+void ModelImpl::registerWindow(SDL_Window *window) {
     _engine.mainCamera = &_camera;
     _engine.init(window);
 }

@@ -477,7 +477,7 @@ void VulkanEngine::init_pipelines() {
     metalRoughMaterial.build_pipelines(this);
 }
 
-void VulkanEngine::init(struct SDL_Window* window) {
+void VulkanEngine::init(SDL_Window* window) {
     _window = window;
 
     // only one engine initialization is allowed with the application.
