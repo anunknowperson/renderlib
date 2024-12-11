@@ -727,7 +727,8 @@ void VulkanEngine::init_swapchain() {
     VmaAllocationCreateInfo rimg_allocinfo = {};
     rimg_allocinfo.usage = VMA_MEMORY_USAGE_GPU_ONLY;
     rimg_allocinfo.requiredFlags =
-            VkMemoryPropertyFlags(VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
+            static_cast<VkMemoryPropertyFlags>(
+            VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
 
     // allocate and create the image
     vmaCreateImage(_allocator, &rimg_info, &rimg_allocinfo, &_drawImage.image,
@@ -1208,7 +1209,8 @@ AllocatedImage VulkanEngine::create_image(VkExtent3D size, VkFormat format,
     VmaAllocationCreateInfo allocinfo = {};
     allocinfo.usage = VMA_MEMORY_USAGE_GPU_ONLY;
     allocinfo.requiredFlags =
-            VkMemoryPropertyFlags(VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
+            static_cast<VkMemoryPropertyFlags>(
+            VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
 
     // allocate and create the image
     VK_CHECK(vmaCreateImage(_allocator, &img_info, &allocinfo, &newImage.image,
