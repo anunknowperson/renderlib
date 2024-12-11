@@ -1,6 +1,6 @@
 #include "scene/Node.h"
 
-Node::Node(std::shared_ptr<Node> parent, std::string name)
+Node::Node(std::shared_ptr<Node> parent, const std::string& name)
     : _parent(parent), _name(name) {
     if (parent != nullptr) {
         parent->_child.push_back(shared_from_this());
@@ -51,6 +51,6 @@ std::string Node::get_name() const {
     return _name;
 }
 
-void Node::change_name(std::string new_name) {
+void Node::change_name(const std::string& new_name) {
     _name = new_name;
 }
