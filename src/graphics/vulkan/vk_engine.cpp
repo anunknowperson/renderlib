@@ -907,7 +907,7 @@ void VulkanEngine::draw_background(VkCommandBuffer cmd) {
 
 void VulkanEngine::draw_imgui(VkCommandBuffer cmd,
                               VkImageView targetImageView) const {
-    VkRenderingAttachmentInfo colorAttachment = vkinit::attachment_info(
+    const VkRenderingAttachmentInfo colorAttachment = vkinit::attachment_info(
             targetImageView, nullptr, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
     const VkRenderingInfo renderInfo =
             vkinit::rendering_info(_swapchainExtent, &colorAttachment, nullptr);
@@ -1107,12 +1107,13 @@ void VulkanEngine::draw() {
     // when the swapchain is ready we will signal the _renderSemaphore, to
     // signal that rendering has finished
 
-    VkCommandBufferSubmitInfo cmdinfo = vkinit::command_buffer_submit_info(cmd);
+    const VkCommandBufferSubmitInfo cmdinfo =
+            vkinit::command_buffer_submit_info(cmd);
 
-    VkSemaphoreSubmitInfo waitInfo = vkinit::semaphore_submit_info(
+    const VkSemaphoreSubmitInfo waitInfo = vkinit::semaphore_submit_info(
             VK_PIPELINE_STAGE_2_COLOR_ATTACHMENT_OUTPUT_BIT_KHR,
             get_current_frame()._swapchainSemaphore);
-    VkSemaphoreSubmitInfo signalInfo =
+    const VkSemaphoreSubmitInfo signalInfo =
             vkinit::semaphore_submit_info(VK_PIPELINE_STAGE_2_ALL_GRAPHICS_BIT,
                                           get_current_frame()._renderSemaphore);
 
@@ -1180,7 +1181,7 @@ void VulkanEngine::immediate_submit(
 
     VK_CHECK(vkEndCommandBuffer(cmd));
 
-    VkCommandBufferSubmitInfo cmdinfo = vkinit::command_buffer_submit_info(cmd);
+    const VkCommandBufferSubmitInfo cmdinfo = vkinit::command_buffer_submit_info(cmd);
     const VkSubmitInfo2 submit = vkinit::submit_info(&cmdinfo, nullptr, nullptr);
 
     // submit command buffer to the queue and execute it.
