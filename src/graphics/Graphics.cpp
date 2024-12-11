@@ -10,7 +10,7 @@ uint64_t Graphics::create_mesh_instance() {
     std::uint64_t new_index;
     std::uint64_t new_uid;
 
-    if (meshes.size() != 0) {
+    if (!meshes.empty()) {
         auto lastPair = *meshes.rbegin();
 
         new_index = lastPair.second + 1;
