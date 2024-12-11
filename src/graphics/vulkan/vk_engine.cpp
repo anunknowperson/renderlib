@@ -828,7 +828,7 @@ void VulkanEngine::destroy_buffer(const AllocatedBuffer& buffer) const {
 }
 
 GPUMeshBuffers VulkanEngine::uploadMesh(std::span<uint32_t> indices,
-                                        std::span<Vertex> vertices) {
+                                        std::span<Vertex> vertices) const {
     const size_t vertexBufferSize = vertices.size() * sizeof(Vertex);
     const size_t indexBufferSize = indices.size() * sizeof(uint32_t);
 
@@ -1247,7 +1247,7 @@ AllocatedImage VulkanEngine::create_image(VkExtent3D size, VkFormat format,
 AllocatedImage VulkanEngine::create_image(const void* data, VkExtent3D size,
                                           VkFormat format,
                                           VkImageUsageFlags usage,
-                                          bool mipmapped) {
+                                          bool mipmapped) const {
     const size_t data_size = size.depth * size.width * size.height * 4;
     const AllocatedBuffer uploadbuffer =
             create_buffer(data_size, VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
