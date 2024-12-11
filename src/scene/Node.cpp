@@ -38,7 +38,7 @@ void Node::remove_child(std::shared_ptr<Node> del_child) {
             del_child_iter = child_iter;
             break;
         }
-        child_iter++;
+        ++child_iter;
     }
     if (del_child_iter == _child.end()) {
         LOGW("Not possible to delete a non-existent child");
