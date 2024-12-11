@@ -2,7 +2,11 @@
 
 #include <span>
 
-#include "graphics/vulkan/vk_types.h"
+#include <cstddef>
+#include <cstdint>
+#include <vulkan/vulkan_core.h>
+#include <deque>
+#include <vector>
 
 struct DescriptorLayoutBuilder {
     std::vector<VkDescriptorSetLayoutBinding> bindings;
