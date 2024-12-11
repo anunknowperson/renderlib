@@ -15,7 +15,7 @@ void DescriptorLayoutBuilder::clear() {
 }
 
 VkDescriptorSetLayout DescriptorLayoutBuilder::build(
-        VkDevice device, VkShaderStageFlags shaderStages, void* pNext,
+        VkDevice device, VkShaderStageFlags shaderStages, const void* pNext,
         VkDescriptorSetLayoutCreateFlags flags) {
     for (auto& b : bindings) {
         b.stageFlags |= shaderStages;
@@ -156,7 +156,7 @@ void DescriptorAllocatorGrowable::destroy_pools(VkDevice device) {
 }
 
 VkDescriptorSet DescriptorAllocatorGrowable::allocate(
-        VkDevice device, VkDescriptorSetLayout layout, void* pNext) {
+        VkDevice device, VkDescriptorSetLayout layout, const void* pNext) {
     // get or create a pool to allocate from
     VkDescriptorPool poolToUse = get_pool(device);
 

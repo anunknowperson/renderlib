@@ -1233,7 +1233,7 @@ AllocatedImage VulkanEngine::create_image(VkExtent3D size, VkFormat format,
     return newImage;
 }
 
-AllocatedImage VulkanEngine::create_image(void* data, VkExtent3D size,
+AllocatedImage VulkanEngine::create_image(const void* data, VkExtent3D size,
                                           VkFormat format,
                                           VkImageUsageFlags usage,
                                           bool mipmapped) {

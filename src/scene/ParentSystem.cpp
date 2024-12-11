@@ -1,7 +1,7 @@
 #include "scene/ParentSystem.h"
 
 namespace {
-void updateParent(flecs::entity e, Parent &p) {
+void updateParent(flecs::entity e, const Parent &p) {
     if (!p.parent.is_alive() || !p.parent.has<Child>()) {
         e.destruct();
     } else {
@@ -20,13 +20,13 @@ void updateChild(Child &c) {
     children.erase(newEnd, children.end());
 }
 
-void removeChild(flecs::entity e, Child &c) {
+void removeChild(flecs::entity e, const Child &c) {
     if (c.children.empty()) {
         e.remove<Child>();
     }
 }
 
-void changeParent(flecs::entity e, Parent &p, PreviousParent &pp) {
+void changeParent(flecs::entity e, Parent &p, const PreviousParent &pp) {
     if (pp.parent.is_alive() and pp.parent.has<Child>()) {
         auto *child = pp.parent.get_mut<Child>();
         const auto newEnd = std::ranges::remove_if(child->children,
@@ -122,7 +122,7 @@ void removeRelation(flecs::entity removing_child, flecs::entity parent) {
     children.erase(newEnd, children.end());
 }
 
-void ParentSystem(flecs::world &world) {
+void ParentSystem(const flecs::world &world) {
     world.system<Parent>("UpdateParent").kind(flecs::OnAdd).each(updateParent);
 
     world.system<Child>("UpdateChild").kind(flecs::OnSet).each(updateChild);
