@@ -10,8 +10,8 @@ public:
     Mesh(std::string filePath);
     ~Mesh();
 
-    void set_transform(glm::mat4 t);
-    glm::mat4 get_transform();
+    void setTransform(glm::mat4 t);
+    glm::mat4 getTransform();
 
 private:
     glm::mat4 _transform;

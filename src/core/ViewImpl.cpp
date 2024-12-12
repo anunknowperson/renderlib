@@ -24,7 +24,7 @@ ViewImpl::ViewImpl(IController::Ptr controller, IModel::Ptr model)
     auto window_flags =
             (SDL_WindowFlags)(SDL_WINDOW_VULKAN | SDL_WINDOW_RESIZABLE);
 
-    window = SDL_CreateWindow("engine", SDL_WINDOWPOS_UNDEFINED,
+    _window = SDL_CreateWindow("engine", SDL_WINDOWPOS_UNDEFINED,
                               SDL_WINDOWPOS_UNDEFINED, 1700, 900, window_flags);
 }
 
@@ -35,7 +35,7 @@ void createCubes(const std::shared_ptr<IModel> &_model) {
 }
 
 void ViewImpl::run() const {
-    _model->registerWindow(window);
+    _model->registerWindow(_window);
 
     createCubes(_model);
 
@@ -94,5 +94,5 @@ void ViewImpl::run() const {
 }
 
 ViewImpl::~ViewImpl() {
-    SDL_DestroyWindow(window);
+    SDL_DestroyWindow(_window);
 }

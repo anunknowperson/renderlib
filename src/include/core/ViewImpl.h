@@ -17,5 +17,5 @@ private:
     IController::Ptr _controller;
     IModel::Ptr _model;
 
-    struct SDL_Window* window{nullptr};
+    struct SDL_Window* _window{nullptr};
 };

@@ -12,7 +12,7 @@ Mesh::~Mesh() {
     engine.unregisterMesh(_rid);
 }
 
-void Mesh::set_transform(glm::mat4 t) {
+void Mesh::setTransform(glm::mat4 t) {
     VulkanEngine &engine = VulkanEngine::Get();
 
     _transform = t;
@@ -20,6 +20,6 @@ void Mesh::set_transform(glm::mat4 t) {
     engine.setMeshTransform(_rid, t);
 }
 
-glm::mat4 Mesh::get_transform() {
+glm::mat4 Mesh::getTransform() {
     return _transform;
 }
