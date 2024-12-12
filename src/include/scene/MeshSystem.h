@@ -22,4 +22,4 @@
  *
  * @see MeshComponent.
  * */
-void MeshSystem(flecs::world& world);
+void meshSystem(flecs::world& world);

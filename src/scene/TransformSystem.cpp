@@ -4,14 +4,14 @@
 #include "scene/ParentSystem.h"
 
 namespace {
-void UpdateChildrenGlobal(flecs::entity e, GlobalTransform &t) {
+void updateChildrenGlobal(flecs::entity e, GlobalTransform &t) {
     if (e.has<Child>()) {
         auto c = e.get<Child>();
         for (auto &child : c->children) {
             auto *child_transform = child.get<LocalTransform>();
             auto *child_global_transform = child.get_mut<GlobalTransform>();
-            child_global_transform->TransformMatrix =
-                    t.TransformMatrix *
+            child_global_transform->transform_matrix =
+                    t.transform_matrix *
                     glm::translate(glm::f64mat4(1.0),
                                    child_transform->position) *
                     glm::mat4_cast(child_transform->rotation) *
@@ -21,12 +21,12 @@ void UpdateChildrenGlobal(flecs::entity e, GlobalTransform &t) {
     }
 }
 
-void CreateChildLocalIfParentSet(flecs::entity e, Parent &p) {
+void createChildLocalIfParentSet(flecs::entity e, Parent &p) {
     if (e.has<GlobalTransform>()) {
         auto t = e.get<GlobalTransform>();
         auto local =
-                t->TransformMatrix *
-                glm::inverse(p.parent.get<GlobalTransform>()->TransformMatrix);
+                t->transform_matrix *
+                glm::inverse(p.parent.get<GlobalTransform>()->transform_matrix);
         glm::f64vec3 position;
         glm::f64quat rotation;
         glm::f64vec3 scale;
@@ -37,10 +37,10 @@ void CreateChildLocalIfParentSet(flecs::entity e, Parent &p) {
     }
 }
 
-void UpdateChildLocalIfParentChanged(flecs::entity e, Parent &p) {
+void updateChildLocalIfParentChanged(flecs::entity e, Parent &p) {
     auto t = e.get<GlobalTransform>();
-    auto local = t->TransformMatrix *
-                 glm::inverse(p.parent.get<GlobalTransform>()->TransformMatrix);
+    auto local = t->transform_matrix *
+                 glm::inverse(p.parent.get<GlobalTransform>()->transform_matrix);
     glm::f64vec3 position;
     glm::f64quat rotation;
     glm::f64vec3 scale;
@@ -53,12 +53,12 @@ void UpdateChildLocalIfParentChanged(flecs::entity e, Parent &p) {
     transform->scale = scale.x;
 }
 
-void UpdateChildLocalIfGlobalChanged(flecs::entity e, GlobalTransform &t) {
+void updateChildLocalIfGlobalChanged(flecs::entity e, GlobalTransform &t) {
     if (e.has<Parent>()) {
         auto p = e.get<Parent>();
         auto local =
-                t.TransformMatrix *
-                glm::inverse(p->parent.get<GlobalTransform>()->TransformMatrix);
+                t.transform_matrix *
+                glm::inverse(p->parent.get<GlobalTransform>()->transform_matrix);
         glm::f64vec3 position;
         glm::f64quat rotation;
         glm::f64vec3 scale;
@@ -72,10 +72,10 @@ void UpdateChildLocalIfGlobalChanged(flecs::entity e, GlobalTransform &t) {
     }
 }
 
-void UpdateChildGlobalIfLocalChanged(flecs::entity e, LocalTransform &t) {
-    [[maybe_unused]] auto global = e.get_mut<GlobalTransform>()->TransformMatrix =
+void updateChildGlobalIfLocalChanged(flecs::entity e, LocalTransform &t) {
+    [[maybe_unused]] auto global = e.get_mut<GlobalTransform>()->transform_matrix =
             getMatrixFromLocal(t) *
-            e.get<Parent>()->parent.get<GlobalTransform>()->TransformMatrix;
+            e.get<Parent>()->parent.get<GlobalTransform>()->transform_matrix;
 }
 }  // namespace
 
@@ -275,7 +275,7 @@ void inverseLocal(flecs::entity e) {
 #ifndef NDEBUG
     if (!e.has<LocalTransform>()) {
         LOGW("Trying to inverse transform an entity, but it does not have a "
-             "LocalTransform");
+             "LocalTransform")
         return;
     }
 #endif
@@ -343,29 +343,29 @@ void globalSetScale(flecs::entity e, const glm::float64 &scale) {
 
 void setGlobalFromEntity(flecs::entity e, const flecs::entity &parent) {
     if (parent.has<GlobalTransform>()) {
-        e.set(GlobalTransform{parent.get<GlobalTransform>()->TransformMatrix});
+        e.set(GlobalTransform{parent.get<GlobalTransform>()->transform_matrix});
     }
 }
 
 void inverseGlobal(flecs::entity e) {
     auto *transform = e.get_mut<GlobalTransform>();
-    transform->TransformMatrix = glm::inverse(transform->TransformMatrix);
+    transform->transform_matrix = glm::inverse(transform->transform_matrix);
 }
 
-void TransformSystem(flecs::world &world) {
-    world.system<GlobalTransform>("UpdateChildrenGlobal")
+void transformSystem(flecs::world &world) {
+    world.system<GlobalTransform>("updateChildrenGlobal")
             .kind(flecs::OnSet)
-            .each(UpdateChildrenGlobal);
-    world.system<Parent>("CreateChildLocalIfParentSet")
+            .each(updateChildrenGlobal);
+    world.system<Parent>("createChildLocalIfParentSet")
             .kind(flecs::OnAdd)
-            .each(CreateChildLocalIfParentSet);
-    world.system<Parent>("UpdateChildLocalIfParentChanged")
+            .each(createChildLocalIfParentSet);
+    world.system<Parent>("updateChildLocalIfParentChanged")
             .kind(flecs::OnSet)
-            .each(UpdateChildLocalIfParentChanged);
-    world.system<GlobalTransform>("UpdateChildLocalIfGlobalChanged")
+            .each(updateChildLocalIfParentChanged);
+    world.system<GlobalTransform>("updateChildLocalIfGlobalChanged")
             .kind(flecs::OnSet)
-            .each(UpdateChildLocalIfGlobalChanged);
-    world.system<LocalTransform>("UpdateChildGlobalIfLocalChanged")
+            .each(updateChildLocalIfGlobalChanged);
+    world.system<LocalTransform>("updateChildGlobalIfLocalChanged")
             .kind(flecs::OnSet)
-            .each(UpdateChildGlobalIfLocalChanged);
+            .each(updateChildGlobalIfLocalChanged);
 }

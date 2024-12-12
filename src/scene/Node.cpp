@@ -11,26 +11,26 @@ Node::~Node() {
     _child.clear();
     auto parent = _parent.lock();
     if (parent) {
-        parent->remove_child(shared_from_this());
+        parent->removeChild(shared_from_this());
     }
 }
 
-std::shared_ptr<Node> Node::get_parent() const {
+std::shared_ptr<Node> Node::getParent() const {
     return _parent.lock();
 }
 
-std::vector<std::shared_ptr<Node>> Node::get_children() const {
+std::vector<std::shared_ptr<Node>> Node::getChildren() const {
     return _child;
 }
 
-std::shared_ptr<Node> Node::add_child() {
+std::shared_ptr<Node> Node::addChild() {
     Node child(*this);
     std::shared_ptr<Node> child_ptr = std::make_shared<Node>(child);
     _child.push_back(child_ptr);
     return child_ptr;
 }
 
-void Node::remove_child(std::shared_ptr<Node> del_child) {
+void Node::removeChild(std::shared_ptr<Node> del_child) {
     std::vector<std::shared_ptr<Node>>::iterator child_iter = _child.begin();
     auto del_child_iter = _child.end();
     while (child_iter != _child.end()) {
@@ -47,10 +47,10 @@ void Node::remove_child(std::shared_ptr<Node> del_child) {
     }
 }
 
-std::string Node::get_name() const {
+std::string Node::getName() const {
     return _name;
 }
 
-void Node::change_name(std::string new_name) {
+void Node::changeName(std::string new_name) {
     _name = new_name;
 }

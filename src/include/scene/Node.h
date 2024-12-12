@@ -37,42 +37,42 @@ public:
      *
      * @return A shared pointer to the parent node.
      */
-    std::shared_ptr<Node> get_parent() const;
+    std::shared_ptr<Node> getParent() const;
 
     /**
      * @brief Get the children of the node.
      *
      * @return A vector of shared pointers to the child nodes.
      */
-    std::vector<std::shared_ptr<Node>> get_children() const;
+    std::vector<std::shared_ptr<Node>> getChildren() const;
 
     /**
      * @brief Add a child to the node.
      *
      * @return A shared pointer to the newly added child node.
      */
-    std::shared_ptr<Node> add_child();
+    std::shared_ptr<Node> addChild();
 
     /**
      * @brief Remove a child from the node.
      *
      * @param child The child node to be removed.
      */
-    void remove_child(std::shared_ptr<Node> child);
+    void removeChild(std::shared_ptr<Node> child);
 
     /**
      * @brief Get the name of the node.
      *
      * @return The name of the node.
      */
-    std::string get_name() const;
+    std::string getName() const;
 
     /**
      * @brief Change the name of the node.
      *
      * @param new_name The new name of the node.
      */
-    void change_name(std::string new_name);
+    void changeName(std::string new_name);
 
 private:
     const std::weak_ptr<Node> _parent;

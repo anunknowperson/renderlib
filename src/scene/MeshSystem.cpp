@@ -2,21 +2,21 @@
 
 namespace {
 
-void UpdateMesh(flecs::entity e, GlobalTransform &gt) {
-    engine::graphics::Graphics::getInstance()->set_mesh_instance_transform(
-            e.get_mut<MeshComponent>()->MeshID, gt.TransformMatrix);
+void updateMesh(flecs::entity e, GlobalTransform &gt) {
+    engine::graphics::Graphics::getInstance()->setMeshInstanceTransform(
+            e.get_mut<MeshComponent>()->MeshID, gt.transform_matrix);
 }
 
-void DestroyMesh(MeshComponent &mc) {
-    engine::graphics::Graphics::getInstance()->free_mesh_instance(mc.MeshID);
+void destroyMesh(MeshComponent &mc) {
+    engine::graphics::Graphics::getInstance()->freeMeshInstance(mc.MeshID);
 }
 }  // namespace
 
-void MeshSystem(flecs::world &world) {
+void meshSystem(flecs::world &world) {
     world.system<GlobalTransform>("UpdateMesh")
             .kind(flecs::OnUpdate)
-            .each(UpdateMesh);
+            .each(updateMesh);
     world.system<MeshComponent>("DestroyMesh")
             .kind(flecs::OnRemove)
-            .each(DestroyMesh);
+            .each(destroyMesh);
 }

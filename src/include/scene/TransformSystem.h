@@ -234,4 +234,4 @@ void inverseGlobal(flecs::entity e);
  *
  * @see LocalTransformComponent, GlobalTransformComponent, ParentSystem.
  * */
-void TransformSystem(flecs::world &world);
+void transformSystem(flecs::world &world);
