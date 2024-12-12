@@ -21,8 +21,7 @@ ViewImpl::ViewImpl(IController::Ptr controller, IModel::Ptr model)
     : _controller(std::move(controller)), _model(std::move(model)) {
     SDL_Init(SDL_INIT_VIDEO);
 
-    constexpr auto window_flags =
-            (SDL_WindowFlags)(SDL_WINDOW_VULKAN | SDL_WINDOW_RESIZABLE);
+    constexpr auto window_flags = static_cast<uint32_t>(SDL_WINDOW_VULKAN | SDL_WINDOW_RESIZABLE);
 
     window = SDL_CreateWindow("engine", SDL_WINDOWPOS_UNDEFINED,
                               SDL_WINDOWPOS_UNDEFINED, 1700, 900, window_flags);
