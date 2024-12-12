@@ -7,6 +7,7 @@
 #include <optional>
 #include <span>
 #include <string>
+#include <type_traits>
 #include <vector>
 
 #include "core/Logging.h"
@@ -18,8 +19,8 @@
 #define VK_CHECK(x)                                      \
     do {                                                 \
         VkResult err = x;                                \
-        if (err) {                                       \
-            LOGE("Detected Vulkan error: {}", (int)err); \
+        if (err != VK_SUCCESS) {                                       \
+            LOGE("Detected Vulkan error: {}", static_cast<std::underlying_type_t<VkResult>>(err)); \
         }                                                \
     } while (0)
 
