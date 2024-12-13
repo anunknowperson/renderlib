@@ -28,7 +28,7 @@
 #include "graphics/vulkan/vk_types.h"
 
 std::optional<std::vector<std::shared_ptr<MeshAsset>>> loadGltfMeshes(
-        const VulkanEngine* engine, const std::filesystem::path& filePath) {
+        VulkanEngine* engine, const std::filesystem::path& filePath) {
     if (!std::filesystem::exists(filePath)) {
         std::cout << "Failed to find " << filePath << '\n';
         return {};

@@ -844,7 +844,7 @@ void VulkanEngine::destroy_buffer(const AllocatedBuffer& buffer) const {
 }
 
 GPUMeshBuffers VulkanEngine::uploadMesh(std::span<uint32_t> indices,
-                                        std::span<Vertex> vertices) const {
+                                        std::span<Vertex> vertices) {
     const size_t vertexBufferSize = vertices.size() * sizeof(Vertex);
     const size_t indexBufferSize = indices.size() * sizeof(uint32_t);
 
@@ -899,7 +899,10 @@ GPUMeshBuffers VulkanEngine::uploadMesh(std::span<uint32_t> indices,
         vkCmdCopyBuffer(cmd, staging.buffer, newSurface.indexBuffer.buffer, 1,
                         &indexCopy);
     });
-
+    _mainDeletionQueue.push_function(
+            [=, this] { destroy_buffer(newSurface.vertexBuffer); });
+    _mainDeletionQueue.push_function(
+            [=, this] { destroy_buffer(newSurface.indexBuffer); });
     destroy_buffer(staging);
 
     return newSurface;

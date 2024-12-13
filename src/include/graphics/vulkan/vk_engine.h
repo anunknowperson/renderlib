@@ -216,7 +216,7 @@ public:
     void immediate_submit(
             std::function<void(VkCommandBuffer cmd)>&& function) const;
     GPUMeshBuffers uploadMesh(std::span<uint32_t> indices,
-                              std::span<Vertex> vertices) const;
+                              std::span<Vertex> vertices);
 
     std::vector<std::shared_ptr<MeshAsset>> testMeshes;
 
