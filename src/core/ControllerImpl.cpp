@@ -1,13 +1,15 @@
 #include "core/ControllerImpl.h"
 
-#include <cassert>
 #include <chrono>
-#include <iostream>
+#include <cmath>
+#include <string>
 #include <utility>
 
 #define GLM_ENABLE_EXPERIMENTAL
-#include <core/View.h>
 #include <glm/gtx/transform.hpp>
+
+#include "core/View.h"
+#include "scene/Camera.h"
 
 ControllerImpl::ControllerImpl(IModel::Ptr model) : _model(std::move(model)) {}
 
