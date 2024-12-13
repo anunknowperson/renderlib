@@ -1,4 +1,5 @@
 ﻿#include "graphics/vulkan/vk_descriptors.h"
+
 #include "graphics/vulkan/vk_types.h"
 
 void DescriptorLayoutBuilder::add_binding(uint32_t binding,
@@ -63,8 +64,8 @@ void DescriptorAllocator::destroy_pool(VkDevice device) const {
     vkDestroyDescriptorPool(device, pool, nullptr);
 }
 
-VkDescriptorSet DescriptorAllocator::allocate(VkDevice device,
-                                              VkDescriptorSetLayout layout) const {
+VkDescriptorSet DescriptorAllocator::allocate(
+        VkDevice device, VkDescriptorSetLayout layout) const {
     VkDescriptorSetAllocateInfo allocInfo = {
             .sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO};
     allocInfo.pNext = nullptr;
@@ -103,7 +104,8 @@ VkDescriptorPool DescriptorAllocatorGrowable::create_pool(
     for (PoolSizeRatio ratio : poolRatios) {
         poolSizes.emplace_back(VkDescriptorPoolSize{
                 .type = ratio.type,
-                .descriptorCount = static_cast<uint32_t>(ratio.ratio * setCount)});
+                .descriptorCount =
+                        static_cast<uint32_t>(ratio.ratio * setCount)});
     }
 
     VkDescriptorPoolCreateInfo pool_info = {};
@@ -126,10 +128,11 @@ void DescriptorAllocatorGrowable::init(VkDevice device, uint32_t initialSets,
         ratios.push_back(r);
     }
 
-    const VkDescriptorPool newPool = create_pool(device, initialSets, poolRatios);
+    const VkDescriptorPool newPool =
+            create_pool(device, initialSets, poolRatios);
 
-    setsPerPool =
-            static_cast<uint32_t>(initialSets * 1.5);  // grow it next allocation
+    setsPerPool = static_cast<uint32_t>(initialSets *
+                                        1.5);  // grow it next allocation
 
     readyPools.push_back(newPool);
 }
@@ -208,8 +211,10 @@ void DescriptorWriter::write_buffer(int binding, VkBuffer buffer, size_t size,
 void DescriptorWriter::write_image(int binding, VkImageView image,
                                    VkSampler sampler, VkImageLayout layout,
                                    VkDescriptorType type) {
-    const VkDescriptorImageInfo& info = imageInfos.emplace_back(VkDescriptorImageInfo{
-            .sampler = sampler, .imageView = image, .imageLayout = layout});
+    const VkDescriptorImageInfo& info = imageInfos.emplace_back(
+            VkDescriptorImageInfo{.sampler = sampler,
+                                  .imageView = image,
+                                  .imageLayout = layout});
 
     VkWriteDescriptorSet write = {
             .sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET};

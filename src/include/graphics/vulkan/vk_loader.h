@@ -1,7 +1,6 @@
 ﻿#pragma once
 
 #include <cstdint>
-#include <vulkan/vulkan_core.h>
 #include <filesystem>
 #include <glm/ext/matrix_float4x4.hpp>
 #include <memory>
@@ -10,8 +9,11 @@
 #include <string_view>
 #include <unordered_map>
 #include <vector>
+#include <vulkan/vulkan_core.h>
+
 #include "vk_descriptors.h"
 #include "vk_types.h"
+
 class VulkanEngine;
 struct DrawContext;
 

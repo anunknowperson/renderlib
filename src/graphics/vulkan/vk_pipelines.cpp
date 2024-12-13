@@ -1,12 +1,11 @@
 ﻿#include "graphics/vulkan/vk_pipelines.h"
 
+#include <cstdint>
+#include <fmt/base.h>
 #include <fstream>
+#include <spdlog/spdlog.h>
 
 #include "graphics/vulkan/vk_initializers.h"
-
-#include <fmt/base.h>
-#include <spdlog/spdlog.h>
-#include <cstdint>
 
 bool vkutil::load_shader_module(const char* filePath, VkDevice device,
                                 VkShaderModule* outShaderModule) {
@@ -28,7 +27,8 @@ bool vkutil::load_shader_module(const char* filePath, VkDevice device,
     }
     // spirv expects the buffer to be on uint32, so make sure to reserve a int
     // vector big enough for the entire file
-    std::vector<uint32_t> buffer(static_cast<uint32_t>(fileSize) / sizeof(uint32_t));
+    std::vector<uint32_t> buffer(static_cast<uint32_t>(fileSize) /
+                                 sizeof(uint32_t));
 
     // put file cursor at beginning
     file.seekg(0);
@@ -131,7 +131,7 @@ VkPipeline PipelineBuilder::build_pipeline(VkDevice device) const {
     pipelineInfo.layout = _pipelineLayout;
 
     constexpr VkDynamicState state[] = {VK_DYNAMIC_STATE_VIEWPORT,
-                              VK_DYNAMIC_STATE_SCISSOR};
+                                        VK_DYNAMIC_STATE_SCISSOR};
 
     VkPipelineDynamicStateCreateInfo dynamicInfo = {
             .sType = VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO};

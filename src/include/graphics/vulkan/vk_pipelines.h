@@ -1,7 +1,7 @@
 ﻿#pragma once
 
-#include <vulkan/vulkan_core.h>
 #include <vector>
+#include <vulkan/vulkan_core.h>
 
 namespace vkutil {
 

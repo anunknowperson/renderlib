@@ -1,12 +1,11 @@
 ﻿#pragma once
 
-#include <span>
-
 #include <cstddef>
 #include <cstdint>
-#include <vulkan/vulkan_core.h>
 #include <deque>
+#include <span>
 #include <vector>
+#include <vulkan/vulkan_core.h>
 
 struct DescriptorLayoutBuilder {
     std::vector<VkDescriptorSetLayoutBinding> bindings;
@@ -32,7 +31,8 @@ struct DescriptorAllocator {
     void clear_descriptors(VkDevice device) const;
     void destroy_pool(VkDevice device) const;
 
-    VkDescriptorSet allocate(VkDevice device, VkDescriptorSetLayout layout) const;
+    VkDescriptorSet allocate(VkDevice device,
+                             VkDescriptorSetLayout layout) const;
 };
 
 struct DescriptorAllocatorGrowable {
