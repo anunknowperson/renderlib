@@ -1,8 +1,7 @@
-#include "core/ModelImpl.h"
+#include <SDL_video.h>
+#include "core/Mesh.h"
 
-#include <cassert>
-#include <cstring>
-#include <iostream>
+#include "core/ModelImpl.h"
 
 ModelImpl::~ModelImpl() {
     _engine.cleanup();
