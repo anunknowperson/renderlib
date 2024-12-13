@@ -1,6 +1,6 @@
-#include <cstdint>
-
 #include "graphics/vulkan/vk_images.h"
+
+#include <cstdint>
 
 #include "graphics/vulkan/vk_initializers.h"
 

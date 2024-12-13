@@ -2,7 +2,8 @@
 
 //> init_cmd
 VkCommandPoolCreateInfo vkinit::command_pool_create_info(
-        [[maybe_unused]] uint32_t queueFamilyIndex, VkCommandPoolCreateFlags flags /*= 0*/) {
+        [[maybe_unused]] uint32_t queueFamilyIndex,
+        VkCommandPoolCreateFlags flags /*= 0*/) {
     VkCommandPoolCreateInfo info = {};
     info.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
     info.pNext = nullptr;
@@ -86,7 +87,8 @@ VkCommandBufferSubmitInfo vkinit::command_buffer_submit_info(
     return info;
 }
 
-VkSubmitInfo2 vkinit::submit_info(const VkCommandBufferSubmitInfo* cmd,
+VkSubmitInfo2 vkinit::submit_info(
+        const VkCommandBufferSubmitInfo* cmd,
         const VkSemaphoreSubmitInfo* signalSemaphoreInfo,
         const VkSemaphoreSubmitInfo* waitSemaphoreInfo) {
     VkSubmitInfo2 info = {};

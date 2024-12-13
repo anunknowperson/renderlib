@@ -14,7 +14,8 @@ void updateParent(flecs::entity e, const Parent &p) {
 
 void updateChild(Child &c) {
     auto &children = c.children;
-    const auto newEnd = std::ranges::remove_if(children, [](const flecs::entity &child) {
+    const auto newEnd =
+            std::ranges::remove_if(children, [](const flecs::entity &child) {
                 return (!child.is_alive() || !child.has<Parent>());
             }).begin();
     children.erase(newEnd, children.end());
@@ -29,11 +30,12 @@ void removeChild(flecs::entity e, const Child &c) {
 void changeParent(flecs::entity e, Parent &p, const PreviousParent &pp) {
     if (pp.parent.is_alive() and pp.parent.has<Child>()) {
         auto *child = pp.parent.get_mut<Child>();
-        const auto newEnd = std::ranges::remove_if(child->children,
-                                             [e](const flecs::entity &e_child) {
-                                                 return e_child == e;
-                                             })
-                              .begin();
+        const auto newEnd =
+                std::ranges::remove_if(child->children,
+                                       [e](const flecs::entity &e_child) {
+                                           return e_child == e;
+                                       })
+                        .begin();
         child->children.erase(newEnd, child->children.end());
     }
     if (p.parent.is_alive()) {
@@ -75,8 +77,7 @@ void setRelation(flecs::entity child, flecs::entity parent) {
     }
     if (parent.has<Child>()) {
         auto &children = parent.get_mut<Child>()->children;
-        if (std::ranges::find(children, child) !=
-            children.end()) {
+        if (std::ranges::find(children, child) != children.end()) {
             return;
         }
         children.push_back(child);
@@ -114,11 +115,11 @@ void removeRelation(flecs::entity removing_child, flecs::entity parent) {
 #endif
     auto &children = parent.get_mut<Child>()->children;
     const auto newEnd = std::ranges::remove_if(
-                          children,
-                          [removing_child](const flecs::entity &child) {
-                              return child == removing_child;
-                          })
-                          .begin();
+                                children,
+                                [removing_child](const flecs::entity &child) {
+                                    return child == removing_child;
+                                })
+                                .begin();
     children.erase(newEnd, children.end());
 }
 

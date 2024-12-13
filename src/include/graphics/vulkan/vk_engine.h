@@ -2,9 +2,6 @@
 
 #include <cstddef>
 #include <cstdint>
-#include <vk_mem_alloc.h>
-#include <vulkan/vk_platform.h>
-#include <vulkan/vulkan_core.h>
 #include <deque>
 #include <functional>
 #include <glm/ext/matrix_float4x4.hpp>
@@ -15,8 +12,13 @@
 #include <string>
 #include <unordered_map>
 #include <vector>
+#include <vk_mem_alloc.h>
+#include <vulkan/vk_platform.h>
+#include <vulkan/vulkan_core.h>
+
 #include "vk_descriptors.h"
 #include "vk_types.h"
+
 class Camera;
 class VulkanEngine;
 struct DrawContext;
@@ -67,7 +69,7 @@ struct DeletionQueue {
 
     void flush() {
         // reverse iterate the deletion queue to execute all the functions
-        for (auto & deletor : std::ranges::reverse_view(deletors)) {
+        for (auto& deletor : std::ranges::reverse_view(deletors)) {
             deletor();  // call functors
         }
 
@@ -211,7 +213,8 @@ public:
 
     GPUMeshBuffers rectangle;
 
-    void immediate_submit(std::function<void(VkCommandBuffer cmd)>&& function) const;
+    void immediate_submit(
+            std::function<void(VkCommandBuffer cmd)>&& function) const;
     GPUMeshBuffers uploadMesh(std::span<uint32_t> indices,
                               std::span<Vertex> vertices) const;
 
@@ -226,8 +229,8 @@ public:
     AllocatedImage create_image(VkExtent3D size, VkFormat format,
                                 VkImageUsageFlags usage,
                                 bool mipmapped = false) const;
-    AllocatedImage create_image(const void* data, VkExtent3D size, VkFormat format,
-                                VkImageUsageFlags usage,
+    AllocatedImage create_image(const void* data, VkExtent3D size,
+                                VkFormat format, VkImageUsageFlags usage,
                                 bool mipmapped = false) const;
     void destroy_image(const AllocatedImage& img) const;
 

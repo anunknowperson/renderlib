@@ -254,7 +254,9 @@ std::optional<std::shared_ptr<LoadedGLTF>> loadGltf(VulkanEngine* engine,
             {VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 3},
             {VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 1}};
 
-    file.descriptorPool.init(engine->_device, static_cast<uint32_t>(gltf.materials.size()), sizes);
+    file.descriptorPool.init(engine->_device,
+                             static_cast<uint32_t>(gltf.materials.size()),
+                             sizes);
 
     // load samplers
     for (fastgltf::Sampler& sampler : gltf.samplers) {
@@ -465,32 +467,32 @@ std::optional<std::shared_ptr<LoadedGLTF>> loadGltf(VulkanEngine* engine,
         nodes.push_back(newNode);
         file.nodes[node.name.c_str()];
 
-        std::visit(
-                fastgltf::visitor{
-                        [&](const fastgltf::Node::TransformMatrix& matrix) {
-                            memcpy(&newNode->localTransform, matrix.data(),
-                                   sizeof(matrix));
-                        },
-                        [&](const fastgltf::TRS& transform) {
-                            const glm::vec3 tl(transform.translation[0],
-                                               transform.translation[1],
-                                               transform.translation[2]);
-                            const glm::quat rot(transform.rotation[3],
-                                                transform.rotation[0],
-                                                transform.rotation[1],
-                                                transform.rotation[2]);
-                            const glm::vec3 sc(transform.scale[0],
-                                               transform.scale[1],
-                                               transform.scale[2]);
+        std::visit(fastgltf::visitor{
+                           [&](const fastgltf::Node::TransformMatrix& matrix) {
+                               memcpy(&newNode->localTransform, matrix.data(),
+                                      sizeof(matrix));
+                           },
+                           [&](const fastgltf::TRS& transform) {
+                               const glm::vec3 tl(transform.translation[0],
+                                                  transform.translation[1],
+                                                  transform.translation[2]);
+                               const glm::quat rot(transform.rotation[3],
+                                                   transform.rotation[0],
+                                                   transform.rotation[1],
+                                                   transform.rotation[2]);
+                               const glm::vec3 sc(transform.scale[0],
+                                                  transform.scale[1],
+                                                  transform.scale[2]);
 
-                            const glm::mat4 tm =
-                                    glm::translate(glm::mat4(1.f), tl);
-                            const glm::mat4 rm = glm::toMat4(rot);
-                            const glm::mat4 sm = glm::scale(glm::mat4(1.f), sc);
+                               const glm::mat4 tm =
+                                       glm::translate(glm::mat4(1.f), tl);
+                               const glm::mat4 rm = glm::toMat4(rot);
+                               const glm::mat4 sm =
+                                       glm::scale(glm::mat4(1.f), sc);
 
-                            newNode->localTransform = tm * rm * sm;
-                        }},
-                node.transform);
+                               newNode->localTransform = tm * rm * sm;
+                           }},
+                   node.transform);
     }
 
     // run loop again to setup transform hierarchy

@@ -1,7 +1,7 @@
+#include "core/Controller.h"
+
 #include <memory>
 #include <utility>
-
-#include "core/Controller.h"
 
 #include "core/ControllerImpl.h"
 
