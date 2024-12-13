@@ -100,7 +100,7 @@ struct ENode : public IRenderable {
         }
     }
 
-    virtual void Draw(const glm::mat4& topMatrix, DrawContext& ctx) {
+    void Draw(const glm::mat4& topMatrix, DrawContext& ctx) override {
         // draw children
         for (const auto& c : children) {
             c->Draw(topMatrix, ctx);
