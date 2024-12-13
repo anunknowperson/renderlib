@@ -1,6 +1,6 @@
 #pragma once
 
-#include "graphics/vulkan/vk_engine.h"
+#include "graphics/vulkan/VkEngine.h"
 #include "interfaces/IModel.h"
 #include "scene/Camera.h"
 

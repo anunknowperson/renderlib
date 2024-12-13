@@ -11,46 +11,46 @@ Graphics* Graphics::getInstance() {
     return &singleton;
 }
 
-uint64_t Graphics::create_mesh_instance() {
+uint64_t Graphics::createMeshInstance() {
     std::uint64_t new_index;
     std::uint64_t new_uid;
 
-    if (meshes.size() != 0) {
-        auto lastPair = *meshes.rbegin();
+    if (_meshes.size() != 0) {
+        auto last_pair = *_meshes.rbegin();
 
-        new_index = lastPair.second + 1;
-        new_uid = lastPair.first + 1;
+        new_index = last_pair.second + 1;
+        new_uid = last_pair.first + 1;
     } else {
         new_index = 1;
         new_uid = 0;
     }
 
-    meshes[new_uid] = new_index;
+    _meshes[new_uid] = new_index;
 
     // VulkanRender::instances.push_back(glm::mat4(1.0));
 
     return new_uid;
 }
 
-void Graphics::set_mesh_instance_transform([[maybe_unused]] uint64_t rid, [[maybe_unused]] glm::mat4 matrix) {
+void Graphics::setMeshInstanceTransform([[maybe_unused]] uint64_t rid, [[maybe_unused]] glm::mat4 matrix) {
     // VulkanRender::instances[meshes[rid]] = matrix;
 }
 
-void Graphics::free_mesh_instance(uint64_t rid) {
+void Graphics::freeMeshInstance(uint64_t rid) {
     // VulkanRender::instances.erase( VulkanRender::instances.begin() +
     // meshes[rid] );
 
-    meshes.erase(rid);
+    _meshes.erase(rid);
 
-    auto it = meshes.find(rid);
-    if (it != meshes.end()) {
+    auto it = _meshes.find(rid);
+    if (it != _meshes.end()) {
         size_t index = it->second;
         // VulkanRender::instances.erase( VulkanRender::instances.begin() +
         // index );
 
-        meshes.erase(it);
+        _meshes.erase(it);
 
-        for (auto& entry : meshes) {
+        for (auto& entry : _meshes) {
             if (entry.second > index) {
                 entry.second--;
             }

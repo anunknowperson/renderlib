@@ -1,6 +1,6 @@
 ﻿#pragma once
 
-#include "vk_types.h"
+#include "VkTypes.h"
 
 namespace vkinit {
 //> init_cmd

@@ -3,8 +3,8 @@
 #include <filesystem>
 #include <unordered_map>
 
-#include "vk_descriptors.h"
-#include "vk_types.h"
+#include "VkDescriptors.h"
+#include "VkTypes.h"
 
 struct GLTFMaterial {
     MaterialInstance data;

@@ -1,15 +1,15 @@
-﻿#include "graphics/vulkan/vk_engine.h"
+﻿#include "graphics/vulkan/VkEngine.h"
 
 #include "core/config.h"
 
 #define VMA_IMPLEMENTATION
 #include "SDL_vulkan.h"
 #include "VkBootstrap.h"
-#include "graphics/vulkan/vk_images.h"
-#include "graphics/vulkan/vk_initializers.h"
-#include "graphics/vulkan/vk_loader.h"
-#include "graphics/vulkan/vk_pipelines.h"
-#include "graphics/vulkan/vk_types.h"
+#include "graphics/vulkan/VkImages.h"
+#include "graphics/vulkan/VkInitializers.h"
+#include "graphics/vulkan/VkLoader.h"
+#include "graphics/vulkan/VkPipelines.h"
+#include "graphics/vulkan/VkTypes.h"
 #include "imgui.h"
 #include "imgui_impl_sdl2.h"
 #include "imgui_impl_vulkan.h"
@@ -370,14 +370,14 @@ void VulkanEngine::init_descriptors() {
     // make the descriptor set layout for our compute draw
     {
         DescriptorLayoutBuilder builder;
-        builder.add_binding(0, VK_DESCRIPTOR_TYPE_STORAGE_IMAGE);
+        builder.addBinding(0, VK_DESCRIPTOR_TYPE_STORAGE_IMAGE);
         _drawImageDescriptorLayout =
                 builder.build(_device, VK_SHADER_STAGE_COMPUTE_BIT);
     }
 
     {
         DescriptorLayoutBuilder builder;
-        builder.add_binding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER);
+        builder.addBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER);
         _gpuSceneDataDescriptorLayout =
                 builder.build(_device, VK_SHADER_STAGE_VERTEX_BIT |
                                                VK_SHADER_STAGE_FRAGMENT_BIT);
@@ -385,7 +385,7 @@ void VulkanEngine::init_descriptors() {
 
     {
         DescriptorLayoutBuilder builder;
-        builder.add_binding(0, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER);
+        builder.addBinding(0, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER);
         _singleImageDescriptorLayout =
                 builder.build(_device, VK_SHADER_STAGE_FRAGMENT_BIT);
     }
@@ -395,11 +395,11 @@ void VulkanEngine::init_descriptors() {
             _device, _drawImageDescriptorLayout);
 
     DescriptorWriter writer;
-    writer.write_image(0, _drawImage.imageView, VK_NULL_HANDLE,
+    writer.writeImage(0, _drawImage.imageView, VK_NULL_HANDLE,
                        VK_IMAGE_LAYOUT_GENERAL,
                        VK_DESCRIPTOR_TYPE_STORAGE_IMAGE);
 
-    writer.update_set(_device, _drawImageDescriptors);
+    writer.updateSet(_device, _drawImageDescriptors);
 
     for (auto & _frame : _frames) {
         // create a descriptor pool
@@ -414,7 +414,7 @@ void VulkanEngine::init_descriptors() {
         _frame._frameDescriptors.init(_device, 1000, frame_sizes);
 
         _mainDeletionQueue.push_function([&]() {
-            _frame._frameDescriptors.destroy_pools(_device);
+            _frame._frameDescriptors.destroyPools(_device);
         });
     }
 }
@@ -932,9 +932,9 @@ void VulkanEngine::draw_geometry(VkCommandBuffer cmd) {
                     _device, _gpuSceneDataDescriptorLayout);
 
     DescriptorWriter writer;
-    writer.write_buffer(0, gpuSceneDataBuffer.buffer, sizeof(GPUSceneData), 0,
+    writer.writeBuffer(0, gpuSceneDataBuffer.buffer, sizeof(GPUSceneData), 0,
                         VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER);
-    writer.update_set(_device, globalDescriptor);
+    writer.updateSet(_device, globalDescriptor);
 
     VkRenderingAttachmentInfo colorAttachment = vkinit::attachment_info(
             _drawImage.imageView, nullptr, VK_IMAGE_LAYOUT_GENERAL);
@@ -968,12 +968,12 @@ void VulkanEngine::draw_geometry(VkCommandBuffer cmd) {
     VkDescriptorSet imageSet = get_current_frame()._frameDescriptors.allocate(
             _device, _singleImageDescriptorLayout);
     {
-        writer.write_image(0, _errorCheckerboardImage.imageView,
+        writer.writeImage(0, _errorCheckerboardImage.imageView,
                            _defaultSamplerNearest,
                            VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
                            VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER);
 
-        writer.update_set(_device, imageSet);
+        writer.updateSet(_device, imageSet);
     }
 
     vkCmdBindDescriptorSets(cmd, VK_PIPELINE_BIND_POINT_GRAPHICS,
@@ -1013,7 +1013,7 @@ void VulkanEngine::draw() {
                              true, 1000000000));
 
     get_current_frame()._deletionQueue.flush();
-    get_current_frame()._frameDescriptors.clear_pools(_device);
+    get_current_frame()._frameDescriptors.clearPools(_device);
 
     VK_CHECK(vkResetFences(_device, 1, &get_current_frame()._renderFence));
 
@@ -1304,9 +1304,9 @@ void GLTFMetallic_Roughness::build_pipelines(VulkanEngine* engine) {
     matrixRange.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
 
     DescriptorLayoutBuilder layoutBuilder;
-    layoutBuilder.add_binding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER);
-    layoutBuilder.add_binding(1, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER);
-    layoutBuilder.add_binding(2, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER);
+    layoutBuilder.addBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER);
+    layoutBuilder.addBinding(1, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER);
+    layoutBuilder.addBinding(2, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER);
 
     materialLayout = layoutBuilder.build(
             engine->_device,
@@ -1376,20 +1376,20 @@ MaterialInstance GLTFMetallic_Roughness::write_material(
     matData.materialSet = descriptorAllocator.allocate(device, materialLayout);
 
     writer.clear();
-    writer.write_buffer(0, resources.dataBuffer, sizeof(MaterialConstants),
+    writer.writeBuffer(0, resources.dataBuffer, sizeof(MaterialConstants),
                         resources.dataBufferOffset,
                         VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER);
-    writer.write_image(1, resources.colorImage.imageView,
+    writer.writeImage(1, resources.colorImage.imageView,
                        resources.colorSampler,
                        VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
                        VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER);
-    writer.write_image(2, resources.metalRoughImage.imageView,
+    writer.writeImage(2, resources.metalRoughImage.imageView,
                        resources.metalRoughSampler,
                        VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
                        VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER);
 
-    writer.update_set(device, matData.materialSet);
-    writer.update_set(device, matData.materialSet);
+    writer.updateSet(device, matData.materialSet);
+    writer.updateSet(device, matData.materialSet);
 
     return matData;
 }

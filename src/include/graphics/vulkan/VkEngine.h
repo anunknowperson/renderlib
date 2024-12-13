@@ -2,12 +2,12 @@
 
 #include <random>
 
+#include "VkDescriptors.h"
+#include "VkLoader.h"
+#include "VkPipelines.h"
+#include "VkTypes.h"
 #include "core/Mesh.h"
 #include "scene/Camera.h"
-#include "vk_descriptors.h"
-#include "vk_loader.h"
-#include "vk_pipelines.h"
-#include "vk_types.h"
 
 constexpr unsigned int FRAME_OVERLAP = 2;
 

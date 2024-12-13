@@ -1,7 +1,7 @@
 #pragma once
 
 #include "SDL2/SDL_events.h"
-#include "graphics/vulkan/vk_types.h"
+#include "graphics/vulkan/VkTypes.h"
 
 class Camera {
 public:
