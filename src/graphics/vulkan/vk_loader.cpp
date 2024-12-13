@@ -15,7 +15,7 @@
 #include <glm/gtx/quaternion.hpp>
 
 std::optional<std::vector<std::shared_ptr<MeshAsset>>> loadGltfMeshes(
-        VulkanEngine* engine, const std::filesystem::path& filePath) {
+        const VulkanEngine* engine, const std::filesystem::path& filePath) {
     if (!std::filesystem::exists(filePath)) {
         std::cout << "Failed to find " << filePath << '\n';
         return {};
