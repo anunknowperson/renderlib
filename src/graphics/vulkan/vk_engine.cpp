@@ -816,22 +816,27 @@ void VulkanEngine::draw_geometry(VkCommandBuffer cmd) {
     vkCmdBindPipeline(cmd, VK_PIPELINE_BIND_POINT_GRAPHICS,
                       pipelines.trianglePipeline);
 
-    // set dynamic viewport and scissor
-    VkViewport viewport = {};
-    viewport.x = 0;
-    viewport.y = 0;
-    viewport.width = _drawExtent.width;
-    viewport.height = _drawExtent.height;
-    viewport.minDepth = 0.f;
-    viewport.maxDepth = 1.f;
+    VkViewport viewport{
+        .x = 0,
+        .y = 0,
+        .width = _drawExtent.width,
+        .height = _drawExtent.height,
+        .minDepth = 0.f,
+        .maxDepth = 1.f
+    };
 
     vkCmdSetViewport(cmd, 0, 1, &viewport);
 
-    VkRect2D scissor = {};
-    scissor.offset.x = 0;
-    scissor.offset.y = 0;
-    scissor.extent.width = _drawExtent.width;
-    scissor.extent.height = _drawExtent.height;
+    VkRect2D scissor{
+        .offset = {
+            .x = 0,
+            .y = 0
+        },
+        .extent = {
+            .width = _drawExtent.width,
+            .height = _drawExtent.height
+        }
+    };
 
     vkCmdSetScissor(cmd, 0, 1, &scissor);
 
@@ -992,16 +997,15 @@ void VulkanEngine::draw() {
     //  we want to wait on the _renderSemaphore for that,
     //  as its necessary that drawing commands have finished before the image is
     //  displayed to the user
-    VkPresentInfoKHR presentInfo = {};
-    presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
-    presentInfo.pNext = nullptr;
-    presentInfo.pSwapchains = &_swapchain;
-    presentInfo.swapchainCount = 1;
-
-    presentInfo.pWaitSemaphores = &get_current_frame()._renderSemaphore;
-    presentInfo.waitSemaphoreCount = 1;
-
-    presentInfo.pImageIndices = &swapchainImageIndex;
+    VkPresentInfoKHR presentInfo{
+        .sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR,
+        .pNext = nullptr,
+        .waitSemaphoreCount = 1,
+        .pWaitSemaphores = &get_current_frame()._renderSemaphore,
+        .swapchainCount = 1,
+        .pSwapchains = &_swapchain,
+        .pImageIndices = &swapchainImageIndex
+    };
 
     VkResult presentResult = vkQueuePresentKHR(_graphicsQueue, &presentInfo);
     if (presentResult == VK_ERROR_OUT_OF_DATE_KHR) {
@@ -1108,9 +1112,18 @@ AllocatedImage VulkanEngine::create_image(void* data, VkExtent3D size,
                                           VkImageUsageFlags usage,
                                           bool mipmapped) {
     size_t data_size = size.depth * size.width * size.height * 4;
+
+    if (data == nullptr) {
+        throw std::runtime_error("Input data is null");
+    }
+
     AllocatedBuffer uploadbuffer =
-            create_buffer(data_size, VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
-                          VMA_MEMORY_USAGE_CPU_TO_GPU);
+        create_buffer(data_size, VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
+            VMA_MEMORY_USAGE_CPU_TO_GPU);
+
+    if (uploadbuffer.info.pMappedData == nullptr) {
+        throw std::runtime_error("Buffer mapping failed");
+    }
 
     memcpy(uploadbuffer.info.pMappedData, data, data_size);
 
@@ -1125,16 +1138,18 @@ AllocatedImage VulkanEngine::create_image(void* data, VkExtent3D size,
                                  VK_IMAGE_LAYOUT_UNDEFINED,
                                  VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
 
-        VkBufferImageCopy copyRegion = {};
-        copyRegion.bufferOffset = 0;
-        copyRegion.bufferRowLength = 0;
-        copyRegion.bufferImageHeight = 0;
-
-        copyRegion.imageSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-        copyRegion.imageSubresource.mipLevel = 0;
-        copyRegion.imageSubresource.baseArrayLayer = 0;
-        copyRegion.imageSubresource.layerCount = 1;
-        copyRegion.imageExtent = size;
+    VkBufferImageCopy copyRegion{
+        .bufferOffset = 0,
+        .bufferRowLength = 0,
+        .bufferImageHeight = 0,
+        .imageSubresource = {
+            .aspectMask = VK_IMAGE_ASPECT_COLOR_BIT,
+            .mipLevel = 0,
+            .baseArrayLayer = 0,
+            .layerCount = 1
+        },
+        .imageExtent = size
+    };
 
         // copy the buffer into the image
         vkCmdCopyBufferToImage(cmd, uploadbuffer.buffer, new_image.image,

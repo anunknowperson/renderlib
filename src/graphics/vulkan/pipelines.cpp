@@ -164,9 +164,11 @@ void Pipelines::init_triangle_pipeline() {
     vkDestroyShaderModule(_device, vertShader, nullptr);
 }
 
-VkShaderModule Pipelines::load_shader(const char* path, const char* type) {
+VkShaderModule Pipelines::load_shader(const std::filesystem::path path, const char* type) {
+    std::string str = path.string();
+    const char* cPath = str.c_str();  // warning: potential dangling pointer in c string if str leaves scope. „~„€ „r„‚„€„t„u „„„…„„ „~„€„‚„}, „„„p„{ „{„p„{ „„€„ƒ„|„u „x„p„s„‚„…„x„{„y „„…„„„ „q„€„|„„Š„u „~„u „y„ƒ„„€„|„„x„…„u„„„ƒ„‘.
     VkShaderModule shaderModule;
-    if (!vkutil::load_shader_module(path, _device, &shaderModule)) {
+    if (!vkutil::load_shader_module(cPath, _device, &shaderModule)) {
         fmt::println("Error when building the {} shader module", type);
     } else {
         fmt::println("{} shader successfully loaded", type);

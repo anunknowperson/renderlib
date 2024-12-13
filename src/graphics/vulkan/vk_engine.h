@@ -1,6 +1,7 @@
 ﻿#pragma once
 
 #include <random>
+#include <ranges>
 
 #include "core/Mesh.h"
 #include "pipelines.h"
@@ -21,10 +22,7 @@ struct DeletionQueue {
 
     void flush() {
         // reverse iterate the deletion queue to execute all the functions
-        for (auto it = deletors.rbegin(); it != deletors.rend(); it++) {
-            (*it)();  // call functors
-        }
-
+        for (const auto& el : deletors | std::views::reverse) el();
         deletors.clear();
     }
 };

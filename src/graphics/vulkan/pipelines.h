@@ -1,5 +1,7 @@
 #pragma once
 
+#include <filesystem>
+
 #include "vk_descriptors.h"
 #include "vk_images.h"
 #include "vk_initializers.h"
@@ -74,7 +76,7 @@ private:
     void init_mesh_pipeline();
     void init_triangle_pipeline();
 
-    VkShaderModule load_shader(const char* path, const char* type);
+    VkShaderModule load_shader(const std::filesystem::path  path, const char* type);
     void create_mesh_pipeline_layout();
     void build_mesh_pipeline(VkShaderModule fragShader,
                              VkShaderModule vertShader);
