@@ -1,21 +1,17 @@
 #include "core/ViewImpl.h"
-
 #include <SDL2/SDL.h>
-#include <SDL2/SDL_vulkan.h>
-#include <charconv>
-#include <chrono>
-#include <iomanip>
-#include <iostream>
-#include <limits>
-#include <stdexcept>
+#include <SDL_events.h>
+#include <SDL_video.h>
+#include <bits/chrono.h>
+#include <memory>
+#include <string>
 #include <thread>
 #include <utility>
-#include <variant>
-
 #include "graphics/vulkan/vk_engine.h"
 #include "imgui.h"
 #include "imgui_impl_sdl2.h"
 #include "imgui_impl_vulkan.h"
+
 
 ViewImpl::ViewImpl(IController::Ptr controller, IModel::Ptr model)
     : _controller(std::move(controller)), _model(std::move(model)) {
