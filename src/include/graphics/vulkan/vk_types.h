@@ -102,7 +102,7 @@ struct ENode : public IRenderable {
 
     virtual void Draw(const glm::mat4& topMatrix, DrawContext& ctx) {
         // draw children
-        for (auto& c : children) {
+        for (const auto& c : children) {
             c->Draw(topMatrix, ctx);
         }
     }
