@@ -776,7 +776,7 @@ void VulkanEngine::cleanup() {
 
         _mainDeletionQueue.flush();
 
-        for (auto & _frame : _frames) {
+        for (const auto& _frame : _frames) {
             // already written from before
             vkDestroyCommandPool(_device, _frame._commandPool, nullptr);
 
