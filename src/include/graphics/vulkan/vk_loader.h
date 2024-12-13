@@ -27,7 +27,7 @@ struct MeshAsset {
 class VulkanEngine;
 
 std::optional<std::vector<std::shared_ptr<MeshAsset>>> loadGltfMeshes(
-        VulkanEngine* engine, const std::filesystem::path& filePath);
+        const VulkanEngine* engine, const std::filesystem::path& filePath);
 
 struct LoadedGLTF final : public IRenderable {
     LoadedGLTF() = default;
