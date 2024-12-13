@@ -1,18 +1,31 @@
 ﻿#include "graphics/vulkan/vk_loader.h"
 
-#include <iostream>
-
-#include "graphics/vulkan/vk_engine.h"
-#include "graphics/vulkan/vk_types.h"
-#include "stb_image.h"
-
-#define GLM_ENABLE_EXPERIMENTAL
-
+#include <array>
+#include <cstdint>
+#include <cstring>
 #include <fastgltf/core.hpp>
 #include <fastgltf/glm_element_traits.hpp>
 #include <fastgltf/tools.hpp>
 #include <fastgltf/types.hpp>
+#include <fastgltf/util.hpp>
+#include <fmt/base.h>
+#include <vk_mem_alloc.h>
+#define GLM_ENABLE_EXPERIMENTAL
+#include <glm/detail/qualifier.hpp>
+#include <glm/detail/type_mat4x4.hpp>
+#include <glm/detail/type_vec2.hpp>
+#include <glm/detail/type_vec3.hpp>
+#include <glm/detail/type_vec4.hpp>
+#include <glm/ext/quaternion_float.hpp>
 #include <glm/gtx/quaternion.hpp>
+#include <iostream>
+#include <span>
+#include <utility>
+#include <variant>
+
+#include "graphics/vulkan/vk_descriptors.h"
+#include "graphics/vulkan/vk_engine.h"
+#include "graphics/vulkan/vk_types.h"
 
 std::optional<std::vector<std::shared_ptr<MeshAsset>>> loadGltfMeshes(
         const VulkanEngine* engine, const std::filesystem::path& filePath) {
