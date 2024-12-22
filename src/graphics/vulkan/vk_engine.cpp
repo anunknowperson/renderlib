@@ -967,14 +967,12 @@ void VulkanEngine::draw_geometry(VkCommandBuffer cmd) {
     // bind a texture
     VkDescriptorSet imageSet = get_current_frame()._frameDescriptors.allocate(
             _device, _singleImageDescriptorLayout);
-    {
-        writer.write_image(0, _errorCheckerboardImage.imageView,
-                           _defaultSamplerNearest,
-                           VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
-                           VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER);
-
-        writer.update_set(_device, imageSet);
-    }
+    DescriptorWriter single_image_writer;
+    single_image_writer.write_image(0, _errorCheckerboardImage.imageView,
+                                    _defaultSamplerNearest,
+                                    VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
+                                    VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER);
+    single_image_writer.update_set(_device, imageSet);
 
     vkCmdBindDescriptorSets(cmd, VK_PIPELINE_BIND_POINT_GRAPHICS,
                             _meshPipelineLayout, 0, 1, &imageSet, 0, nullptr);
