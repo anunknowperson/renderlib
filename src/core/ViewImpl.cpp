@@ -14,15 +14,16 @@
 #include "imgui_impl_sdl2.h"
 #include "imgui_impl_vulkan.h"
 
+namespace {
+constexpr auto kWindowFlags =
+        static_cast<uint32_t>(SDL_WINDOW_VULKAN | SDL_WINDOW_RESIZABLE);
+}
+
 ViewImpl::ViewImpl(IController::Ptr controller, IModel::Ptr model)
     : _controller(std::move(controller)), _model(std::move(model)) {
     SDL_Init(SDL_INIT_VIDEO);
-
-    constexpr auto window_flags =
-            static_cast<uint32_t>(SDL_WINDOW_VULKAN | SDL_WINDOW_RESIZABLE);
-
     window = SDL_CreateWindow("engine", SDL_WINDOWPOS_UNDEFINED,
-                              SDL_WINDOWPOS_UNDEFINED, 1700, 900, window_flags);
+                              SDL_WINDOWPOS_UNDEFINED, 1700, 900, kWindowFlags);
 }
 
 void createCubes(const std::shared_ptr<IModel> &_model) {
