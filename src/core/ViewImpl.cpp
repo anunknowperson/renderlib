@@ -40,16 +40,16 @@ void ViewImpl::run() const {
     createCubes(_model);
 
     SDL_Event e;
-    bool bQuit = false;
+    bool b_quit = false;
 
     bool stop_rendering = false;
 
     // main loop
-    while (!bQuit) {
+    while (!b_quit) {
         // Handle events on queue
         while (SDL_PollEvent(&e) != 0) {
             // close the window when user alt-f4s or clicks the X button
-            if (e.type == SDL_QUIT) bQuit = true;
+            if (e.type == SDL_QUIT) b_quit = true;
 
             if (e.type == SDL_WINDOWEVENT) {
                 if (e.window.event == SDL_WINDOWEVENT_MINIMIZED) {
@@ -77,8 +77,8 @@ void ViewImpl::run() const {
         ImGui::NewFrame();
 
         if (ImGui::Begin("background")) {
-            VulkanEngine &engine = VulkanEngine::Get();
-            ImGui::SliderFloat("Render Scale", &engine.renderScale, 0.3f, 1.f);
+            VulkanEngine &engine = VulkanEngine::get();
+            ImGui::SliderFloat("Render Scale", &engine.render_scale, 0.3f, 1.f);
             // other code
         }
         ImGui::End();

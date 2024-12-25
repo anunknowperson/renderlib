@@ -33,14 +33,14 @@ public:
     ~Node();
 
     /**
-     * @brief Get the parent of the node.
+     * @brief get the parent of the node.
      *
      * @return A shared pointer to the parent node.
      */
     std::shared_ptr<Node> getParent() const;
 
     /**
-     * @brief Get the children of the node.
+     * @brief get the children of the node.
      *
      * @return A vector of shared pointers to the child nodes.
      */
@@ -61,7 +61,7 @@ public:
     void removeChild(std::shared_ptr<Node> child);
 
     /**
-     * @brief Get the name of the node.
+     * @brief get the name of the node.
      *
      * @return The name of the node.
      */

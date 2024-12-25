@@ -21,13 +21,13 @@ layout(buffer_reference, std430) readonly buffer VertexBuffer{
 layout( push_constant ) uniform constants
 {
 	mat4 render_matrix;
-	VertexBuffer vertexBuffer;
+	VertexBuffer vertex_buffer;
 } PushConstants;
 
 void main()
 {
 	//load vertex data from device adress
-	Vertex v = PushConstants.vertexBuffer.vertices[gl_VertexIndex];
+	Vertex v = PushConstants.vertex_buffer.vertices[gl_VertexIndex];
 
 	//output data
 	gl_Position = PushConstants.render_matrix *vec4(v.position, 1.0f);

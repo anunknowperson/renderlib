@@ -12,25 +12,25 @@
 ControllerImpl::ControllerImpl(IModel::Ptr model) : _model(std::move(model)) {}
 
 double getCurrentGlobalTime() {
-    // Get the current time point
+    // get the current time point
     auto now = std::chrono::system_clock::now();
 
     // Cast to a time duration since the epoch
-    auto durationSinceEpoch = now.time_since_epoch();
+    auto duration_since_epoch = now.time_since_epoch();
 
     // Convert to seconds in double precision
-    std::chrono::duration<double> seconds = durationSinceEpoch;
+    std::chrono::duration<double> seconds = duration_since_epoch;
 
     // Return the double value
     return seconds.count();
 }
 
 void updateCube(const std::shared_ptr<IModel> &_model, int name) {
-    double sinValue = std::sin(getCurrentGlobalTime() + name) * 5.0;
+    double sin_value = std::sin(getCurrentGlobalTime() + name) * 5.0;
 
     glm::mat4 scale = glm::scale(glm::vec3{0.2f});
     glm::mat4 translation = glm::translate(
-            glm::vec3{static_cast<float>(name) - 2.5f, sinValue, 0});
+            glm::vec3{static_cast<float>(name) - 2.5f, sin_value, 0});
 
     _model->setMeshTransform("cube" + std::to_string(name), scale * translation);
 }

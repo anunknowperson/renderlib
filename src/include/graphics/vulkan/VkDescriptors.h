@@ -10,8 +10,8 @@ struct DescriptorLayoutBuilder {
     void addBinding(uint32_t binding, VkDescriptorType type);
     void clear();
     VkDescriptorSetLayout build(VkDevice device,
-                                VkShaderStageFlags shaderStages,
-                                void* pNext = nullptr,
+                                VkShaderStageFlags shader_stages,
+                                void* p_next = nullptr,
                                 VkDescriptorSetLayoutCreateFlags flags = 0);
 };
 
@@ -23,8 +23,8 @@ struct DescriptorAllocator {
 
     VkDescriptorPool pool;
 
-    void initPool(VkDevice device, uint32_t maxSets,
-                   std::span<PoolSizeRatio> poolRatios);
+    void initPool(VkDevice device, uint32_t max_sets,
+                   std::span<PoolSizeRatio> pool_ratios);
     void clearDescriptors(VkDevice device);
     void destroyPool(VkDevice device);
 
@@ -38,8 +38,8 @@ public:
         float ratio;
     };
 
-    void init(VkDevice device, uint32_t initialSets,
-              std::span<PoolSizeRatio> poolRatios);
+    void init(VkDevice device, uint32_t initial_sets,
+              std::span<PoolSizeRatio> pool_ratios);
     void clearPools(VkDevice device);
     void destroyPools(VkDevice device);
 
@@ -48,8 +48,8 @@ public:
 
 private:
     VkDescriptorPool getPool(VkDevice device);
-    VkDescriptorPool createPool(VkDevice device, uint32_t setCount,
-                                 std::span<PoolSizeRatio> poolRatios);
+    VkDescriptorPool createPool(VkDevice device, uint32_t set_count,
+                                 std::span<PoolSizeRatio> pool_ratios);
 
     std::vector<PoolSizeRatio> _ratios;
     std::vector<VkDescriptorPool> _full_pools;
