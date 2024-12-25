@@ -5,13 +5,11 @@
 #include <glm/gtc/quaternion.hpp>
 
 
-class Light {
-public:
+struct Light {
     glm::vec3 position;
     float radius;
     float strength;
     glm::vec3 direction;
     glm::quat rotation;
     glm::vec3 color;
-
 };
