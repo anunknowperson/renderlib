@@ -192,7 +192,7 @@ void VulkanEngine::initMeshPipeline() {
     pipeline_layout_info.pushConstantRangeCount = 1;
     pipeline_layout_info.pSetLayouts = &single_image_descriptor_layout;
     pipeline_layout_info.setLayoutCount = 1;
-    VK_CHECK(vkCreatePipelineLayout(device, &pipeline_layout_info, nullptr,
+    vk_check(vkCreatePipelineLayout(device, &pipeline_layout_info, nullptr,
                                     &mesh_pipeline_layout));
 
     PipelineBuilder pipeline_builder;
@@ -254,7 +254,7 @@ void VulkanEngine::initTrianglePipeline() {
     // anything other than empty default
     VkPipelineLayoutCreateInfo pipeline_layout_info =
             vkinit::pipelineLayoutCreateInfo();
-    VK_CHECK(vkCreatePipelineLayout(device, &pipeline_layout_info, nullptr,
+    vk_check(vkCreatePipelineLayout(device, &pipeline_layout_info, nullptr,
                                     &triangle_pipeline_layout));
 
     PipelineBuilder pipeline_builder;
@@ -318,7 +318,7 @@ void VulkanEngine::initImgui() {
     pool_info.pPoolSizes = pool_sizes;
 
     VkDescriptorPool imgui_pool;
-    VK_CHECK(vkCreateDescriptorPool(device, &pool_info, nullptr, &imgui_pool));
+    vk_check(vkCreateDescriptorPool(device, &pool_info, nullptr, &imgui_pool));
 
     // 2: initialize imgui library
 
@@ -425,7 +425,7 @@ void VulkanEngine::initBackgroundPipelines() {
     compute_layout.pSetLayouts = &draw_image_descriptor_layout;
     compute_layout.setLayoutCount = 1;
 
-    VK_CHECK(vkCreatePipelineLayout(device, &compute_layout, nullptr,
+    vk_check(vkCreatePipelineLayout(device, &compute_layout, nullptr,
                                     &gradient_pipeline_layout));
 
     VkShaderModule compute_draw_shader;
@@ -448,7 +448,7 @@ void VulkanEngine::initBackgroundPipelines() {
     compute_pipeline_create_info.layout = gradient_pipeline_layout;
     compute_pipeline_create_info.stage = stage_info;
 
-    VK_CHECK(vkCreateComputePipelines(device, VK_NULL_HANDLE, 1,
+    vk_check(vkCreateComputePipelines(device, VK_NULL_HANDLE, 1,
                                       &compute_pipeline_create_info, nullptr,
                                       &gradient_pipeline));
 
@@ -625,7 +625,7 @@ void VulkanEngine::initCommands() {
             VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT);
 
     for (auto & _frame : frames) {
-        VK_CHECK(vkCreateCommandPool(device, &command_pool_info, nullptr,
+        vk_check(vkCreateCommandPool(device, &command_pool_info, nullptr,
                                      &_frame.command_pool));
 
         // allocate the default command buffer that we will use for rendering
@@ -633,18 +633,18 @@ void VulkanEngine::initCommands() {
                 vkinit::commandBufferAllocateInfo(_frame.command_pool,
                                                      1);
 
-        VK_CHECK(vkAllocateCommandBuffers(device, &cmd_alloc_info,
+        vk_check(vkAllocateCommandBuffers(device, &cmd_alloc_info,
                                           &_frame.main_command_buffer));
     }
 
-    VK_CHECK(vkCreateCommandPool(device, &command_pool_info, nullptr,
+    vk_check(vkCreateCommandPool(device, &command_pool_info, nullptr,
                                  &imm_command_pool));
 
     // allocate the command buffer for immediate submits
     VkCommandBufferAllocateInfo cmd_alloc_info =
             vkinit::commandBufferAllocateInfo(imm_command_pool, 1);
 
-    VK_CHECK(vkAllocateCommandBuffers(device, &cmd_alloc_info,
+    vk_check(vkAllocateCommandBuffers(device, &cmd_alloc_info,
                                       &imm_command_buffer));
 
     main_deletion_queue.pushFunction([=, this]() {
@@ -658,16 +658,16 @@ void VulkanEngine::initSyncStructures() {
     VkSemaphoreCreateInfo semaphore_create_info = vkinit::semaphoreCreateInfo();
 
     for (auto & _frame : frames) {
-        VK_CHECK(vkCreateFence(device, &fence_create_info, nullptr,
+        vk_check(vkCreateFence(device, &fence_create_info, nullptr,
                                &_frame.render_fence));
 
-        VK_CHECK(vkCreateSemaphore(device, &semaphore_create_info, nullptr,
+        vk_check(vkCreateSemaphore(device, &semaphore_create_info, nullptr,
                                    &_frame.swapchain_semaphore));
-        VK_CHECK(vkCreateSemaphore(device, &semaphore_create_info, nullptr,
+        vk_check(vkCreateSemaphore(device, &semaphore_create_info, nullptr,
                                    &_frame.render_semaphore));
     }
 
-    VK_CHECK(vkCreateFence(device, &fence_create_info, nullptr, &imm_fence));
+    vk_check(vkCreateFence(device, &fence_create_info, nullptr, &imm_fence));
     main_deletion_queue.pushFunction(
             [=, this]() { vkDestroyFence(device, imm_fence, nullptr); });
 }
@@ -737,7 +737,7 @@ void VulkanEngine::initSwapchain() {
             draw_image.image_format, draw_image.image,
             VK_IMAGE_ASPECT_COLOR_BIT);
 
-    VK_CHECK(vkCreateImageView(device, &rview_info, nullptr,
+    vk_check(vkCreateImageView(device, &rview_info, nullptr,
                                &draw_image.image_view));
 
     // add to deletion queues
@@ -806,7 +806,7 @@ AllocatedBuffer VulkanEngine::createBuffer(size_t allocSize,
     AllocatedBuffer new_buffer{};
 
     // allocate the buffer
-    VK_CHECK(vmaCreateBuffer(allocator, &buffer_info, &vma_alloc_info,
+    vk_check(vmaCreateBuffer(allocator, &buffer_info, &vma_alloc_info,
                              &new_buffer.buffer, &new_buffer.allocation,
                              &new_buffer.info));
 
@@ -1008,13 +1008,13 @@ void VulkanEngine::draw() {
 
     // wait until the gpu has finished rendering the last frame. Timeout of 1
     // second
-    VK_CHECK(vkWaitForFences(device, 1, &getCurrentFrame().render_fence,
+    vk_check(vkWaitForFences(device, 1, &getCurrentFrame().render_fence,
                              true, 1000000000));
 
     getCurrentFrame().deletion_queue.flush();
     getCurrentFrame().frame_descriptors.clearPools(device);
 
-    VK_CHECK(vkResetFences(device, 1, &getCurrentFrame().render_fence));
+    vk_check(vkResetFences(device, 1, &getCurrentFrame().render_fence));
 
     // request image from the swapchain
     uint32_t swapchain_image_index;
@@ -1031,7 +1031,7 @@ void VulkanEngine::draw() {
 
     // now that we are sure that the commands finished executing, we can safely
     // reset the command buffer to begin recording again.
-    VK_CHECK(vkResetCommandBuffer(cmd, 0));
+    vk_check(vkResetCommandBuffer(cmd, 0));
 
     // begin the command buffer recording. We will use this command buffer
     // exactly once, so we want to let vulkan know that
@@ -1047,7 +1047,7 @@ void VulkanEngine::draw() {
                             draw_image.image_extent.width) *
             render_scale);
 
-    VK_CHECK(vkBeginCommandBuffer(cmd, &cmd_begin_info));
+    vk_check(vkBeginCommandBuffer(cmd, &cmd_begin_info));
 
     // transition our main draw image into general layout, so we can write into
     // it, we will overwrite it all, so we don't care about what was the older
@@ -1091,7 +1091,7 @@ void VulkanEngine::draw() {
 
     // finalize the command buffer (we can no longer add commands, but it can
     // now be executed)
-    VK_CHECK(vkEndCommandBuffer(cmd));
+    vk_check(vkEndCommandBuffer(cmd));
 
     // prepare the submission to the queue.
     // we want to wait on the _presentSemaphore, as that semaphore is signaled
@@ -1112,7 +1112,7 @@ void VulkanEngine::draw() {
 
     // submit command buffer to the queue and execute it.
     //  render_fence will now block until the graphic commands finish execution
-    VK_CHECK(vkQueueSubmit2(graphics_queue, 1, &submit,
+    vk_check(vkQueueSubmit2(graphics_queue, 1, &submit,
                             getCurrentFrame().render_fence));
 
     // prepare present
@@ -1157,28 +1157,28 @@ void VulkanEngine::resizeSwapchain() {
 
 void VulkanEngine::immediateSubmit(
         std::function<void(VkCommandBuffer cmd)>&& function) {
-    VK_CHECK(vkResetFences(device, 1, &imm_fence));
-    VK_CHECK(vkResetCommandBuffer(imm_command_buffer, 0));
+    vk_check(vkResetFences(device, 1, &imm_fence));
+    vk_check(vkResetCommandBuffer(imm_command_buffer, 0));
 
     VkCommandBuffer cmd = imm_command_buffer;
 
     VkCommandBufferBeginInfo cmd_begin_info = vkinit::commandBufferBeginInfo(
             VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT);
 
-    VK_CHECK(vkBeginCommandBuffer(cmd, &cmd_begin_info));
+    vk_check(vkBeginCommandBuffer(cmd, &cmd_begin_info));
 
     function(cmd);
 
-    VK_CHECK(vkEndCommandBuffer(cmd));
+    vk_check(vkEndCommandBuffer(cmd));
 
     VkCommandBufferSubmitInfo cmd_info = vkinit::commandBufferSubmitInfo(cmd);
     VkSubmitInfo2 submit = vkinit::submitInfo(&cmd_info, nullptr, nullptr);
 
     // submit command buffer to the queue and execute it.
     //  render_fence will now block until the graphic commands finish execution
-    VK_CHECK(vkQueueSubmit2(graphics_queue, 1, &submit, imm_fence));
+    vk_check(vkQueueSubmit2(graphics_queue, 1, &submit, imm_fence));
 
-    VK_CHECK(vkWaitForFences(device, 1, &imm_fence, true, 9999999999));
+    vk_check(vkWaitForFences(device, 1, &imm_fence, true, 9999999999));
 }
 
 void VulkanEngine::update() {
@@ -1210,7 +1210,7 @@ AllocatedImage VulkanEngine::createImage(VkExtent3D size, VkFormat format,
             VkMemoryPropertyFlags(VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
 
     // allocate and create the image
-    VK_CHECK(vmaCreateImage(allocator, &img_info, &alloc_info, &new_image.image,
+    vk_check(vmaCreateImage(allocator, &img_info, &alloc_info, &new_image.image,
                             &new_image.allocation, nullptr));
 
     // if the format is a depth format, we will need to have it use the correct
@@ -1225,7 +1225,7 @@ AllocatedImage VulkanEngine::createImage(VkExtent3D size, VkFormat format,
             vkinit::imageviewCreateInfo(format, new_image.image, aspect_flag);
     view_info.subresourceRange.levelCount = img_info.mipLevels;
 
-    VK_CHECK(vkCreateImageView(device, &view_info, nullptr,
+    vk_check(vkCreateImageView(device, &view_info, nullptr,
                                &new_image.image_view));
 
     return new_image;
@@ -1321,7 +1321,7 @@ void GLTFMetallicRoughness::buildPipelines(VulkanEngine* engine) {
     mesh_layout_info.pushConstantRangeCount = 1;
 
     VkPipelineLayout new_layout;
-    VK_CHECK(vkCreatePipelineLayout(engine->device, &mesh_layout_info, nullptr,
+    vk_check(vkCreatePipelineLayout(engine->device, &mesh_layout_info, nullptr,
                                     &new_layout));
 
     opaque_pipeline.layout = new_layout;
