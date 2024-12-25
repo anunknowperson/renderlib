@@ -3,12 +3,12 @@
 namespace {
 
 void UpdateMesh(flecs::entity e, const GlobalTransform &gt) {
-    engine::graphics::Graphics::getInstance()->set_mesh_instance_transform(
-            e.get_mut<MeshComponent>()->MeshID, gt.TransformMatrix);
+    engine::graphics::Graphics::getInstance()->setMeshInstanceTransform(
+            e.get_mut<MeshComponent>()->mesh_id, gt.transform_matrix);
 }
 
 void DestroyMesh(const MeshComponent &mc) {
-    engine::graphics::Graphics::getInstance()->free_mesh_instance(mc.MeshID);
+    engine::graphics::Graphics::getInstance()->freeMeshInstance(mc.mesh_id);
 }
 }  // namespace
 

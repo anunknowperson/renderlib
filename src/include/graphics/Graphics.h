@@ -22,18 +22,18 @@ public:
      * @details All mesh instance parameters are set to default.
      * */
 
-    std::uint64_t create_mesh_instance();
+    std::uint64_t createMeshInstance();
 
     /** @brief CSets the transformation matrix to the mesh instance by ID.
      * @param rid Mesh Instance Rendering ID.
      * @param matrix New matrix.
      * */
 
-    void set_mesh_instance_transform(std::uint64_t rid, glm::mat4 matrix);
+    void setMeshInstanceTransform(std::uint64_t rid, glm::mat4 matrix);
 
     /** @brief Destroys a mesh instance by its ID. **/
 
-    void free_mesh_instance(std::uint64_t rid);
+    void freeMeshInstance(std::uint64_t rid);
 
     ~Graphics() = default;
 

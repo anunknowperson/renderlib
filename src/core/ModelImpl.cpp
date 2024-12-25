@@ -11,7 +11,7 @@ ModelImpl::~ModelImpl() {
 ModelImpl::ModelImpl() = default;
 
 void ModelImpl::registerWindow(SDL_Window *window) {
-    _engine.mainCamera = &_camera;
+    _engine.main_camera = &_camera;
     _engine.init(window);
 }
 
@@ -26,13 +26,13 @@ Camera *ModelImpl::getCamera() {
 void ModelImpl::createMesh(std::string name) {
     const auto mesh = std::make_shared<Mesh>("/basicmesh.glb");
 
-    mesh->set_transform(glm::mat4(1.0f));
+    mesh->setTransform(glm::mat4(1.0f));
 
     _meshes[name] = mesh;
 }
 
 void ModelImpl::setMeshTransform(std::string name, glm::mat4x4 transform) {
-    _meshes[name]->set_transform(transform);
+    _meshes[name]->setTransform(transform);
 }
 
 /*        : _dev { openDevice() }

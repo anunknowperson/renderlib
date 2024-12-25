@@ -28,13 +28,13 @@
 #include "graphics/vulkan/vk_types.h"
 
 std::optional<std::vector<std::shared_ptr<MeshAsset>>> loadGltfMeshes(
-        VulkanEngine* engine, const std::filesystem::path& filePath) {
-    if (!std::filesystem::exists(filePath)) {
-        std::cout << "Failed to find " << filePath << '\n';
+        VulkanEngine* engine, const std::filesystem::path& file_path) {
+    if (!std::filesystem::exists(file_path)) {
+        std::cout << "Failed to find " << file_path << '\n';
         return {};
     }
 
-    std::cout << "Loading " << filePath << '\n';
+    std::cout << "Loading " << file_path << '\n';
 
     fastgltf::Asset gltf;
 
@@ -47,7 +47,7 @@ std::optional<std::vector<std::shared_ptr<MeshAsset>>> loadGltfMeshes(
 
     fastgltf::Parser parser(supportedExtensions);
 
-    auto path = std::filesystem::path{filePath};
+    auto path = std::filesystem::path{file_path};
 
     constexpr auto gltfOptions =
             fastgltf::Options::DontRequireValidAssetMember |
@@ -76,49 +76,49 @@ std::optional<std::vector<std::shared_ptr<MeshAsset>>> loadGltfMeshes(
     std::vector<uint32_t> indices;
     std::vector<Vertex> vertices;
     for (auto& [primitives, _, name] : gltf.meshes) {
-        MeshAsset newmesh;
+        MeshAsset new_mesh;
 
-        newmesh.name = name;
+        new_mesh.name = name;
 
         // clear the mesh arrays each mesh, we dont want to merge them by error
         indices.clear();
         vertices.clear();
 
         for (auto&& p : primitives) {
-            GeoSurface newSurface;
-            newSurface.startIndex = (uint32_t)indices.size();
-            newSurface.count =
+            GeoSurface new_surface;
+            new_surface.start_index = (uint32_t)indices.size();
+            new_surface.count =
                     (uint32_t)gltf.accessors[p.indicesAccessor.value()].count;
 
             auto initial_vtx = static_cast<uint32_t>(vertices.size());
 
             // load indexes
             {
-                fastgltf::Accessor& indexaccessor =
+                fastgltf::Accessor& index_accessor =
                         gltf.accessors[p.indicesAccessor.value()];
-                indices.reserve(indices.size() + indexaccessor.count);
+                indices.reserve(indices.size() + index_accessor.count);
 
                 fastgltf::iterateAccessor<std::uint32_t>(
-                        gltf, indexaccessor, [&](std::uint32_t idx) {
+                        gltf, index_accessor, [&](std::uint32_t idx) {
                             indices.push_back(idx + initial_vtx);
                         });
             }
 
             // load vertex positions
             {
-                fastgltf::Accessor& posAccessor =
+                fastgltf::Accessor& pos_accessor =
                         gltf.accessors[p.findAttribute("POSITION")->second];
-                vertices.resize(vertices.size() + posAccessor.count);
+                vertices.resize(vertices.size() + pos_accessor.count);
 
                 fastgltf::iterateAccessorWithIndex<glm::vec3>(
-                        gltf, posAccessor, [&](glm::vec3 v, size_t index) {
-                            Vertex newvtx;
-                            newvtx.position = v;
-                            newvtx.normal = {1, 0, 0};
-                            newvtx.color = glm::vec4{1.f};
-                            newvtx.uv_x = 0;
-                            newvtx.uv_y = 0;
-                            vertices[initial_vtx + index] = newvtx;
+                        gltf, pos_accessor, [&](glm::vec3 v, size_t index) {
+                            Vertex new_vtx;
+                            new_vtx.position = v;
+                            new_vtx.normal = {1, 0, 0};
+                            new_vtx.color = glm::vec4{1.f};
+                            new_vtx.uv_x = 0;
+                            new_vtx.uv_y = 0;
+                            vertices[initial_vtx + index] = new_vtx;
                         });
             }
 
@@ -152,7 +152,7 @@ std::optional<std::vector<std::shared_ptr<MeshAsset>>> loadGltfMeshes(
                             vertices[initial_vtx + index].color = v;
                         });
             }
-            newmesh.surfaces.push_back(newSurface);
+            new_mesh.surfaces.push_back(new_surface);
         }
 
         // display the vertex normals
@@ -162,15 +162,15 @@ std::optional<std::vector<std::shared_ptr<MeshAsset>>> loadGltfMeshes(
                 vtx.color = glm::vec4(vtx.normal, 1.f);
             }
         }
-        newmesh.meshBuffers = engine->uploadMesh(indices, vertices);
+        new_mesh.mesh_buffers = engine->uploadMesh(indices, vertices);
 
-        meshes.emplace_back(std::make_shared<MeshAsset>(std::move(newmesh)));
+        meshes.emplace_back(std::make_shared<MeshAsset>(std::move(new_mesh)));
     }
 
     return meshes;
 }
 
-VkFilter extract_filter(fastgltf::Filter filter) {
+VkFilter extractFilter(fastgltf::Filter filter) {
     switch (filter) {
             // nearest samplers
         case fastgltf::Filter::Nearest:
@@ -187,7 +187,7 @@ VkFilter extract_filter(fastgltf::Filter filter) {
     }
 }
 
-VkSamplerMipmapMode extract_mipmap_mode(fastgltf::Filter filter) {
+VkSamplerMipmapMode extractMipmapMode(fastgltf::Filter filter) {
     switch (filter) {
         case fastgltf::Filter::NearestMipMapNearest:
         case fastgltf::Filter::LinearMipMapNearest:
@@ -201,8 +201,8 @@ VkSamplerMipmapMode extract_mipmap_mode(fastgltf::Filter filter) {
 }
 
 std::optional<std::shared_ptr<LoadedGLTF>> loadGltf(VulkanEngine* engine,
-                                                    std::string_view filePath) {
-    fmt::print("Loading GLTF: {}", filePath);
+                                                    std::string_view file_path) {
+    fmt::print("Loading GLTF: {}", file_path);
 
     auto scene = std::make_shared<LoadedGLTF>();
     scene->creator = engine;
@@ -217,11 +217,11 @@ std::optional<std::shared_ptr<LoadedGLTF>> loadGltf(VulkanEngine* engine,
     // fastgltf::Options::LoadExternalImages;
 
     fastgltf::GltfDataBuffer data;
-    data.loadFromFile(filePath);
+    data.loadFromFile(file_path);
 
     fastgltf::Asset gltf;
 
-    std::filesystem::path path = filePath;
+    std::filesystem::path path = file_path;
 
     auto type = fastgltf::determineGltfFileType(&data);
     if (type == fastgltf::GltfType::glTF) {
@@ -254,7 +254,7 @@ std::optional<std::shared_ptr<LoadedGLTF>> loadGltf(VulkanEngine* engine,
             {VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 3},
             {VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 1}};
 
-    file.descriptorPool.init(engine->_device,
+    file.descriptor_pool.init(engine->device,
                              static_cast<uint32_t>(gltf.materials.size()),
                              sizes);
 
@@ -266,16 +266,16 @@ std::optional<std::shared_ptr<LoadedGLTF>> loadGltf(VulkanEngine* engine,
         sampl.maxLod = VK_LOD_CLAMP_NONE;
         sampl.minLod = 0;
 
-        sampl.magFilter = extract_filter(
+        sampl.magFilter = extractFilter(
                 sampler.magFilter.value_or(fastgltf::Filter::Nearest));
-        sampl.minFilter = extract_filter(
+        sampl.minFilter = extractFilter(
                 sampler.minFilter.value_or(fastgltf::Filter::Nearest));
 
-        sampl.mipmapMode = extract_mipmap_mode(
+        sampl.mipmapMode = extractMipmapMode(
                 sampler.minFilter.value_or(fastgltf::Filter::Nearest));
 
         VkSampler newSampler;
-        vkCreateSampler(engine->_device, &sampl, nullptr, &newSampler);
+        vkCreateSampler(engine->device, &sampl, nullptr, &newSampler);
 
         file.samplers.push_back(newSampler);
     }
@@ -288,51 +288,51 @@ std::optional<std::shared_ptr<LoadedGLTF>> loadGltf(VulkanEngine* engine,
     // load all textures
     images.reserve(gltf.images.size());
     for (size_t i = 0; i < gltf.images.size(); i++) {
-        images.push_back(engine->_errorCheckerboardImage);
+        images.push_back(engine->error_checkerboard_image);
     }
 
     // create buffer to hold the material data
-    file.materialDataBuffer = engine->create_buffer(
-            sizeof(GLTFMetallic_Roughness::MaterialConstants) *
+    file.material_data_buffer = engine->createBuffer(
+            sizeof(GLTFMetallicRoughness::MaterialConstants) *
                     gltf.materials.size(),
             VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VMA_MEMORY_USAGE_CPU_TO_GPU);
     uint32_t data_index = 0;
-    auto* sceneMaterialConstants =
-            (GLTFMetallic_Roughness::MaterialConstants*)
-                    file.materialDataBuffer.info.pMappedData;
+    auto* scene_material_constants =
+            (GLTFMetallicRoughness::MaterialConstants*)
+                    file.material_data_buffer.info.pMappedData;
 
     for (fastgltf::Material& mat : gltf.materials) {
-        auto newMat = std::make_shared<GLTFMaterial>();
-        materials.push_back(newMat);
-        file.materials[mat.name.c_str()] = newMat;
+        auto new_mat = std::make_shared<GLTFMaterial>();
+        materials.push_back(new_mat);
+        file.materials[mat.name.c_str()] = new_mat;
 
-        GLTFMetallic_Roughness::MaterialConstants constants;
-        constants.colorFactors.x = mat.pbrData.baseColorFactor[0];
-        constants.colorFactors.y = mat.pbrData.baseColorFactor[1];
-        constants.colorFactors.z = mat.pbrData.baseColorFactor[2];
-        constants.colorFactors.w = mat.pbrData.baseColorFactor[3];
+        GLTFMetallicRoughness::MaterialConstants constants;
+        constants.color_factors.x = mat.pbrData.baseColorFactor[0];
+        constants.color_factors.y = mat.pbrData.baseColorFactor[1];
+        constants.color_factors.z = mat.pbrData.baseColorFactor[2];
+        constants.color_factors.w = mat.pbrData.baseColorFactor[3];
 
         constants.metal_rough_factors.x = mat.pbrData.metallicFactor;
         constants.metal_rough_factors.y = mat.pbrData.roughnessFactor;
         // write material parameters to buffer
-        sceneMaterialConstants[data_index] = constants;
+        scene_material_constants[data_index] = constants;
 
-        auto passType = MaterialPass::MainColor;
+        auto pass_type = MaterialPass::MainColor;
         if (mat.alphaMode == fastgltf::AlphaMode::Blend) {
-            passType = MaterialPass::Transparent;
+            pass_type = MaterialPass::Transparent;
         }
 
-        GLTFMetallic_Roughness::MaterialResources materialResources;
+        GLTFMetallicRoughness::MaterialResources material_resources;
         // default the material textures
-        materialResources.colorImage = engine->_whiteImage;
-        materialResources.colorSampler = engine->_defaultSamplerLinear;
-        materialResources.metalRoughImage = engine->_whiteImage;
-        materialResources.metalRoughSampler = engine->_defaultSamplerLinear;
+        material_resources.color_image = engine->white_image;
+        material_resources.color_sampler = engine->default_sampler_linear;
+        material_resources.metal_rough_image = engine->white_image;
+        material_resources.metal_rough_sampler = engine->default_sampler_linear;
 
         // set the uniform buffer for the material data
-        materialResources.dataBuffer = file.materialDataBuffer.buffer;
-        materialResources.dataBufferOffset =
-                data_index * sizeof(GLTFMetallic_Roughness::MaterialConstants);
+        material_resources.data_buffer = file.material_data_buffer.buffer;
+        material_resources.data_buffer_offset =
+                data_index * sizeof(GLTFMetallicRoughness::MaterialConstants);
         // grab textures from gltf file
         if (mat.pbrData.baseColorTexture.has_value()) {
             size_t img = gltf.textures[mat.pbrData.baseColorTexture.value()
@@ -342,13 +342,13 @@ std::optional<std::shared_ptr<LoadedGLTF>> loadGltf(VulkanEngine* engine,
                                                    .textureIndex]
                                      .samplerIndex.value();
 
-            materialResources.colorImage = images[img];
-            materialResources.colorSampler = file.samplers[sampler];
+            material_resources.color_image = images[img];
+            material_resources.color_sampler = file.samplers[sampler];
         }
         // build material
-        newMat->data = engine->metalRoughMaterial.write_material(
-                engine->_device, passType, materialResources,
-                file.descriptorPool);
+        new_mat->data = engine->metal_rough_material.writeMaterial(
+                engine->device, pass_type, material_resources,
+                file.descriptor_pool);
 
         data_index++;
     }
@@ -360,50 +360,50 @@ std::optional<std::shared_ptr<LoadedGLTF>> loadGltf(VulkanEngine* engine,
     std::vector<Vertex> vertices;
 
     for (auto& [primitives, _, name] : gltf.meshes) {
-        auto newmesh = std::make_shared<MeshAsset>();
-        meshes.push_back(newmesh);
-        file.meshes[name.c_str()] = newmesh;
-        newmesh->name = name;
+        auto new_mesh = std::make_shared<MeshAsset>();
+        meshes.push_back(new_mesh);
+        file.meshes[name.c_str()] = new_mesh;
+        new_mesh->name = name;
 
         // clear the mesh arrays each mesh, we dont want to merge them by error
         indices.clear();
         vertices.clear();
 
         for (auto&& p : primitives) {
-            GeoSurface newSurface;
-            newSurface.startIndex = (uint32_t)indices.size();
-            newSurface.count =
+            GeoSurface new_surface;
+            new_surface.start_index = (uint32_t)indices.size();
+            new_surface.count =
                     (uint32_t)gltf.accessors[p.indicesAccessor.value()].count;
 
             auto initial_vtx = static_cast<uint32_t>(vertices.size());
 
             // load indexes
             {
-                fastgltf::Accessor& indexaccessor =
+                fastgltf::Accessor& index_accessor =
                         gltf.accessors[p.indicesAccessor.value()];
-                indices.reserve(indices.size() + indexaccessor.count);
+                indices.reserve(indices.size() + index_accessor.count);
 
                 fastgltf::iterateAccessor<std::uint32_t>(
-                        gltf, indexaccessor, [&](std::uint32_t idx) {
+                        gltf, index_accessor, [&](std::uint32_t idx) {
                             indices.push_back(idx + initial_vtx);
                         });
             }
 
             // load vertex positions
             {
-                fastgltf::Accessor& posAccessor =
+                fastgltf::Accessor& pos_accessor =
                         gltf.accessors[p.findAttribute("POSITION")->second];
-                vertices.resize(vertices.size() + posAccessor.count);
+                vertices.resize(vertices.size() + pos_accessor.count);
 
                 fastgltf::iterateAccessorWithIndex<glm::vec3>(
-                        gltf, posAccessor, [&](glm::vec3 v, size_t index) {
-                            Vertex newvtx;
-                            newvtx.position = v;
-                            newvtx.normal = {1, 0, 0};
-                            newvtx.color = glm::vec4{1.f};
-                            newvtx.uv_x = 0;
-                            newvtx.uv_y = 0;
-                            vertices[initial_vtx + index] = newvtx;
+                        gltf, pos_accessor, [&](glm::vec3 v, size_t index) {
+                            Vertex new_vtx;
+                            new_vtx.position = v;
+                            new_vtx.normal = {1, 0, 0};
+                            new_vtx.color = glm::vec4{1.f};
+                            new_vtx.uv_x = 0;
+                            new_vtx.uv_y = 0;
+                            vertices[initial_vtx + index] = new_vtx;
                         });
             }
 
@@ -439,37 +439,37 @@ std::optional<std::shared_ptr<LoadedGLTF>> loadGltf(VulkanEngine* engine,
             }
 
             if (p.materialIndex.has_value()) {
-                newSurface.material = materials[p.materialIndex.value()];
+                new_surface.material = materials[p.materialIndex.value()];
             } else {
-                newSurface.material = materials[0];
+                new_surface.material = materials[0];
             }
 
-            newmesh->surfaces.push_back(newSurface);
+            new_mesh->surfaces.push_back(new_surface);
         }
 
-        newmesh->meshBuffers = engine->uploadMesh(indices, vertices);
+        new_mesh->mesh_buffers = engine->uploadMesh(indices, vertices);
     }
 
     // load all nodes and their meshes
     for (fastgltf::Node& node : gltf.nodes) {
-        std::shared_ptr<ENode> newNode;
+        std::shared_ptr<ENode> new_node;
 
         // find if the node has a mesh, and if it does hook it to the mesh
         // pointer and allocate it with the meshnode class
         if (node.meshIndex.has_value()) {
-            newNode = std::make_shared<MeshNode>();
-            dynamic_cast<MeshNode*>(newNode.get())->mesh =
+            new_node = std::make_shared<MeshNode>();
+            dynamic_cast<MeshNode*>(new_node.get())->mesh =
                     meshes[*node.meshIndex];
         } else {
-            newNode = std::make_shared<ENode>();
+            new_node = std::make_shared<ENode>();
         }
 
-        nodes.push_back(newNode);
+        nodes.push_back(new_node);
         file.nodes[node.name.c_str()];
 
         std::visit(fastgltf::visitor{
                            [&](const fastgltf::Node::TransformMatrix& matrix) {
-                               memcpy(&newNode->localTransform, matrix.data(),
+                               memcpy(&new_node->local_transform, matrix.data(),
                                       sizeof(matrix));
                            },
                            [&](const fastgltf::TRS& transform) {
@@ -490,7 +490,7 @@ std::optional<std::shared_ptr<LoadedGLTF>> loadGltf(VulkanEngine* engine,
                                const glm::mat4 sm =
                                        glm::scale(glm::mat4(1.f), sc);
 
-                               newNode->localTransform = tm * rm * sm;
+                               new_node->local_transform = tm * rm * sm;
                            }},
                    node.transform);
     }
@@ -498,28 +498,28 @@ std::optional<std::shared_ptr<LoadedGLTF>> loadGltf(VulkanEngine* engine,
     // run loop again to setup transform hierarchy
     for (size_t i = 0; i < gltf.nodes.size(); i++) {
         fastgltf::Node& node = gltf.nodes[i];
-        std::shared_ptr<ENode>& sceneNode = nodes[i];
+        std::shared_ptr<ENode>& scene_node = nodes[i];
 
         for (auto& c : node.children) {
-            sceneNode->children.push_back(nodes[c]);
-            nodes[c]->parent = sceneNode;
+            scene_node->children.push_back(nodes[c]);
+            nodes[c]->parent = scene_node;
         }
     }
 
     // find the top nodes, with no parents
     for (auto& node : nodes) {
         if (node->parent.lock() == nullptr) {
-            file.topNodes.push_back(node);
+            file.top_nodes.push_back(node);
             node->refreshTransform(glm::mat4{1.f});
         }
     }
     return scene;
 }
 
-void LoadedGLTF::Draw(const glm::mat4& topMatrix, DrawContext& ctx) {
+void LoadedGLTF::draw(const glm::mat4& top_matrix, DrawContext& ctx) {
     // create renderables from the scenenodes
-    for (const auto& n : topNodes) {
-        n->Draw(topMatrix, ctx);
+    for (const auto& n : top_nodes) {
+        n->draw(top_matrix, ctx);
     }
 }
 

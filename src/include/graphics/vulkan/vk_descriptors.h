@@ -10,11 +10,11 @@
 struct DescriptorLayoutBuilder {
     std::vector<VkDescriptorSetLayoutBinding> bindings;
 
-    void add_binding(uint32_t binding, VkDescriptorType type);
+    void addBinding(uint32_t binding, VkDescriptorType type);
     void clear();
     VkDescriptorSetLayout build(VkDevice device,
-                                VkShaderStageFlags shaderStages,
-                                const void* pNext = nullptr,
+                                VkShaderStageFlags shader_stages,
+                                const void* p_next = nullptr,
                                 VkDescriptorSetLayoutCreateFlags flags = 0);
 };
 
@@ -26,10 +26,10 @@ struct DescriptorAllocator {
 
     VkDescriptorPool pool;
 
-    void init_pool(VkDevice device, uint32_t maxSets,
-                   std::span<PoolSizeRatio> poolRatios);
-    void clear_descriptors(VkDevice device) const;
-    void destroy_pool(VkDevice device) const;
+    void initPool(VkDevice device, uint32_t max_sets,
+                   std::span<PoolSizeRatio> pool_ratios);
+    void clearDescriptors(VkDevice device) const;
+    void destroyPool(VkDevice device) const;
 
     VkDescriptorSet allocate(VkDevice device,
                              VkDescriptorSetLayout layout) const;
@@ -42,35 +42,35 @@ public:
         float ratio;
     };
 
-    void init(VkDevice device, uint32_t initialSets,
-              std::span<PoolSizeRatio> poolRatios);
-    void clear_pools(VkDevice device);
-    void destroy_pools(VkDevice device);
+    void init(VkDevice device, uint32_t initial_sets,
+              std::span<PoolSizeRatio> pool_ratios);
+    void clearPools(VkDevice device);
+    void destroyPools(VkDevice device);
 
     VkDescriptorSet allocate(VkDevice device, VkDescriptorSetLayout layout,
-                             const void* pNext = nullptr);
+                             const void* p_next = nullptr);
 
 private:
-    VkDescriptorPool get_pool(VkDevice device);
-    VkDescriptorPool create_pool(VkDevice device, uint32_t setCount,
-                                 std::span<PoolSizeRatio> poolRatios);
+    VkDescriptorPool getPool(VkDevice device);
+    VkDescriptorPool createPool(VkDevice device, uint32_t set_count,
+                                 std::span<PoolSizeRatio> pool_ratios);
 
-    std::vector<PoolSizeRatio> ratios;
-    std::vector<VkDescriptorPool> fullPools;
-    std::vector<VkDescriptorPool> readyPools;
-    uint32_t setsPerPool;
+    std::vector<PoolSizeRatio> _ratios;
+    std::vector<VkDescriptorPool> _full_pools;
+    std::vector<VkDescriptorPool> _ready_pools;
+    uint32_t _sets_per_pool;
 };
 
 struct DescriptorWriter {
-    std::deque<VkDescriptorImageInfo> imageInfos;
-    std::deque<VkDescriptorBufferInfo> bufferInfos;
+    std::deque<VkDescriptorImageInfo> image_infos;
+    std::deque<VkDescriptorBufferInfo> buffer_infos;
     std::vector<VkWriteDescriptorSet> writes;
 
-    void write_image(int binding, VkImageView image, VkSampler sampler,
+    void writeImage(int binding, VkImageView image, VkSampler sampler,
                      VkImageLayout layout, VkDescriptorType type);
-    void write_buffer(int binding, VkBuffer buffer, size_t size, size_t offset,
+    void writeBuffer(int binding, VkBuffer buffer, size_t size, size_t offset,
                       VkDescriptorType type);
 
     void clear();
-    void update_set(VkDevice device, VkDescriptorSet set);
+    void updateSet(VkDevice device, VkDescriptorSet set);
 };

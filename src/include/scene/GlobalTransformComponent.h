@@ -15,5 +15,5 @@
  * */
 
 struct GlobalTransform {
-    glm::f64mat4 TransformMatrix;
+    glm::f64mat4 transform_matrix;
 };

@@ -11,5 +11,5 @@
  * @see engine::graphics::Graphics
  * */
 struct MeshComponent {
-    uint64_t MeshID;
+    uint64_t mesh_id;
 };

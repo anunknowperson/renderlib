@@ -18,21 +18,21 @@ double getCurrentGlobalTime() {
     const auto now = std::chrono::system_clock::now();
 
     // Cast to a time duration since the epoch
-    const auto durationSinceEpoch = now.time_since_epoch();
+    const auto duration_since_epoch = now.time_since_epoch();
 
     // Convert to seconds in double precision
-    const std::chrono::duration<double> seconds = durationSinceEpoch;
+    const std::chrono::duration<double> seconds = duration_since_epoch;
 
     // Return the double value
     return seconds.count();
 }
 
 void updateCube(const std::shared_ptr<IModel> &_model, int name) {
-    const double sinValue = std::sin(getCurrentGlobalTime() + name) * 5.0;
+    const double sin_value = std::sin(getCurrentGlobalTime() + name) * 5.0;
 
     const glm::mat4 scale = glm::scale(glm::vec3{0.2f});
     const glm::mat4 translation = glm::translate(
-            glm::vec3{static_cast<float>(name) - 2.5f, sinValue, 0});
+            glm::vec3{static_cast<float>(name) - 2.5f, sin_value, 0});
 
     _model->setMeshTransform("cube" + std::to_string(name),
                              scale * translation);

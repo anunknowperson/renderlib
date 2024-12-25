@@ -6,7 +6,7 @@ Graphics* Graphics::getInstance() {
     return &singleton;
 }
 
-uint64_t Graphics::create_mesh_instance() {
+uint64_t Graphics::createMeshInstance() {
     std::uint64_t new_index;
     std::uint64_t new_uid;
 
@@ -27,12 +27,12 @@ uint64_t Graphics::create_mesh_instance() {
     return new_uid;
 }
 
-void Graphics::set_mesh_instance_transform([[maybe_unused]] uint64_t rid,
+void Graphics::setMeshInstanceTransform([[maybe_unused]] std::uint64_t rid,
                                            [[maybe_unused]] glm::mat4 matrix) {
     // VulkanRender::instances[meshes[rid]] = matrix;
 }
 
-void Graphics::free_mesh_instance(uint64_t rid) {
+void Graphics::freeMeshInstance(std::uint64_t rid) {
     // VulkanRender::instances.erase( VulkanRender::instances.begin() +
     // meshes[rid] );
 

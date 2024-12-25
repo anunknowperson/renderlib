@@ -22,7 +22,7 @@ struct GLTFMaterial {
 };
 
 struct GeoSurface {
-    uint32_t startIndex;
+    uint32_t start_index;
     uint32_t count;
     std::shared_ptr<GLTFMaterial> material;
 };
@@ -31,11 +31,11 @@ struct MeshAsset {
     std::string name;
 
     std::vector<GeoSurface> surfaces;
-    GPUMeshBuffers meshBuffers;
+    GPUMeshBuffers mesh_buffers;
 };
 
 std::optional<std::vector<std::shared_ptr<MeshAsset>>> loadGltfMeshes(
-        VulkanEngine* engine, const std::filesystem::path& filePath);
+        VulkanEngine* engine, const std::filesystem::path& file_path);
 
 struct LoadedGLTF final : public IRenderable {
     LoadedGLTF() = default;
@@ -48,13 +48,13 @@ struct LoadedGLTF final : public IRenderable {
 
     // nodes that dont have a parent, for iterating through the file in tree
     // order
-    std::vector<std::shared_ptr<ENode>> topNodes;
+    std::vector<std::shared_ptr<ENode>> top_nodes;
 
     std::vector<VkSampler> samplers;
 
-    DescriptorAllocatorGrowable descriptorPool;
+    DescriptorAllocatorGrowable descriptor_pool;
 
-    AllocatedBuffer materialDataBuffer;
+    AllocatedBuffer material_data_buffer;
 
     VulkanEngine* creator;
 
@@ -62,11 +62,11 @@ struct LoadedGLTF final : public IRenderable {
         clearAll();
     };
 
-    void Draw(const glm::mat4& topMatrix, DrawContext& ctx);
+    void draw(const glm::mat4& top_matrix, DrawContext& ctx);
 
 private:
     void clearAll();
 };
 
 std::optional<std::shared_ptr<LoadedGLTF>> loadGltf(VulkanEngine* engine,
-                                                    std::string_view filePath);
+                                                    std::string_view file_path);
