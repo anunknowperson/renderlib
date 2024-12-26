@@ -91,7 +91,8 @@ void VulkanEngine::init_default_data() {
     rect_indices[1] = 1;
     rect_indices[2] = 2;
 
-    auto path_to_assets = std::string(ASSETS_DIR) + "/basicmesh.glb";
+    std::filesystem::path path_to_assets = kAssetsDir;
+    path_to_assets /= "basicmesh.glb";
     testMeshes = loadGltfMeshes(this, path_to_assets).value();
 
     // 3 default textures, white, grey, black. 1 pixel each
@@ -401,7 +402,7 @@ void VulkanEngine::init_descriptors() {
 
     writer.update_set(_device, _drawImageDescriptors);
 
-    for (auto & _frame : _frames) {
+    for (auto& _frame : _frames) {
         // create a descriptor pool
         std::vector<DescriptorAllocatorGrowable::PoolSizeRatio> frame_sizes = {
                 {VK_DESCRIPTOR_TYPE_STORAGE_IMAGE, 3},
@@ -413,9 +414,8 @@ void VulkanEngine::init_descriptors() {
         _frame._frameDescriptors = DescriptorAllocatorGrowable{};
         _frame._frameDescriptors.init(_device, 1000, frame_sizes);
 
-        _mainDeletionQueue.push_function([&]() {
-            _frame._frameDescriptors.destroy_pools(_device);
-        });
+        _mainDeletionQueue.push_function(
+                [&]() { _frame._frameDescriptors.destroy_pools(_device); });
     }
 }
 
@@ -492,7 +492,8 @@ void VulkanEngine::init(struct SDL_Window* window) {
     mainCamera->pitch = 0;
     mainCamera->yaw = 0;
 
-    std::string structurePath = {std::string(ASSETS_DIR) + "/basicmesh.glb"};
+    std::filesystem::path structurePath = kAssetsDir;
+    structurePath /= "basicmesh.glb";
     auto structureFile = loadGltf(this, structurePath);
 
     assert(structureFile.has_value());
@@ -625,14 +626,13 @@ void VulkanEngine::init_commands() {
             _graphicsQueueFamily,
             VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT);
 
-    for (auto & _frame : _frames) {
+    for (auto& _frame : _frames) {
         vk_check(vkCreateCommandPool(_device, &commandPoolInfo, nullptr,
                                      &_frame._commandPool));
 
         // allocate the default command buffer that we will use for rendering
         VkCommandBufferAllocateInfo cmdAllocInfo =
-                vkinit::command_buffer_allocate_info(_frame._commandPool,
-                                                     1);
+                vkinit::command_buffer_allocate_info(_frame._commandPool, 1);
 
         vk_check(vkAllocateCommandBuffers(_device, &cmdAllocInfo,
                                           &_frame._mainCommandBuffer));
@@ -658,7 +658,7 @@ void VulkanEngine::init_sync_structures() {
             vkinit::fence_create_info(VK_FENCE_CREATE_SIGNALED_BIT);
     VkSemaphoreCreateInfo semaphoreCreateInfo = vkinit::semaphore_create_info();
 
-    for (auto & _frame : _frames) {
+    for (auto& _frame : _frames) {
         vk_check(vkCreateFence(_device, &fenceCreateInfo, nullptr,
                                &_frame._renderFence));
 
@@ -752,7 +752,7 @@ void VulkanEngine::destroy_swapchain() {
     vkDestroySwapchainKHR(_device, _swapchain, nullptr);
 
     // destroy swapchain resources
-    for (auto & _swapchainImageView : _swapchainImageViews) {
+    for (auto& _swapchainImageView : _swapchainImageViews) {
         vkDestroyImageView(_device, _swapchainImageView, nullptr);
     }
 }
@@ -766,15 +766,14 @@ void VulkanEngine::cleanup() {
 
         _mainDeletionQueue.flush();
 
-        for (auto & _frame : _frames) {
+        for (auto& _frame : _frames) {
             // already written from before
             vkDestroyCommandPool(_device, _frame._commandPool, nullptr);
 
             // destroy sync objects
             vkDestroyFence(_device, _frame._renderFence, nullptr);
             vkDestroySemaphore(_device, _frame._renderSemaphore, nullptr);
-            vkDestroySemaphore(_device, _frame._swapchainSemaphore,
-                               nullptr);
+            vkDestroySemaphore(_device, _frame._swapchainSemaphore, nullptr);
         }
 
         destroy_swapchain();
@@ -892,8 +891,9 @@ void VulkanEngine::draw_background(VkCommandBuffer cmd) {
 
     // execute the compute pipeline dispatch. We are using 16x16 workgroup size,
     // so we need to divide by it
-    vkCmdDispatch(cmd, static_cast<uint32_t>(std::ceil(_drawExtent.width / 16.0)),
-                  static_cast<uint32_t>(std::ceil(_drawExtent.height / 16.0)), 1);
+    vkCmdDispatch(
+            cmd, static_cast<uint32_t>(std::ceil(_drawExtent.width / 16.0)),
+            static_cast<uint32_t>(std::ceil(_drawExtent.height / 16.0)), 1);
 }
 
 void VulkanEngine::draw_imgui(VkCommandBuffer cmd,
@@ -1440,7 +1440,7 @@ void VulkanEngine::update_scene() {
     }
 }
 
-int64_t VulkanEngine::registerMesh(std::string filePath) {
+int64_t VulkanEngine::registerMesh(const std::filesystem::path& filePath) {
     std::random_device rd;
 
     // Use the Mersenne Twister engine for high-quality random numbers
@@ -1452,7 +1452,8 @@ int64_t VulkanEngine::registerMesh(std::string filePath) {
     // Generate and print a random int64_t value
     int64_t random_int64 = distribution(generator);
 
-    std::string structurePath = {std::string(ASSETS_DIR) + filePath};
+    std::filesystem::path structurePath = kAssetsDir;
+    structurePath /= filePath;
     auto structureFile = loadGltf(this, structurePath);
 
     assert(structureFile.has_value());
