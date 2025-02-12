@@ -1,0 +1,11 @@
+target_sources(${PROJECT_NAME}
+        PRIVATE
+        Controller.cpp
+        ControllerImpl.cpp
+        Mesh.cpp
+        Model.cppls
+        ModelImpl.cpp
+        View.cpp
+        ViewImpl.cpp
+        createInstance.cpp
+)
