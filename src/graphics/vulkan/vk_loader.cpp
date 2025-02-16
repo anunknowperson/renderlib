@@ -241,7 +241,7 @@ std::optional<std::shared_ptr<LoadedGLTF>> loadGltf(VulkanEngine* engine,
             {VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 3},
             {VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 1}};
 
-    file.descriptorPool.init(engine->_device, static_cast<uint32_t>(gltf.materials.size()), sizes);
+    file.descriptorPool.init(engine->vCtx->device, static_cast<uint32_t>(gltf.materials.size()), sizes);
 
     // load samplers
     for (fastgltf::Sampler& sampler : gltf.samplers) {
@@ -260,7 +260,7 @@ std::optional<std::shared_ptr<LoadedGLTF>> loadGltf(VulkanEngine* engine,
                 sampler.minFilter.value_or(fastgltf::Filter::Nearest));
 
         VkSampler newSampler;
-        vkCreateSampler(engine->_device, &sampl, nullptr, &newSampler);
+        vkCreateSampler(engine->vCtx->device, &sampl, nullptr, &newSampler);
 
         file.samplers.push_back(newSampler);
     }
@@ -331,7 +331,7 @@ std::optional<std::shared_ptr<LoadedGLTF>> loadGltf(VulkanEngine* engine,
         }
         // build material
         newMat->data = engine->metalRoughMaterial.write_material(
-                engine->_device, passType, materialResources,
+                engine->vCtx->device, passType, materialResources,
                 file.descriptorPool);
 
         data_index++;
