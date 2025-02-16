@@ -680,90 +680,6 @@ void VulkanEngine::init_sync_structures() {
             [=, this]() { vkDestroyFence(vCtx->device, _immFence, nullptr); });
 }
 
-// void VulkanEngine::create_swapchain(uint32_t width, uint32_t height) {
-//     vkb::SwapchainBuilder swapchainBuilder{vCtx->chosenGPU, vCtx->device, vCtx->surface};
-//
-//     _swapchainImageFormat = VK_FORMAT_B8G8R8A8_UNORM;
-//
-//     auto swap_ret =
-//             swapchainBuilder
-//                     //.use_default_format_selection()
-//                     .set_desired_format(VkSurfaceFormatKHR{
-//                             .format = _swapchainImageFormat,
-//                             .colorSpace = VK_COLOR_SPACE_SRGB_NONLINEAR_KHR})
-//                     // use vsync present mode
-//                     .set_desired_present_mode(VK_PRESENT_MODE_FIFO_KHR)
-//                     .set_desired_extent(width, height)
-//                     .add_image_usage_flags(VK_IMAGE_USAGE_TRANSFER_DST_BIT)
-//                     .build();
-//
-//     if (!swap_ret) {
-//         LOGE("Failed to create swapchain. Error: {}",
-//              swap_ret.error().message());
-//     }
-//
-//     vkb::Swapchain vkbSwapchain = swap_ret.value();
-//
-//     _swapchainExtent = vkbSwapchain.extent;
-//     // store swapchain and its related images
-//     _swapchain = vkbSwapchain.swapchain;
-//     _swapchainImages = vkbSwapchain.get_images().value();
-//     _swapchainImageViews = vkbSwapchain.get_image_views().value();
-// }
-
-// void VulkanEngine::init_swapchain() {
-//     create_swapchain(vCtx->windowExtent.width, vCtx->windowExtent.height);
-//
-//     // draw image size will match the window
-//     VkExtent3D drawImageExtent = {vCtx->windowExtent.width, vCtx->windowExtent.height, 1};
-//
-//     // hardcoding the draw format to 32-bit float
-//     vCtx->drawImage.imageFormat = VK_FORMAT_R16G16B16A16_SFLOAT;
-//     vCtx->drawImage.imageExtent = drawImageExtent;
-//
-//     VkImageUsageFlags drawImageUsages{};
-//     drawImageUsages |= VK_IMAGE_USAGE_TRANSFER_SRC_BIT;
-//     drawImageUsages |= VK_IMAGE_USAGE_TRANSFER_DST_BIT;
-//     drawImageUsages |= VK_IMAGE_USAGE_STORAGE_BIT;
-//     drawImageUsages |= VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
-//
-//     VkImageCreateInfo rimg_info = vkinit::image_create_info(
-//             vCtx->drawImage.imageFormat, drawImageUsages, drawImageExtent);
-//
-//     // for the draw image, we want to allocate it from gpu local memory
-//     VmaAllocationCreateInfo rimg_allocinfo = {};
-//     rimg_allocinfo.usage = VMA_MEMORY_USAGE_GPU_ONLY;
-//     rimg_allocinfo.requiredFlags =
-//             VkMemoryPropertyFlags(VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
-//
-//     // allocate and create the image
-//     vmaCreateImage(_allocator, &rimg_info, &rimg_allocinfo, &vCtx->drawImage.image,
-//                    &vCtx->drawImage.allocation, nullptr);
-//
-//     // build an image-view for the draw image to use for rendering
-//     VkImageViewCreateInfo rview_info = vkinit::imageview_create_info(
-//             vCtx->drawImage.imageFormat, vCtx->drawImage.image,
-//             VK_IMAGE_ASPECT_COLOR_BIT);
-//
-//     VK_CHECK(vkCreateImageView(vCtx->device, &rview_info, nullptr,
-//                                &vCtx->drawImage.imageView));
-//
-//     // add to deletion queues
-//     _mainDeletionQueue.push_function([=, this]() {
-//         vkDestroyImageView(vCtx->device, vCtx->drawImage.imageView, nullptr);
-//         vmaDestroyImage(_allocator, vCtx->drawImage.image, vCtx->drawImage.allocation);
-//     });
-// }
-//
-// void VulkanEngine::destroy_swapchain() {
-//     vkDestroySwapchainKHR(vCtx->device, _swapchain, nullptr);
-//
-//     // destroy swapchain resources
-//     for (auto & _swapchainImageView : _swapchainImageViews) {
-//         vkDestroyImageView(vCtx->device, _swapchainImageView, nullptr);
-//     }
-// }
-
 void VulkanEngine::cleanup() {
     if (_isInitialized) {
         // make sure the gpu has stopped doing its things
@@ -1153,21 +1069,6 @@ void VulkanEngine::draw() {
     _frameNumber++;
 }
 
-// void VulkanEngine::resize_swapchain() {
-//     vkDeviceWaitIdle(vCtx->device);
-//
-//     destroy_swapchain();
-//
-//     int w, h;
-//     SDL_GetWindowSize(_window, &w, &h);
-//     vCtx->windowExtent.width = static_cast<uint32_t>(w);
-//     vCtx->windowExtent.height = static_cast<uint32_t>(h);
-//
-//     create_swapchain(vCtx->windowExtent.width, vCtx->windowExtent.height);
-//
-//     vCtx->resize_requested = false;
-// }
-
 void VulkanEngine::immediate_submit(
         std::function<void(VkCommandBuffer cmd)>&& function) {
     VK_CHECK(vkResetFences(vCtx->device, 1, &_immFence));
@@ -1490,8 +1391,6 @@ void VulkanEngine::setMeshTransform(int64_t id, glm::mat4 mat) {
 }
 
 void SwapchainController::create_swapchain(uint32_t width, uint32_t height) {
-    // auto vCtx = *vCtxP;
-
     vkb::SwapchainBuilder swapchainBuilder{vCtxP->chosenGPU, vCtxP->device, vCtxP->surface};
 
     _swapchainImageFormat = VK_FORMAT_B8G8R8A8_UNORM;
@@ -1531,59 +1430,39 @@ void SwapchainController::init_swapchain() {
     VkExtent3D drawImageExtent = {vCtxP->windowExtent.width, vCtxP->windowExtent.height, 1};
 
     // hardcoding the draw format to 32-bit float
-    LOGI("vCtx->drawImage.imageFormat and vCtx->drawImage.imageExtent");
     vCtxP->drawImage.imageFormat = VK_FORMAT_R16G16B16A16_SFLOAT;
     vCtxP->drawImage.imageExtent = drawImageExtent;
-    LOGI("vCtx->drawImage.imageFormat and vCtx->drawImage.imageExtent completed");
     VkImageUsageFlags drawImageUsages{};
     drawImageUsages |= VK_IMAGE_USAGE_TRANSFER_SRC_BIT;
     drawImageUsages |= VK_IMAGE_USAGE_TRANSFER_DST_BIT;
     drawImageUsages |= VK_IMAGE_USAGE_STORAGE_BIT;
     drawImageUsages |= VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
 
-    LOGI("image format");
     VkImageCreateInfo rimg_info = vkinit::image_create_info(
             vCtxP->drawImage.imageFormat, drawImageUsages, drawImageExtent);
-    LOGI("image format comleted");
     // for the draw image, we want to allocate it from gpu local memory
     VmaAllocationCreateInfo rimg_allocinfo = {};
     rimg_allocinfo.usage = VMA_MEMORY_USAGE_GPU_ONLY;
     rimg_allocinfo.requiredFlags =
             VkMemoryPropertyFlags(VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
 
-    LOGI("draw image allocation...");
     // allocate and create the image
     vmaCreateImage(*_allocatorPtr, &rimg_info, &rimg_allocinfo, &vCtxP->drawImage.image,
                    &vCtxP->drawImage.allocation, nullptr);
-    LOGI("draw image allocation comleted");
     // build an image-view for the draw image to use for rendering
-    LOGI("start draw image format");
     VkImageViewCreateInfo rview_info = vkinit::imageview_create_info(
             vCtxP->drawImage.imageFormat, vCtxP->drawImage.image,
             VK_IMAGE_ASPECT_COLOR_BIT);
-    LOGI("draw image format completed");
-    LOGI("starting image view");
     VK_CHECK(vkCreateImageView(vCtxP->device, &rview_info, nullptr,
                                &vCtxP->drawImage.imageView));
-    if (!vCtxP->drawImage.imageView) {
-        LOGI("image view null after create in swapchain init");
-    }
-    LOGI("completed image view");
     // add to deletion queues
-    LOGI("pushing to delegation queue");
     _mainDeletionQueuePtr->push_function([=, this]() {
         vkDestroyImageView(vCtxP->device, vCtxP->drawImage.imageView, nullptr);
         vmaDestroyImage(*_allocatorPtr, vCtxP->drawImage.image, vCtxP->drawImage.allocation);
     });
-    if (!vCtxP->drawImage.imageView) {
-        LOGI("image view null after pusing in queue in swapchain init");
-    }
-    LOGI("completed swapchain init");
 }
 
 void SwapchainController::destroy_swapchain() {
-    // auto vCtx = *vCtxP;
-
     vkDestroySwapchainKHR(vCtxP->device, _swapchain, nullptr);
 
     // destroy swapchain resources
@@ -1593,8 +1472,6 @@ void SwapchainController::destroy_swapchain() {
 }
 
 void SwapchainController::resize_swapchain() {
-    // auto vCtx = *vCtxP;
-
     vkDeviceWaitIdle(vCtxP->device);
 
     destroy_swapchain();
