@@ -482,30 +482,20 @@ void VulkanEngine::init(struct SDL_Window* window) {
     assert(loadedEngine == nullptr);
     loadedEngine = this;
 
-    LOGI("initing vulkan...");
     init_vulkan();
-    LOGI("creating swapchain controller ptr");
     _swapchain_controller_ptr = std::make_unique<SwapchainController>(SwapchainController {
         vCtx,
-        std::make_shared<VmaAllocator>(_allocator),
+        _allocator,
         std::make_shared<DeletionQueue>(_mainDeletionQueue),
         _window
     });
-    LOGI("initin swapchain");
     _swapchain_controller_ptr->init_swapchain();
-    LOGI("swapchain init completed...");
-    if (!vCtx->drawImage.imageView) {
-        LOGI("image view is null after exiting from init swapchain func");
-    }
     init_commands();
     init_sync_structures();
-    LOGI("start init descriptors...");
     init_descriptors();
-    LOGI("completed init descriptors...");
     init_pipelines();
     init_imgui();
     init_default_data();
-    LOGI("completed all inits");
 
     mainCamera->velocity = glm::vec3(0.f);
     mainCamera->position = glm::vec3(0, 0, 5);
@@ -1451,7 +1441,7 @@ void SwapchainController::init_swapchain() {
             VkMemoryPropertyFlags(VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
 
     // allocate and create the image
-    vmaCreateImage(*_allocatorPtr, &rimg_info, &rimg_allocinfo, &vCtxP->drawImage.image,
+    vmaCreateImage(_allocator, &rimg_info, &rimg_allocinfo, &vCtxP->drawImage.image,
                    &vCtxP->drawImage.allocation, nullptr);
     // build an image-view for the draw image to use for rendering
     VkImageViewCreateInfo rview_info = vkinit::imageview_create_info(
@@ -1462,7 +1452,7 @@ void SwapchainController::init_swapchain() {
     // add to deletion queues
     _mainDeletionQueuePtr->push_function([=, this]() {
         vkDestroyImageView(vCtxP->device, vCtxP->drawImage.imageView, nullptr);
-        vmaDestroyImage(*_allocatorPtr, vCtxP->drawImage.image, vCtxP->drawImage.allocation);
+        vmaDestroyImage(_allocator, vCtxP->drawImage.image, vCtxP->drawImage.allocation);
     });
 }
 
