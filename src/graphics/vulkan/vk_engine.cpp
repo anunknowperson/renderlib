@@ -484,7 +484,6 @@ void VulkanEngine::init(struct SDL_Window* window) {
         std::make_shared<DeletionQueue>(_mainDeletionQueue),
         _window
     });
-    _swapchainControllerP->init_swapchain();
     init_commands();
     init_sync_structures();
     init_descriptors();
@@ -1423,9 +1422,17 @@ void SwapchainController::create_swapchain(uint32_t width, uint32_t height) {
     _swapchainImageViews = vkbSwapchain.get_image_views().value();
 }
 
-void SwapchainController::init_swapchain() {
-    // auto vCtx = *vCtxP;
-
+SwapchainController::SwapchainController(std::shared_ptr<VulkanContext> ctx,
+                    VmaAllocator allocator,
+                    std::shared_ptr<DeletionQueue> mainDeletionQueue,
+                    SDL_Window* window)
+    : vCtxP(std::move(ctx)),
+      _allocator(allocator),
+      _mainDeletionQueuePtr(std::move(mainDeletionQueue)),
+      _swapchainImageFormat(),
+      _swapchainExtent(),
+      _swapchain(nullptr),
+      _window(window) {
     create_swapchain(vCtxP->windowExtent.width, vCtxP->windowExtent.height);
 
     // draw image size will match the window

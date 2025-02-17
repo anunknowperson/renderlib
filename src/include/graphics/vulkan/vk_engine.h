@@ -1,5 +1,7 @@
 ﻿#pragma once
 
+#include <random>
+#include <utility>
 #include <cstddef>
 #include <cstdint>
 #include <deque>
@@ -16,7 +18,10 @@
 #include <vulkan/vk_platform.h>
 #include <vulkan/vulkan_core.h>
 
+#include "core/Mesh.h"
+#include "scene/Camera.h"
 #include "vk_descriptors.h"
+#include "vk_loader.h"
 #include "vk_types.h"
 #include "vk_command_buffers.h" 
 
@@ -137,22 +142,13 @@ public:
     SwapchainController(std::shared_ptr<VulkanContext> ctx,
                         VmaAllocator allocator,
                         std::shared_ptr<DeletionQueue> mainDeletionQueue,
-                        SDL_Window* window)
-        : vCtxP(ctx),
-          _allocator(allocator),
-          _mainDeletionQueuePtr(std::move(mainDeletionQueue)),
-          _swapchainImageFormat(),
-          _swapchainExtent(),
-          _swapchain(nullptr),
-          _window(window) {
-    }
+                        SDL_Window* window);
 
     void create_swapchain(uint32_t width, uint32_t height);
-    void init_swapchain();
     void destroy_swapchain();
     void resize_swapchain();
 
-    const VkFormat* get_swapchain_image_format() const {
+    [[nodiscard]] const VkFormat* get_swapchain_image_format() const {
         return &_swapchainImageFormat;
     }
 
@@ -185,13 +181,17 @@ public:
     }
 private:
     std::shared_ptr<VulkanContext> vCtxP;
+
     VmaAllocator _allocator;
+
     std::shared_ptr<DeletionQueue> _mainDeletionQueuePtr;
+
     VkFormat _swapchainImageFormat;
     VkExtent2D _swapchainExtent;
     VkSwapchainKHR _swapchain;
     std::vector<VkImage> _swapchainImages;
     std::vector<VkImageView> _swapchainImageViews;
+
     SDL_Window* _window{nullptr};
 
 };
@@ -253,7 +253,6 @@ public:
 
     VmaAllocator _allocator;
 
-    // AllocatedImage _drawImage;
     AllocatedImage _depthImage;
     VkExtent2D _drawExtent;
     float renderScale = 1.f;
