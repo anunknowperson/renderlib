@@ -470,7 +470,7 @@ void VulkanEngine::init_pipelines() {
     metalRoughMaterial.build_pipelines(this);
 }
 
-void VulkanEngine::init(struct SDL_Window* window) {
+void VulkanEngine::init(SDL_Window* window) {
     vCtx = std::make_shared<VulkanContext>();
     _window = window;
 
@@ -478,7 +478,7 @@ void VulkanEngine::init(struct SDL_Window* window) {
     assert(loadedEngine == nullptr);
     loadedEngine = this;
     init_vulkan();
-    _swapchainСontrollerP = std::make_unique<SwapchainController>(vCtx, _allocator, _window);
+    _swapchainСontrollerP = vk_swapchain::make_swapchain_controller(vCtx, _allocator, _window);
     init_commands();
     init_sync_structures();
     init_descriptors();

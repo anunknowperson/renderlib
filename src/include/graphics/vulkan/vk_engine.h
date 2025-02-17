@@ -245,7 +245,8 @@ public:
                                   VmaMemoryUsage memoryUsage) const;
 
 private:
-    std::unique_ptr<ISwapchainController> _swapchainСontrollerP;
+    // std::unique_ptr<ISwapchainController> _swapchainСontrollerP;
+    ISwapchainController::SwapchainPtr _swapchainСontrollerP;
 
     static VKAPI_ATTR VkBool32 VKAPI_CALL
     debugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
