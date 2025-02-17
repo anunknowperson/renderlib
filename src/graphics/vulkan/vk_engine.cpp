@@ -344,7 +344,7 @@ void VulkanEngine::init_imgui() {
             .sType = VK_STRUCTURE_TYPE_PIPELINE_RENDERING_CREATE_INFO};
     init_info.PipelineRenderingCreateInfo.colorAttachmentCount = 1;
     init_info.PipelineRenderingCreateInfo.pColorAttachmentFormats =
-            _swapchainControllerP->get_swapchain_image_format();
+            _swapchainСontrollerP->get_swapchain_image_format();
 
     init_info.MSAASamples = VK_SAMPLE_COUNT_1_BIT;
 
@@ -478,12 +478,7 @@ void VulkanEngine::init(struct SDL_Window* window) {
     assert(loadedEngine == nullptr);
     loadedEngine = this;
     init_vulkan();
-    _swapchainControllerP = std::make_unique<SwapchainController>(SwapchainController {
-        vCtx,
-        _allocator,
-        // std::make_shared<DeletionQueue>(_mainDeletionQueue),
-        _window
-    });
+    _swapchainСontrollerP = std::make_unique<SwapchainController>(vCtx, _allocator, _window);
     init_commands();
     init_sync_structures();
     init_descriptors();
@@ -699,7 +694,7 @@ void VulkanEngine::cleanup() {
                                nullptr);
         }
 
-        _swapchainControllerP->destroy_swapchain();
+        _swapchainСontrollerP->destroy_swapchain();
 
         vkDestroySurfaceKHR(_instance, vCtx->surface, nullptr);
         vkDestroyDevice(vCtx->device, nullptr);
@@ -827,7 +822,7 @@ void VulkanEngine::draw_imgui(VkCommandBuffer cmd,
     VkRenderingAttachmentInfo colorAttachment = vkinit::attachment_info(
             targetImageView, nullptr, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
     VkRenderingInfo renderInfo =
-            vkinit::rendering_info(_swapchainControllerP->get_swapchain_extent(), &colorAttachment, nullptr);
+            vkinit::rendering_info(_swapchainСontrollerP->get_swapchain_extent(), &colorAttachment, nullptr);
 
     vkCmdBeginRendering(cmd, &renderInfo);
 
@@ -944,7 +939,7 @@ void VulkanEngine::draw() {
 
     // request image from the swapchain
     uint32_t swapchainImageIndex;
-    VkResult e = vkAcquireNextImageKHR(vCtx->device, _swapchainControllerP->get_swapchain(), 1000000000,
+    VkResult e = vkAcquireNextImageKHR(vCtx->device, _swapchainСontrollerP->get_swapchain(), 1000000000,
                                        get_current_frame()._swapchainSemaphore,
                                        nullptr, &swapchainImageIndex);
     if (e == VK_ERROR_OUT_OF_DATE_KHR) {
@@ -966,11 +961,11 @@ void VulkanEngine::draw() {
                     VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT);
 
     _drawExtent.height = static_cast<uint32_t>(
-            (float)std::min(_swapchainControllerP->get_swapchain_extent().height,
+            (float)std::min(_swapchainСontrollerP->get_swapchain_extent().height,
                             vCtx->drawImage.imageExtent.height) *
             renderScale);
     _drawExtent.width = static_cast<uint32_t>(
-            (float)std::min(_swapchainControllerP->get_swapchain_extent().width,
+            (float)std::min(_swapchainСontrollerP->get_swapchain_extent().width,
                             vCtx->drawImage.imageExtent.width) *
             renderScale);
 
@@ -994,22 +989,22 @@ void VulkanEngine::draw() {
     vkutil::transition_image(cmd, vCtx->drawImage.image,
                              VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
                              VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL);
-    vkutil::transition_image(cmd, _swapchainControllerP->get_swapchain_image_by_index(swapchainImageIndex),
+    vkutil::transition_image(cmd, _swapchainСontrollerP->get_swapchain_image_by_index(swapchainImageIndex),
                              VK_IMAGE_LAYOUT_UNDEFINED,
                              VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
 
     // execute a copy from the draw image into the swapchain
     vkutil::copy_image_to_image(cmd, vCtx->drawImage.image,
-                                _swapchainControllerP->get_swapchain_image_by_index(swapchainImageIndex),
-                                _drawExtent, _swapchainControllerP->get_swapchain_extent());
+                                _swapchainСontrollerP->get_swapchain_image_by_index(swapchainImageIndex),
+                                _drawExtent, _swapchainСontrollerP->get_swapchain_extent());
 
     // set swapchain image layout to Present, so we can show it on the screen
-    vkutil::transition_image(cmd, _swapchainControllerP->get_swapchain_image_by_index(swapchainImageIndex),
+    vkutil::transition_image(cmd, _swapchainСontrollerP->get_swapchain_image_by_index(swapchainImageIndex),
                              VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
                              VK_IMAGE_LAYOUT_PRESENT_SRC_KHR);
 
     // draw imgui into the swapchain image
-    draw_imgui(cmd, _swapchainControllerP->get_swapchain_image_view_by_index(swapchainImageIndex));
+    draw_imgui(cmd, _swapchainСontrollerP->get_swapchain_image_view_by_index(swapchainImageIndex));
 
     // set swapchain image layout to Present, so we can draw it
     // vkutil::transition_image(cmd, _swapchainImages[swapchainImageIndex],
@@ -1051,7 +1046,7 @@ void VulkanEngine::draw() {
     VkPresentInfoKHR presentInfo = {};
     presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
     presentInfo.pNext = nullptr;
-    presentInfo.pSwapchains = _swapchainControllerP->get_swapchain_ptr();
+    presentInfo.pSwapchains = _swapchainСontrollerP->get_swapchain_ptr();
     presentInfo.swapchainCount = 1;
 
     presentInfo.pWaitSemaphores = &get_current_frame()._renderSemaphore;
@@ -1099,7 +1094,7 @@ void VulkanEngine::immediate_submit(
 
 void VulkanEngine::update() {
     if (vCtx->resize_requested) {
-        _swapchainControllerP->resize_swapchain();
+        _swapchainСontrollerP->resize_swapchain();
     }
 
     draw();
