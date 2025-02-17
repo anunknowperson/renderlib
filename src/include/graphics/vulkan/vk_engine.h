@@ -246,7 +246,7 @@ public:
 
 private:
     // std::unique_ptr<ISwapchainController> _swapchainСontrollerP;
-    ISwapchainController::SwapchainPtr _swapchainСontrollerP;
+    ISwapchainController::Ptr _swapchainСontrollerP;
 
     static VKAPI_ATTR VkBool32 VKAPI_CALL
     debugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
