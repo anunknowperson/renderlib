@@ -1,20 +1,19 @@
 #pragma once
 
+#include "SDL2/SDL_vulkan.h"
 #include "interfaces/ISwapchain.h"
 #include "vk_types.h"
-#include "SDL2/SDL_vulkan.h"
 
 class SwapchainController : public ISwapchainController {
 public:
     SwapchainController(std::shared_ptr<VulkanContext> ctx,
-                        VmaAllocator allocator,
-                        SDL_Window* window);
+                        VmaAllocator allocator, SDL_Window* window);
 
     void create_swapchain(uint32_t width, uint32_t height) override;
     void destroy_swapchain() override;
     void resize_swapchain() override;
 
-    [[nodiscard]] const VkFormat* get_swapchain_image_format() const  override {
+    [[nodiscard]] const VkFormat* get_swapchain_image_format() const override {
         return &_swapchainImageFormat;
     }
 
@@ -44,9 +43,10 @@ public:
         return _swapchainImageViews[i];
     }
 
-    std::vector<VkImageView> get_swapchain_image_views() const  override {
+    std::vector<VkImageView> get_swapchain_image_views() const override {
         return _swapchainImageViews;
     }
+
 private:
     std::shared_ptr<VulkanContext> vCtxP;
 
@@ -63,6 +63,8 @@ private:
 
 namespace vk_swapchain {
 
-SwapchainController::Ptr make_swapchain_controller(std::shared_ptr<VulkanContext> vCtx, VmaAllocator allocator, SDL_Window* window);
+SwapchainController::Ptr make_swapchain_controller(
+        std::shared_ptr<VulkanContext> vCtx, VmaAllocator allocator,
+        SDL_Window* window);
 
-} // namespace vk_swapchain
+}  // namespace vk_swapchain

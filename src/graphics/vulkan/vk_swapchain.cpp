@@ -1,19 +1,24 @@
 #include "graphics/vulkan/vk_swapchain.h"
 
 #include <VkBootstrap.h>
+
 #include "graphics/vulkan/vk_initializers.h"
 #include "interfaces/ISwapchain.h"
 
 namespace vk_swapchain {
 
-ISwapchainController::Ptr make_swapchain_controller(std::shared_ptr<VulkanContext> vCtx, VmaAllocator allocator, SDL_Window* window) {
-    return std::make_unique<SwapchainController>(std::move(vCtx), allocator, window);
+ISwapchainController::Ptr make_swapchain_controller(
+        std::shared_ptr<VulkanContext> vCtx, VmaAllocator allocator,
+        SDL_Window* window) {
+    return std::make_unique<SwapchainController>(std::move(vCtx), allocator,
+                                                 window);
 }
 
-} // namespace vk_swapchain
+}  // namespace vk_swapchain
 
 void SwapchainController::create_swapchain(uint32_t width, uint32_t height) {
-    vkb::SwapchainBuilder swapchainBuilder{vCtxP->chosenGPU, vCtxP->device, vCtxP->surface};
+    vkb::SwapchainBuilder swapchainBuilder{vCtxP->chosenGPU, vCtxP->device,
+                                           vCtxP->surface};
 
     _swapchainImageFormat = VK_FORMAT_B8G8R8A8_UNORM;
 
@@ -44,18 +49,20 @@ void SwapchainController::create_swapchain(uint32_t width, uint32_t height) {
 }
 
 SwapchainController::SwapchainController(std::shared_ptr<VulkanContext> ctx,
-                    VmaAllocator allocator,
-                    SDL_Window* window)
+                                         VmaAllocator allocator,
+                                         SDL_Window* window)
     : vCtxP(std::move(ctx)),
       _allocator(allocator),
       _swapchainImageFormat(),
       _swapchainExtent(),
       _swapchain(nullptr),
       _window(window) {
-    SwapchainController::create_swapchain(vCtxP->windowExtent.width, vCtxP->windowExtent.height);
+    SwapchainController::create_swapchain(vCtxP->windowExtent.width,
+                                          vCtxP->windowExtent.height);
 
     // draw image size will match the window
-    VkExtent3D drawImageExtent = {vCtxP->windowExtent.width, vCtxP->windowExtent.height, 1};
+    VkExtent3D drawImageExtent = {vCtxP->windowExtent.width,
+                                  vCtxP->windowExtent.height, 1};
 
     // hardcoding the draw format to 32-bit float
     vCtxP->drawImage.imageFormat = VK_FORMAT_R16G16B16A16_SFLOAT;
@@ -75,8 +82,9 @@ SwapchainController::SwapchainController(std::shared_ptr<VulkanContext> ctx,
             VkMemoryPropertyFlags(VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
 
     // allocate and create the image
-    vmaCreateImage(_allocator, &rimg_info, &rimg_allocinfo, &vCtxP->drawImage.image,
-                   &vCtxP->drawImage.allocation, nullptr);
+    vmaCreateImage(_allocator, &rimg_info, &rimg_allocinfo,
+                   &vCtxP->drawImage.image, &vCtxP->drawImage.allocation,
+                   nullptr);
     // build an image-view for the draw image to use for rendering
     VkImageViewCreateInfo rview_info = vkinit::imageview_create_info(
             vCtxP->drawImage.imageFormat, vCtxP->drawImage.image,
@@ -86,7 +94,8 @@ SwapchainController::SwapchainController(std::shared_ptr<VulkanContext> ctx,
     // add to deletion queues
     vCtxP->mainDeletionQueue.push_function([=, this]() {
         vkDestroyImageView(vCtxP->device, vCtxP->drawImage.imageView, nullptr);
-        vmaDestroyImage(_allocator, vCtxP->drawImage.image, vCtxP->drawImage.allocation);
+        vmaDestroyImage(_allocator, vCtxP->drawImage.image,
+                        vCtxP->drawImage.allocation);
     });
 }
 
@@ -94,7 +103,7 @@ void SwapchainController::destroy_swapchain() {
     vkDestroySwapchainKHR(vCtxP->device, _swapchain, nullptr);
 
     // destroy swapchain resources
-    for (auto & _swapchainImageView : _swapchainImageViews) {
+    for (auto& _swapchainImageView : _swapchainImageViews) {
         vkDestroyImageView(vCtxP->device, _swapchainImageView, nullptr);
     }
 }

@@ -8,8 +8,8 @@
 #include "vk_descriptors.h"
 #include "vk_loader.h"
 #include "vk_pipelines.h"
-#include "vk_types.h"
 #include "vk_swapchain.h"
+#include "vk_types.h"
 
 constexpr unsigned int FRAME_OVERLAP = 2;
 
@@ -45,7 +45,6 @@ struct GLTFMetallic_Roughness {
             const MaterialResources& resources,
             DescriptorAllocatorGrowable& descriptorAllocator);
 };
-
 
 struct FrameData {
     VkCommandPool _commandPool;
@@ -89,11 +88,6 @@ struct RenderObject {
 struct DrawContext {
     std::vector<RenderObject> OpaqueSurfaces;
 };
-
-
-
-
-
 
 class VulkanEngine {
 public:

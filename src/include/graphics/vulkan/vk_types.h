@@ -50,9 +50,9 @@ struct AllocatedImage {
 
 struct VulkanContext {
     VkExtent2D windowExtent{2560, 1440};
-    VkSurfaceKHR surface; // Vulkan window surface
-    VkPhysicalDevice chosenGPU; // GPU chosen as the default device
-    VkDevice device; // Vulkan device for commands
+    VkSurfaceKHR surface;        // Vulkan window surface
+    VkPhysicalDevice chosenGPU;  // GPU chosen as the default device
+    VkDevice device;             // Vulkan device for commands
 
     AllocatedImage drawImage;
 
@@ -60,7 +60,6 @@ struct VulkanContext {
 
     bool resize_requested;
 };
-
 
 struct AllocatedBuffer {
     VkBuffer buffer;

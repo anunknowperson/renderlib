@@ -241,7 +241,9 @@ std::optional<std::shared_ptr<LoadedGLTF>> loadGltf(VulkanEngine* engine,
             {VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 3},
             {VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 1}};
 
-    file.descriptorPool.init(engine->vCtx->device, static_cast<uint32_t>(gltf.materials.size()), sizes);
+    file.descriptorPool.init(engine->vCtx->device,
+                             static_cast<uint32_t>(gltf.materials.size()),
+                             sizes);
 
     // load samplers
     for (fastgltf::Sampler& sampler : gltf.samplers) {
