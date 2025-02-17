@@ -133,6 +133,8 @@ struct VulkanContext {
 
     AllocatedImage drawImage;
 
+    DeletionQueue mainDeletionQueue;
+
     bool resize_requested;
 };
 
@@ -140,7 +142,7 @@ class SwapchainController {
 public:
     SwapchainController(std::shared_ptr<VulkanContext> ctx,
                         VmaAllocator allocator,
-                        std::shared_ptr<DeletionQueue> mainDeletionQueue,
+                        // std::shared_ptr<DeletionQueue> mainDeletionQueue,
                         SDL_Window* window);
 
     void create_swapchain(uint32_t width, uint32_t height);
@@ -183,7 +185,7 @@ private:
 
     VmaAllocator _allocator;
 
-    std::shared_ptr<DeletionQueue> _mainDeletionQueuePtr;
+    // std::shared_ptr<DeletionQueue> _mainDeletionQueuePtr;
 
     VkFormat _swapchainImageFormat;
     VkExtent2D _swapchainExtent;
@@ -229,7 +231,7 @@ public:
     unsigned int _frameNumber{0};
     bool stop_rendering{false};
 
-    struct SDL_Window* _window{nullptr};
+    SDL_Window* _window{nullptr};
 
     static VulkanEngine& Get();
 
@@ -248,7 +250,7 @@ public:
     VkInstance _instance;                       // Vulkan library handle
     VkDebugUtilsMessengerEXT _debug_messenger;  // Vulkan debug output handle
 
-    DeletionQueue _mainDeletionQueue;
+    // DeletionQueue _mainDeletionQueue;
 
     VmaAllocator _allocator;
 
