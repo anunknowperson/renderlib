@@ -138,54 +138,68 @@ struct VulkanContext {
     bool resize_requested;
 };
 
-class SwapchainController {
+class ISwapchainController {
+public:
+    virtual ~ISwapchainController() = default;
+    virtual void create_swapchain(uint32_t width, uint32_t height) = 0;
+    virtual void destroy_swapchain() = 0;
+    virtual void resize_swapchain() = 0;
+
+    virtual const VkFormat* get_swapchain_image_format() const = 0;
+    virtual VkExtent2D get_swapchain_extent() const = 0;
+    virtual VkSwapchainKHR get_swapchain() const = 0;
+    virtual const VkSwapchainKHR* get_swapchain_ptr() const = 0;
+    virtual std::vector<VkImage> get_swapchain_images() const = 0;
+    virtual VkImage get_swapchain_image_by_index(const uint32_t i) const = 0;
+    virtual VkImageView get_swapchain_image_view_by_index(const uint32_t i) const = 0;
+    virtual std::vector<VkImageView> get_swapchain_image_views() const = 0;
+};
+
+class SwapchainController : public ISwapchainController {
 public:
     SwapchainController(std::shared_ptr<VulkanContext> ctx,
                         VmaAllocator allocator,
-                        // std::shared_ptr<DeletionQueue> mainDeletionQueue,
                         SDL_Window* window);
 
-    void create_swapchain(uint32_t width, uint32_t height);
-    void destroy_swapchain();
-    void resize_swapchain();
+    void create_swapchain(uint32_t width, uint32_t height) override;
+    void destroy_swapchain() override;
+    void resize_swapchain() override;
 
-    [[nodiscard]] const VkFormat* get_swapchain_image_format() const {
+    [[nodiscard]] const VkFormat* get_swapchain_image_format() const  override {
         return &_swapchainImageFormat;
     }
 
-    [[nodiscard]] VkExtent2D get_swapchain_extent() const {
+    [[nodiscard]] VkExtent2D get_swapchain_extent() const override {
         return _swapchainExtent;
     }
 
-    [[nodiscard]] VkSwapchainKHR get_swapchain() const {
+    [[nodiscard]] VkSwapchainKHR get_swapchain() const override {
         return _swapchain;
     }
 
-    [[nodiscard]] const VkSwapchainKHR* get_swapchain_ptr() const {
+    [[nodiscard]] const VkSwapchainKHR* get_swapchain_ptr() const override {
         return &_swapchain;
     }
 
-    [[nodiscard]] std::vector<VkImage> get_swapchain_images() const {
+    [[nodiscard]] std::vector<VkImage> get_swapchain_images() const override {
         return _swapchainImages;
     }
 
-    [[nodiscard]] VkImage get_swapchain_image_by_index(const uint32_t i) const {
+    [[nodiscard]] VkImage get_swapchain_image_by_index(const uint32_t i) const override {
         return _swapchainImages[i];
     }
 
-    [[nodiscard]] VkImageView get_swapchain_image_view_by_index(const uint32_t i) const {
+    [[nodiscard]] VkImageView get_swapchain_image_view_by_index(const uint32_t i) const override {
         return _swapchainImageViews[i];
     }
 
-    std::vector<VkImageView> get_swapchain_image_views() {
+    std::vector<VkImageView> get_swapchain_image_views() const  override {
         return _swapchainImageViews;
     }
 private:
     std::shared_ptr<VulkanContext> vCtxP;
 
     VmaAllocator _allocator;
-
-    // std::shared_ptr<DeletionQueue> _mainDeletionQueuePtr;
 
     VkFormat _swapchainImageFormat;
     VkExtent2D _swapchainExtent;
@@ -250,8 +264,6 @@ public:
     VkInstance _instance;                       // Vulkan library handle
     VkDebugUtilsMessengerEXT _debug_messenger;  // Vulkan debug output handle
 
-    // DeletionQueue _mainDeletionQueue;
-
     VmaAllocator _allocator;
 
     AllocatedImage _depthImage;
@@ -314,8 +326,9 @@ public:
     AllocatedBuffer create_buffer(size_t allocSize, VkBufferUsageFlags usage,
                                   VmaMemoryUsage memoryUsage) const;
 
-    std::unique_ptr<SwapchainController> _swapchainControllerP;
 private:
+    std::unique_ptr<ISwapchainController> _swapchainСontrollerP;
+
     static VKAPI_ATTR VkBool32 VKAPI_CALL
     debugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
                   VkDebugUtilsMessageTypeFlagsEXT messageType,
