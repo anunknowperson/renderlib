@@ -153,7 +153,7 @@ void VulkanEngine::init_default_data() {
     sceneUniformData->colorFactors = glm::vec4{1, 1, 1, 1};
     sceneUniformData->metal_rough_factors = glm::vec4{1, 0.5, 0, 0};
 
-    _mainDeletionQueue.push_function(
+    vCtx->mainDeletionQueue.push_function(
             [=, this]() { destroy_buffer(materialConstants); });
 
     materialResources.dataBuffer = materialConstants.buffer;
@@ -226,7 +226,7 @@ void VulkanEngine::init_mesh_pipeline() {
     vkDestroyShaderModule(vCtx->device, triangleFragShader, nullptr);
     vkDestroyShaderModule(vCtx->device, triangleVertexShader, nullptr);
 
-    _mainDeletionQueue.push_function([&]() {
+    vCtx->mainDeletionQueue.push_function([&]() {
         vkDestroyPipelineLayout(vCtx->device, _meshPipelineLayout, nullptr);
         vkDestroyPipeline(vCtx->device, _meshPipeline, nullptr);
     });
@@ -287,7 +287,7 @@ void VulkanEngine::init_triangle_pipeline() {
     vkDestroyShaderModule(vCtx->device, triangleFragShader, nullptr);
     vkDestroyShaderModule(vCtx->device, triangleVertexShader, nullptr);
 
-    _mainDeletionQueue.push_function([&]() {
+    vCtx->mainDeletionQueue.push_function([&]() {
         vkDestroyPipelineLayout(vCtx->device, _trianglePipelineLayout, nullptr);
         vkDestroyPipeline(vCtx->device, _trianglePipeline, nullptr);
     });
@@ -353,7 +353,7 @@ void VulkanEngine::init_imgui() {
     ImGui_ImplVulkan_CreateFontsTexture();
 
     // add destroy the imgui created structures
-    _mainDeletionQueue.push_function([=, this]() {
+    vCtx->mainDeletionQueue.push_function([=, this]() {
         ImGui_ImplVulkan_Shutdown();
         vkDestroyDescriptorPool(vCtx->device, imguiPool, nullptr);
     });
@@ -417,7 +417,7 @@ void VulkanEngine::init_descriptors() {
         _frame._frameDescriptors = DescriptorAllocatorGrowable{};
         _frame._frameDescriptors.init(vCtx->device, 1000, frame_sizes);
 
-        _mainDeletionQueue.push_function([&]() {
+        vCtx->mainDeletionQueue.push_function([&]() {
             _frame._frameDescriptors.destroy_pools(vCtx->device);
         });
     }
@@ -459,7 +459,7 @@ void VulkanEngine::init_background_pipelines() {
 
     vkDestroyShaderModule(vCtx->device, computeDrawShader, nullptr);
 
-    _mainDeletionQueue.push_function([&]() {
+    vCtx->mainDeletionQueue.push_function([&]() {
         vkDestroyPipelineLayout(vCtx->device, _gradientPipelineLayout, nullptr);
         vkDestroyPipeline(vCtx->device, _gradientPipeline, nullptr);
     });
@@ -486,7 +486,7 @@ void VulkanEngine::init(struct SDL_Window* window) {
     _swapchainControllerP = std::make_unique<SwapchainController>(SwapchainController {
         vCtx,
         _allocator,
-        std::make_shared<DeletionQueue>(_mainDeletionQueue),
+        // std::make_shared<DeletionQueue>(_mainDeletionQueue),
         _window
     });
     init_commands();
@@ -623,7 +623,7 @@ void VulkanEngine::init_vulkan() {
     allocatorInfo.flags = VMA_ALLOCATOR_CREATE_BUFFER_DEVICE_ADDRESS_BIT;
     vmaCreateAllocator(&allocatorInfo, &_allocator);
 
-    _mainDeletionQueue.push_function(
+    vCtx->mainDeletionQueue.push_function(
             [&]() { vmaDestroyAllocator(_allocator); });
 }
 
@@ -658,7 +658,7 @@ void VulkanEngine::init_commands() {
     VK_CHECK(vkAllocateCommandBuffers(vCtx->device, &cmdAllocInfo,
                                       &_immCommandBuffer));
 
-    _mainDeletionQueue.push_function([=, this]() {
+    vCtx->mainDeletionQueue.push_function([=, this]() {
         vkDestroyCommandPool(vCtx->device, _immCommandPool, nullptr);
     });
 }
@@ -679,7 +679,7 @@ void VulkanEngine::init_sync_structures() {
     }
 
     VK_CHECK(vkCreateFence(vCtx->device, &fenceCreateInfo, nullptr, &_immFence));
-    _mainDeletionQueue.push_function(
+    vCtx->mainDeletionQueue.push_function(
             [=, this]() { vkDestroyFence(vCtx->device, _immFence, nullptr); });
 }
 
@@ -690,7 +690,7 @@ void VulkanEngine::cleanup() {
 
         loadedScenes.clear();
 
-        _mainDeletionQueue.flush();
+        vCtx->mainDeletionQueue.flush();
 
         for (auto & _frame : _frames) {
             // already written from before
@@ -1416,11 +1416,11 @@ void SwapchainController::create_swapchain(uint32_t width, uint32_t height) {
 
 SwapchainController::SwapchainController(std::shared_ptr<VulkanContext> ctx,
                     VmaAllocator allocator,
-                    std::shared_ptr<DeletionQueue> mainDeletionQueue,
+                    // std::shared_ptr<DeletionQueue> mainDeletionQueue,
                     SDL_Window* window)
     : vCtxP(std::move(ctx)),
       _allocator(allocator),
-      _mainDeletionQueuePtr(std::move(mainDeletionQueue)),
+      // _mainDeletionQueuePtr(std::move(mainDeletionQueue)),
       _swapchainImageFormat(),
       _swapchainExtent(),
       _swapchain(nullptr),
@@ -1457,7 +1457,7 @@ SwapchainController::SwapchainController(std::shared_ptr<VulkanContext> ctx,
     VK_CHECK(vkCreateImageView(vCtxP->device, &rview_info, nullptr,
                                &vCtxP->drawImage.imageView));
     // add to deletion queues
-    _mainDeletionQueuePtr->push_function([=, this]() {
+    vCtxP->mainDeletionQueue.push_function([=, this]() {
         vkDestroyImageView(vCtxP->device, vCtxP->drawImage.imageView, nullptr);
         vmaDestroyImage(_allocator, vCtxP->drawImage.image, vCtxP->drawImage.allocation);
     });
