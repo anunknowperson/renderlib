@@ -481,7 +481,7 @@ void VulkanEngine::init(struct SDL_Window* window) {
     init_vulkan();
     _swapchain_controller_ptr = std::make_unique<SwapchainController>(SwapchainController {
         vCtx,
-        std::make_shared<VmaAllocator>(_allocator),
+        _allocator,
         std::make_shared<DeletionQueue>(_mainDeletionQueue),
         _window
     });
@@ -1447,7 +1447,7 @@ void SwapchainController::init_swapchain() {
             VkMemoryPropertyFlags(VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
 
     // allocate and create the image
-    vmaCreateImage(*_allocatorPtr, &rimg_info, &rimg_allocinfo, &vCtxP->drawImage.image,
+    vmaCreateImage(_allocator, &rimg_info, &rimg_allocinfo, &vCtxP->drawImage.image,
                    &vCtxP->drawImage.allocation, nullptr);
     // build an image-view for the draw image to use for rendering
     VkImageViewCreateInfo rview_info = vkinit::imageview_create_info(
@@ -1458,7 +1458,7 @@ void SwapchainController::init_swapchain() {
     // add to deletion queues
     _mainDeletionQueuePtr->push_function([=, this]() {
         vkDestroyImageView(vCtxP->device, vCtxP->drawImage.imageView, nullptr);
-        vmaDestroyImage(*_allocatorPtr, vCtxP->drawImage.image, vCtxP->drawImage.allocation);
+        vmaDestroyImage(_allocator, vCtxP->drawImage.image, vCtxP->drawImage.allocation);
     });
 }
 

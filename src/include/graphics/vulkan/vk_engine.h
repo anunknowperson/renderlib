@@ -134,11 +134,11 @@ struct VulkanContext {
 class SwapchainController {
 public:
     SwapchainController(std::shared_ptr<VulkanContext> ctx,
-                        std::shared_ptr<VmaAllocator> allocatorPtr,
+                        VmaAllocator allocator,
                         std::shared_ptr<DeletionQueue> mainDeletionQueue,
                         SDL_Window* window)
         : vCtxP(ctx),
-          _allocatorPtr(allocatorPtr),
+          _allocator(allocator),
           _mainDeletionQueuePtr(mainDeletionQueue),
           _swapchainImageFormat(),
           _swapchainExtent(),
@@ -184,7 +184,8 @@ public:
     }
 private:
     std::shared_ptr<VulkanContext> vCtxP;
-    std::shared_ptr<VmaAllocator> _allocatorPtr;
+    // std::shared_ptr<VmaAllocator> _allocatorPtr;
+    VmaAllocator _allocator;
     std::shared_ptr<DeletionQueue> _mainDeletionQueuePtr;
     VkFormat _swapchainImageFormat;
     VkExtent2D _swapchainExtent;
@@ -211,7 +212,6 @@ public:
     Camera* mainCamera;
 
     DrawContext mainDrawContext;
-    // VulkanContext vCtx;
     std::shared_ptr<VulkanContext> vCtx;
     std::unordered_map<std::string, std::shared_ptr<ENode>> loadedNodes;
 
