@@ -63,6 +63,6 @@ private:
 
 namespace vk_swapchain {
 
-SwapchainController::SwapchainPtr make_swapchain_controller(std::shared_ptr<VulkanContext> vCtx, VmaAllocator allocator, SDL_Window* window);
+SwapchainController::Ptr make_swapchain_controller(std::shared_ptr<VulkanContext> vCtx, VmaAllocator allocator, SDL_Window* window);
 
 } // namespace vk_swapchain

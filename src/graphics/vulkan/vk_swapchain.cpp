@@ -6,7 +6,7 @@
 
 namespace vk_swapchain {
 
-ISwapchainController::SwapchainPtr make_swapchain_controller(std::shared_ptr<VulkanContext> vCtx, VmaAllocator allocator, SDL_Window* window) {
+ISwapchainController::Ptr make_swapchain_controller(std::shared_ptr<VulkanContext> vCtx, VmaAllocator allocator, SDL_Window* window) {
     return std::make_unique<SwapchainController>(std::move(vCtx), allocator, window);
 }
 
