@@ -17,4 +17,6 @@ public:
     virtual VkImage get_swapchain_image_by_index(const uint32_t i) const = 0;
     virtual VkImageView get_swapchain_image_view_by_index(const uint32_t i) const = 0;
     virtual std::vector<VkImageView> get_swapchain_image_views() const = 0;
+
+    using SwapchainPtr = std::unique_ptr<ISwapchainController>;
 };

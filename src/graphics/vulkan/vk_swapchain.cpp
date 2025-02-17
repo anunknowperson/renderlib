@@ -2,6 +2,15 @@
 
 #include <VkBootstrap.h>
 #include "graphics/vulkan/vk_initializers.h"
+#include "interfaces/ISwapchain.h"
+
+namespace vk_swapchain {
+
+ISwapchainController::SwapchainPtr make_swapchain_controller(std::shared_ptr<VulkanContext> vCtx, VmaAllocator allocator, SDL_Window* window) {
+    return std::make_unique<SwapchainController>(std::move(vCtx), allocator, window);
+}
+
+} // namespace vk_swapchain
 
 void SwapchainController::create_swapchain(uint32_t width, uint32_t height) {
     vkb::SwapchainBuilder swapchainBuilder{vCtxP->chosenGPU, vCtxP->device, vCtxP->surface};
@@ -36,16 +45,14 @@ void SwapchainController::create_swapchain(uint32_t width, uint32_t height) {
 
 SwapchainController::SwapchainController(std::shared_ptr<VulkanContext> ctx,
                     VmaAllocator allocator,
-                    // std::shared_ptr<DeletionQueue> mainDeletionQueue,
                     SDL_Window* window)
     : vCtxP(std::move(ctx)),
       _allocator(allocator),
-      // _mainDeletionQueuePtr(std::move(mainDeletionQueue)),
       _swapchainImageFormat(),
       _swapchainExtent(),
       _swapchain(nullptr),
       _window(window) {
-    create_swapchain(vCtxP->windowExtent.width, vCtxP->windowExtent.height);
+    SwapchainController::create_swapchain(vCtxP->windowExtent.width, vCtxP->windowExtent.height);
 
     // draw image size will match the window
     VkExtent3D drawImageExtent = {vCtxP->windowExtent.width, vCtxP->windowExtent.height, 1};
