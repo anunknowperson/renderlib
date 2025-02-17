@@ -23,6 +23,7 @@
 #include "vk_descriptors.h"
 #include "vk_loader.h"
 #include "vk_types.h"
+#include "vk_swapchain.h"
 
 class Camera;
 class VulkanEngine;
@@ -65,22 +66,22 @@ struct GLTFMetallic_Roughness {
             DescriptorAllocatorGrowable& descriptorAllocator);
 };
 
-struct DeletionQueue {
-    std::deque<std::function<void()>> deletors;
-
-    void push_function(std::function<void()>&& function) {
-        deletors.push_back(function);
-    }
-
-    void flush() {
-        // reverse iterate the deletion queue to execute all the functions
-        for (auto& deletor : std::ranges::reverse_view(deletors)) {
-            deletor();  // call functors
-        }
-
-        deletors.clear();
-    }
-};
+// struct DeletionQueue {
+//     std::deque<std::function<void()>> deletors;
+//
+//     void push_function(std::function<void()>&& function) {
+//         deletors.push_back(function);
+//     }
+//
+//     void flush() {
+//         // reverse iterate the deletion queue to execute all the functions
+//         for (auto& deletor : std::ranges::reverse_view(deletors)) {
+//             deletor();  // call functors
+//         }
+//
+//         deletors.clear();
+//     }
+// };
 
 struct FrameData {
     VkCommandPool _commandPool;
@@ -125,91 +126,10 @@ struct DrawContext {
     std::vector<RenderObject> OpaqueSurfaces;
 };
 
-struct VulkanContext {
-    VkExtent2D windowExtent{2560, 1440};
-    VkSurfaceKHR surface; // Vulkan window surface
-    VkPhysicalDevice chosenGPU; // GPU chosen as the default device
-    VkDevice device; // Vulkan device for commands
 
-    AllocatedImage drawImage;
 
-    DeletionQueue mainDeletionQueue;
 
-    bool resize_requested;
-};
 
-class ISwapchainController {
-public:
-    virtual ~ISwapchainController() = default;
-    virtual void create_swapchain(uint32_t width, uint32_t height) = 0;
-    virtual void destroy_swapchain() = 0;
-    virtual void resize_swapchain() = 0;
-
-    virtual const VkFormat* get_swapchain_image_format() const = 0;
-    virtual VkExtent2D get_swapchain_extent() const = 0;
-    virtual VkSwapchainKHR get_swapchain() const = 0;
-    virtual const VkSwapchainKHR* get_swapchain_ptr() const = 0;
-    virtual std::vector<VkImage> get_swapchain_images() const = 0;
-    virtual VkImage get_swapchain_image_by_index(const uint32_t i) const = 0;
-    virtual VkImageView get_swapchain_image_view_by_index(const uint32_t i) const = 0;
-    virtual std::vector<VkImageView> get_swapchain_image_views() const = 0;
-};
-
-class SwapchainController : public ISwapchainController {
-public:
-    SwapchainController(std::shared_ptr<VulkanContext> ctx,
-                        VmaAllocator allocator,
-                        SDL_Window* window);
-
-    void create_swapchain(uint32_t width, uint32_t height) override;
-    void destroy_swapchain() override;
-    void resize_swapchain() override;
-
-    [[nodiscard]] const VkFormat* get_swapchain_image_format() const  override {
-        return &_swapchainImageFormat;
-    }
-
-    [[nodiscard]] VkExtent2D get_swapchain_extent() const override {
-        return _swapchainExtent;
-    }
-
-    [[nodiscard]] VkSwapchainKHR get_swapchain() const override {
-        return _swapchain;
-    }
-
-    [[nodiscard]] const VkSwapchainKHR* get_swapchain_ptr() const override {
-        return &_swapchain;
-    }
-
-    [[nodiscard]] std::vector<VkImage> get_swapchain_images() const override {
-        return _swapchainImages;
-    }
-
-    [[nodiscard]] VkImage get_swapchain_image_by_index(const uint32_t i) const override {
-        return _swapchainImages[i];
-    }
-
-    [[nodiscard]] VkImageView get_swapchain_image_view_by_index(const uint32_t i) const override {
-        return _swapchainImageViews[i];
-    }
-
-    std::vector<VkImageView> get_swapchain_image_views() const  override {
-        return _swapchainImageViews;
-    }
-private:
-    std::shared_ptr<VulkanContext> vCtxP;
-
-    VmaAllocator _allocator;
-
-    VkFormat _swapchainImageFormat;
-    VkExtent2D _swapchainExtent;
-    VkSwapchainKHR _swapchain;
-    std::vector<VkImage> _swapchainImages;
-    std::vector<VkImageView> _swapchainImageViews;
-
-    SDL_Window* _window{nullptr};
-
-};
 
 class VulkanEngine {
 public:
