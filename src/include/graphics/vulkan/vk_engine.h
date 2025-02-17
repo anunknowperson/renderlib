@@ -139,7 +139,7 @@ public:
                         SDL_Window* window)
         : vCtxP(ctx),
           _allocator(allocator),
-          _mainDeletionQueuePtr(mainDeletionQueue),
+          _mainDeletionQueuePtr(std::move(mainDeletionQueue)),
           _swapchainImageFormat(),
           _swapchainExtent(),
           _swapchain(nullptr),
@@ -155,27 +155,27 @@ public:
         return &_swapchainImageFormat;
     }
 
-    VkExtent2D get_swapchain_extent() const {
+    [[nodiscard]] VkExtent2D get_swapchain_extent() const {
         return _swapchainExtent;
     }
 
-    VkSwapchainKHR get_swapchain() const {
+    [[nodiscard]] VkSwapchainKHR get_swapchain() const {
         return _swapchain;
     }
 
-    const VkSwapchainKHR* get_swapchain_ptr() const {
+    [[nodiscard]] const VkSwapchainKHR* get_swapchain_ptr() const {
         return &_swapchain;
     }
 
-    std::vector<VkImage> get_swapchain_images() const {
+    [[nodiscard]] std::vector<VkImage> get_swapchain_images() const {
         return _swapchainImages;
     }
 
-    VkImage get_swapchain_image_by_index(const uint32_t i) const {
+    [[nodiscard]] VkImage get_swapchain_image_by_index(const uint32_t i) const {
         return _swapchainImages[i];
     }
 
-    VkImageView get_swapchain_image_view_by_index(const uint32_t i) const {
+    [[nodiscard]] VkImageView get_swapchain_image_view_by_index(const uint32_t i) const {
         return _swapchainImageViews[i];
     }
 
@@ -184,7 +184,6 @@ public:
     }
 private:
     std::shared_ptr<VulkanContext> vCtxP;
-    // std::shared_ptr<VmaAllocator> _allocatorPtr;
     VmaAllocator _allocator;
     std::shared_ptr<DeletionQueue> _mainDeletionQueuePtr;
     VkFormat _swapchainImageFormat;
@@ -192,7 +191,7 @@ private:
     VkSwapchainKHR _swapchain;
     std::vector<VkImage> _swapchainImages;
     std::vector<VkImageView> _swapchainImageViews;
-    struct SDL_Window* _window{nullptr};
+    SDL_Window* _window{nullptr};
 
 };
 
@@ -314,7 +313,7 @@ public:
     AllocatedBuffer create_buffer(size_t allocSize, VkBufferUsageFlags usage,
                                   VmaMemoryUsage memoryUsage) const;
 
-    std::unique_ptr<SwapchainController> _swapchain_controller_ptr;
+    std::unique_ptr<SwapchainController> _swapchainControllerP;
 private:
     static VKAPI_ATTR VkBool32 VKAPI_CALL
     debugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
