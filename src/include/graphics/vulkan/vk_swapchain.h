@@ -13,32 +13,32 @@ public:
     void destroy_swapchain() override;
     void resize_swapchain() override;
 
-    [[nodiscard]] const VkFormat* get_swapchain_image_format() const override {
+    const VkFormat* get_swapchain_image_format() const override {
         return &_swapchainImageFormat;
     }
 
-    [[nodiscard]] VkExtent2D get_swapchain_extent() const override {
+    VkExtent2D get_swapchain_extent() const override {
         return _swapchainExtent;
     }
 
-    [[nodiscard]] VkSwapchainKHR get_swapchain() const override {
+    VkSwapchainKHR get_swapchain() const override {
         return _swapchain;
     }
 
-    [[nodiscard]] const VkSwapchainKHR* get_swapchain_ptr() const override {
+    const VkSwapchainKHR* get_swapchain_ptr() const override {
         return &_swapchain;
     }
 
-    [[nodiscard]] std::vector<VkImage> get_swapchain_images() const override {
+    std::vector<VkImage> get_swapchain_images() const override {
         return _swapchainImages;
     }
 
-    [[nodiscard]] VkImage get_swapchain_image_by_index(
+    VkImage get_swapchain_image_by_index(
             const uint32_t i) const override {
         return _swapchainImages[i];
     }
 
-    [[nodiscard]] VkImageView get_swapchain_image_view_by_index(
+    VkImageView get_swapchain_image_view_by_index(
             const uint32_t i) const override {
         return _swapchainImageViews[i];
     }
