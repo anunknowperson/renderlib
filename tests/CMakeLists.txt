@@ -8,3 +8,7 @@ add_gtest(test_camera test_camera.cpp)
 
 # Add test target for test_parent_system.cpp
 add_gtest(test_parent_system test_parent_system.cpp)
+
+
+# Add test target for vk_descriptors_tests.cpp
+add_gtest(test_vk_descriptors vk_descriptors_tests.cpp)
