@@ -1,3 +1,3 @@
-include(addGTest)
+find_package(GTest CONFIG REQUIRED)
 
-# add targets by calling add_gtest
+# Add your tests with add_executable, target_link_libraries & add_test
