@@ -71,3 +71,84 @@ TEST(CameraControllerTest, ProcessEventRotation) {
     EXPECT_NEAR(actualRotation.z, expectedRotation.z, 0.001f);
     EXPECT_NEAR(actualRotation.w, expectedRotation.w, 0.001f);
 }
+
+// Вспомогательная функция для эмуляции нажатия клавиш
+void triggerKeyPress(CameraController& controller, SDL_Keycode key) {
+    SDL_Event event;
+    event.type = SDL_KEYDOWN;
+    event.key.keysym.sym = key;
+    controller.processSDLEvent(event);
+}
+
+TEST(CameraControllerTest, ProcessAllMovementKeys) {
+    Camera camera(glm::vec3(0.0f), 45.0f, 800.0f, 600.0f);
+    CameraController controller(camera);
+    float moveSpeed = 0.1f;
+
+    // Движение вперед (W)
+    triggerKeyPress(controller, SDLK_w);
+    EXPECT_EQ(camera.getPosition().z, -moveSpeed);
+
+    // Движение назад (S)
+    triggerKeyPress(controller, SDLK_s);
+    EXPECT_EQ(camera.getPosition().z, 0.0f);
+
+    // Движение влево (A)
+    triggerKeyPress(controller, SDLK_a);
+    EXPECT_EQ(camera.getPosition().x, -moveSpeed);
+
+    // Движение вправо (D)
+    triggerKeyPress(controller, SDLK_d);
+    EXPECT_EQ(camera.getPosition().x, 0.0f);
+}
+
+TEST(CameraControllerTest, CombinedMovement) {
+    Camera camera(glm::vec3(0.0f), 45.0f, 800.0f, 600.0f);
+    CameraController controller(camera);
+    float moveSpeed = 0.1f;
+
+    // Нажать W и D одновременно
+    triggerKeyPress(controller, SDLK_w);
+    triggerKeyPress(controller, SDLK_d);
+
+    EXPECT_EQ(camera.getPosition().x, moveSpeed);
+    EXPECT_EQ(camera.getPosition().z, -moveSpeed);
+}
+
+// Вспомогательная функция для эмуляции движения мыши
+void simulateMouseMovement(CameraController& controller, int xrel, int yrel) {
+    SDL_Event event;
+    event.type = SDL_MOUSEMOTION;
+    event.motion.xrel = xrel;
+    event.motion.yrel = yrel;
+    controller.processSDLEvent(event);
+}
+
+TEST(CameraControllerTest, PitchClamping) {
+    Camera camera;
+    CameraController controller(camera);
+    float sensitivity = 0.0001f;
+
+    // Попытка превысить верхний предел pitch (+89°)
+    simulateMouseMovement(controller, 0, 1000000); // Огромное смещение по Y
+    EXPECT_LE(camera.getPitch(), glm::radians(89.0f));
+
+    // Попытка опуститься ниже нижнего предела (-89°)
+    simulateMouseMovement(controller, 0, -1000000);
+    EXPECT_GE(camera.getPitch(), glm::radians(-89.0f));
+}
+
+TEST(CameraControllerIntegrationTest, PositionAndRotationSync) {
+    Camera camera;
+    CameraController controller(camera);
+
+    // Изменение позиции через контроллер
+    glm::vec3 newPos(1.0f, 2.0f, 3.0f);
+    controller.setPosition(newPos);
+    EXPECT_EQ(camera.getPosition(), newPos);
+
+    // Изменение вращения через контроллер
+    glm::quat newRot = glm::angleAxis(glm::radians(45.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+    controller.setRotation(newRot);
+    EXPECT_EQ(camera.getRotation(), newRot);
+}

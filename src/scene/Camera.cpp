@@ -63,14 +63,32 @@ void Camera::setScreenHeight(float screenHeight) {
     _screenHeight = screenHeight;
 }
 
+float Camera::getPitch() const {
+    return glm::degrees(glm::pitch(_rotation));
+}
+
+void Camera::setPitch(float pitch) {
+    float currentYaw = glm::yaw(_rotation);
+    _rotation = glm::quat(glm::vec3(glm::radians(pitch), currentYaw, 0.0f));
+    updateViewMatrix();
+}
+
+void Camera::rotatePitch(float angle) {
+    glm::quat pitchQuat = glm::angleAxis(glm::radians(angle), glm::vec3(1.0f, 0.0f, 0.0f));
+    _rotation = pitchQuat * _rotation;
+    updateViewMatrix();
+}
+
 glm::mat4 Camera::getViewMatrix() const {
     return _viewMatrix;
 }
 
 void Camera::updateViewMatrix() {
+    // Вычисляем направление взгляда на основе кватерниона
+    glm::vec3 forward = _rotation * glm::vec3(0.0f, 0.0f, -1.0f);
     _viewMatrix = glm::lookAt(
             _position,
-            _position + glm::vec3(0.0f, 0.0f, -1.0f), // Вектор направления
-            glm::vec3(0.0f, 1.0f, 0.0f)              // Вектор вверх
+            _position + forward,
+            glm::vec3(0.0f, 1.0f, 0.0f)  // Вектор "вверх"
     );
 }

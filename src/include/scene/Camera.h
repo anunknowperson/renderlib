@@ -26,6 +26,10 @@ public:
     float getScreenHeight() const;
     void setScreenHeight(float screenHeight);
 
+    float getPitch() const;
+    void setPitch(float pitch);
+    void rotatePitch(float angle);
+
     glm::mat4 getViewMatrix() const;
 
 private:
