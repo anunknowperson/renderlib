@@ -28,13 +28,7 @@ jobs:
         include:
           - os: windows-latest
             c_compiler: cl
-            preset: wx64-debug
-          - os: windows-latest
-            c_compiler: cl
             preset: wx64-release
-          - os: ubuntu-latest
-            c_compiler: clang
-            preset: lx64-debug
           - os: ubuntu-latest
             c_compiler: clang
             preset: lx64-release
@@ -88,3 +82,4 @@ jobs:
       id: runcmake
       with:
         configurePreset: ${{ matrix.preset }}
+        buildPreset: ${{ matrix.preset }}
