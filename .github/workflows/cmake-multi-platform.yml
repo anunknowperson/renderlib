@@ -32,24 +32,12 @@ jobs:
           - os: windows-latest
             c_compiler: cl
             preset: wx64-release
-          - os: windows-latest
-            c_compiler: cl
-            preset: wx86-debug
-          - os: windows-latest
-            c_compiler: cl
-            preset: wx86-release
           - os: ubuntu-latest
             c_compiler: clang
             preset: lx64-debug
           - os: ubuntu-latest
             c_compiler: clang
             preset: lx64-release
-          - os: ubuntu-latest
-            c_compiler: clang
-            preset: lx86-debug
-          - os: ubuntu-latest
-            c_compiler: clang
-            preset: lx86-release
       
 
     steps:
