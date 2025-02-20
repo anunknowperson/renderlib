@@ -84,5 +84,23 @@
         "CMAKE_BUILD_TYPE": "Release"
       }
     }
+  ],
+  "buildPresets": [
+    {
+      "name": "wx64-debug",
+      "configurePreset": "wx64-debug"
+    },
+    {
+      "name": "wx64-release",
+      "configurePreset": "wx64-release"
+    },
+    {
+      "name": "lx64-debug",
+      "configurePreset": "lx64-debug"
+    },
+    {
+      "name": "lx64-release",
+      "configurePreset": "lx64-release"
+    }
   ]
 }

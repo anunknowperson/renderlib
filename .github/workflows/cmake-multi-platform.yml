@@ -28,13 +28,7 @@ jobs:
         include:
           - os: windows-latest
             c_compiler: cl
-            preset: wx64-debug
-          - os: windows-latest
-            c_compiler: cl
             preset: wx64-release
-          - os: ubuntu-latest
-            c_compiler: clang
-            preset: lx64-debug
           - os: ubuntu-latest
             c_compiler: clang
             preset: lx64-release
@@ -66,15 +60,16 @@ jobs:
     - name: Restore from cache and setup vcpkg executable and data files.
       uses: lukka/run-vcpkg@v11
     
-    - name: Setup Vulkan SDK
-      # You may pin to the exact commit or the version.
-      # uses: humbletim/setup-vulkan-sdk@72eed4b9dbeac5de168f83da8e30b1d0f8ac7f14
-      uses: humbletim/setup-vulkan-sdk@v1.2.0
+    - name: Install Vulkan SDK
+      uses: jakoch/install-vulkan-sdk-action@v1.1.0
       with:
-        vulkan-query-version: 1.3.204.0
-        vulkan-components: Vulkan-Headers, Vulkan-Loader
-        vulkan-use-cache: true
-    
+        # You can set the Vulkan SDK version to download.
+        # Defaults to latest version, if version not set.
+        vulkan_version: 1.4.304.1
+        optional_components: com.lunarg.vulkan.vma
+        # install_runtime: true
+        cache: true
+        stripdown: true
 
     - name: Set reusable strings
       # Turn repeated input strings (such as the build output directory) into step outputs. These step outputs can be used throughout the workflow file.
@@ -88,3 +83,4 @@ jobs:
       id: runcmake
       with:
         configurePreset: ${{ matrix.preset }}
+        buildPreset: ${{ matrix.preset }}
