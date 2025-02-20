@@ -1,12 +1,14 @@
 ﻿#pragma once
 
 #include <random>
+#include <utility>
 
 #include "core/Mesh.h"
 #include "scene/Camera.h"
 #include "vk_descriptors.h"
 #include "vk_loader.h"
 #include "vk_pipelines.h"
+#include "vk_swapchain.h"
 #include "vk_types.h"
 
 constexpr unsigned int FRAME_OVERLAP = 2;
@@ -42,23 +44,6 @@ struct GLTFMetallic_Roughness {
             VkDevice device, MaterialPass pass,
             const MaterialResources& resources,
             DescriptorAllocatorGrowable& descriptorAllocator);
-};
-
-struct DeletionQueue {
-    std::deque<std::function<void()>> deletors;
-
-    void push_function(std::function<void()>&& function) {
-        deletors.push_back(function);
-    }
-
-    void flush() {
-        // reverse iterate the deletion queue to execute all the functions
-        for (auto it = deletors.rbegin(); it != deletors.rend(); it++) {
-            (*it)();  // call functors
-        }
-
-        deletors.clear();
-    }
 };
 
 struct FrameData {
@@ -120,6 +105,7 @@ public:
     Camera* mainCamera;
 
     DrawContext mainDrawContext;
+    std::shared_ptr<VulkanContext> vCtx;
     std::unordered_map<std::string, std::shared_ptr<ENode>> loadedNodes;
 
     void update_scene();
@@ -136,9 +122,8 @@ public:
     bool _isInitialized{false};
     unsigned int _frameNumber{0};
     bool stop_rendering{false};
-    VkExtent2D _windowExtent{2560, 1440};
 
-    struct SDL_Window* _window{nullptr};
+    SDL_Window* _window{nullptr};
 
     static VulkanEngine& Get();
 
@@ -156,22 +141,9 @@ public:
 
     VkInstance _instance;                       // Vulkan library handle
     VkDebugUtilsMessengerEXT _debug_messenger;  // Vulkan debug output handle
-    VkPhysicalDevice _chosenGPU;  // GPU chosen as the default device
-    VkDevice _device;             // Vulkan device for commands
-    VkSurfaceKHR _surface;        // Vulkan window surface
-
-    VkSwapchainKHR _swapchain;
-    VkFormat _swapchainImageFormat;
-
-    std::vector<VkImage> _swapchainImages;
-    std::vector<VkImageView> _swapchainImageViews;
-    VkExtent2D _swapchainExtent;
-
-    DeletionQueue _mainDeletionQueue;
 
     VmaAllocator _allocator;
 
-    AllocatedImage _drawImage;
     AllocatedImage _depthImage;
     VkExtent2D _drawExtent;
     float renderScale = 1.f;
@@ -203,8 +175,6 @@ public:
 
     std::vector<std::shared_ptr<MeshAsset>> testMeshes;
 
-    bool resize_requested;
-
     GPUSceneData sceneData;
 
     VkDescriptorSetLayout _gpuSceneDataDescriptorLayout;
@@ -234,6 +204,9 @@ public:
                                   VmaMemoryUsage memoryUsage) const;
 
 private:
+    // std::unique_ptr<ISwapchainController> _swapchainСontrollerP;
+    ISwapchainController::Ptr _swapchainСontrollerP;
+
     static VKAPI_ATTR VkBool32 VKAPI_CALL
     debugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
                   VkDebugUtilsMessageTypeFlagsEXT messageType,
@@ -241,12 +214,8 @@ private:
                   void* pUserData);
 
     void init_vulkan();
-    void init_swapchain();
     void init_commands();
     void init_sync_structures();
-
-    void create_swapchain(uint32_t width, uint32_t height);
-    void destroy_swapchain();
 
     void draw_background(VkCommandBuffer cmd);
 
@@ -263,8 +232,6 @@ private:
     void draw_geometry(VkCommandBuffer cmd);
 
     void destroy_buffer(const AllocatedBuffer& buffer) const;
-
-    void resize_swapchain();
 
     void init_mesh_pipeline();
 

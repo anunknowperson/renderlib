@@ -73,7 +73,8 @@ void UpdateChildLocalIfGlobalChanged(flecs::entity e, GlobalTransform &t) {
 }
 
 void UpdateChildGlobalIfLocalChanged(flecs::entity e, LocalTransform &t) {
-    [[maybe_unused]] auto global = e.get_mut<GlobalTransform>()->TransformMatrix =
+    [[maybe_unused]] auto global = e.get_mut<GlobalTransform>()
+                                           ->TransformMatrix =
             getMatrixFromLocal(t) *
             e.get<Parent>()->parent.get<GlobalTransform>()->TransformMatrix;
 }

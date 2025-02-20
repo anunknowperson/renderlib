@@ -6,5 +6,6 @@ target_sources(${PROJECT_NAME}
         vulkan/vk_initializers.cpp
         vulkan/vk_loader.cpp
         vulkan/vk_pipelines.cpp
+        vulkan/vk_swapchain.cpp
         Graphics.cpp
 )
