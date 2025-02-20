@@ -54,6 +54,11 @@ jobs:
       if: startsWith(runner.os, 'Linux')
       run: sudo apt-get install -y xorg-dev
 
+    # https://github.com/microsoft/vcpkg/issues/40065
+    - name: Install libltdl-dev
+      if: startsWith(runner.os, 'Linux')
+      run: sudo apt-get install -y libltdl-dev
+
     - name: Install latest CMake and Ninja
       uses: lukka/get-cmake@latest
       
