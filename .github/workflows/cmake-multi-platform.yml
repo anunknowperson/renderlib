@@ -64,9 +64,6 @@ jobs:
       
     - name: Restore from cache and setup vcpkg executable and data files.
       uses: lukka/run-vcpkg@v11
-      with:
-        vcpkgJsonGlob: 'vcpkg.json'
-        vcpkgDirectory: 'vendor/vcpkg'
     
     - name: Setup Vulkan SDK
       # You may pin to the exact commit or the version.
