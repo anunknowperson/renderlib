@@ -32,30 +32,19 @@ jobs:
           - os: windows-latest
             c_compiler: cl
             preset: wx64-release
-          - os: windows-latest
-            c_compiler: cl
-            preset: wx86-debug
-          - os: windows-latest
-            c_compiler: cl
-            preset: wx86-release
           - os: ubuntu-latest
             c_compiler: clang
             preset: lx64-debug
           - os: ubuntu-latest
             c_compiler: clang
             preset: lx64-release
-          - os: ubuntu-latest
-            c_compiler: clang
-            preset: lx86-debug
-          - os: ubuntu-latest
-            c_compiler: clang
-            preset: lx86-release
       
 
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
       with:
         submodules: true
+        fetch-depth: '0'
 
     - name: Update APT package list
       if: startsWith(runner.os, 'Linux')
@@ -66,14 +55,16 @@ jobs:
       if: startsWith(runner.os, 'Linux')
       run: sudo apt-get install -y xorg-dev
 
-    - name: Setup Ninja
-      uses: ashutoshvarma/setup-ninja@v1.1
-  
+    # https://github.com/microsoft/vcpkg/issues/40065
+    - name: Install libltdl-dev
+      if: startsWith(runner.os, 'Linux')
+      run: sudo apt-get install -y libltdl-dev
+
+    - name: Install latest CMake and Ninja
+      uses: lukka/get-cmake@latest
+      
     - name: Restore from cache and setup vcpkg executable and data files.
       uses: lukka/run-vcpkg@v11
-      with:
-        vcpkgJsonGlob: 'vcpkg.json'
-        vcpkgDirectory: 'vendor/vcpkg'
     
     - name: Setup Vulkan SDK
       # You may pin to the exact commit or the version.
