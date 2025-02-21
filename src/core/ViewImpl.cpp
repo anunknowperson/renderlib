@@ -3,7 +3,13 @@
 #include <SDL2/SDL.h>
 #include <SDL_events.h>
 #include <SDL_video.h>
+
+#ifdef __GNUC__
 #include <bits/chrono.h>
+#else
+#include <chrono>
+#endif
+
 #include <memory>
 #include <string>
 #include <thread>
