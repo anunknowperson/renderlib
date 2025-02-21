@@ -13,6 +13,7 @@
         "vulkan-binding"
       ]
     },
+    "gtest",
     {
       "name": "sdl2",
       "features": [

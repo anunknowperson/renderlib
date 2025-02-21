@@ -102,5 +102,34 @@
       "name": "lx64-release",
       "configurePreset": "lx64-release"
     }
+  ],
+  "testPresets": [
+    {
+      "name": "base",
+      "output": {
+        "outputOnFailure": true
+      },
+      "hidden": true
+    },
+    {
+      "name": "wx64-debug",
+      "inherits": "base",
+      "configurePreset": "wx64-debug"
+    },
+    {
+      "name": "wx64-release",
+      "inherits": "base",
+      "configurePreset": "wx64-release"
+    },
+    {
+      "name": "lx64-debug",
+      "inherits": "base",
+      "configurePreset": "lx64-debug"
+    },
+    {
+      "name": "lx64-release",
+      "inherits": "base",
+      "configurePreset": "lx64-release"
+    }
   ]
 }

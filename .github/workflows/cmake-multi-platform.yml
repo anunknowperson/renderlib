@@ -84,3 +84,4 @@ jobs:
       with:
         configurePreset: ${{ matrix.preset }}
         buildPreset: ${{ matrix.preset }}
+        testPreset: ${{ matrix.preset }}
