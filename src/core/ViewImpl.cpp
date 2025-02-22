@@ -1,36 +1,40 @@
 #include "core/ViewImpl.h"
 
 #include <SDL2/SDL.h>
-#include <SDL2/SDL_vulkan.h>
-#include <charconv>
+#include <SDL_events.h>
+#include <SDL_video.h>
+
+#ifdef __GNUC__
+#include <bits/chrono.h>
+#else
 #include <chrono>
-#include <iomanip>
-#include <iostream>
-#include <limits>
-#include <stdexcept>
+#endif
+
+#include <memory>
+#include <string>
 #include <thread>
 #include <utility>
-#include <variant>
 
 #include "graphics/vulkan/vk_engine.h"
 #include "imgui.h"
 #include "imgui_impl_sdl2.h"
 #include "imgui_impl_vulkan.h"
 
+namespace {
+constexpr auto kWindowFlags =
+        static_cast<uint32_t>(SDL_WINDOW_VULKAN | SDL_WINDOW_RESIZABLE);
+}
+
 ViewImpl::ViewImpl(IController::Ptr controller, IModel::Ptr model)
     : _controller(std::move(controller)), _model(std::move(model)) {
     SDL_Init(SDL_INIT_VIDEO);
-
-    auto window_flags =
-            (SDL_WindowFlags)(SDL_WINDOW_VULKAN | SDL_WINDOW_RESIZABLE);
-
     window = SDL_CreateWindow("engine", SDL_WINDOWPOS_UNDEFINED,
-                              SDL_WINDOWPOS_UNDEFINED, 1700, 900, window_flags);
+                              SDL_WINDOWPOS_UNDEFINED, 1700, 900, kWindowFlags);
 }
 
 void createCubes(const std::shared_ptr<IModel> &_model) {
     for (int i = 0; i < 5; i++) {
-        _model->createMesh("cube" + i);
+        _model->createMesh("cube" + std::to_string(i));
     }
 }
 

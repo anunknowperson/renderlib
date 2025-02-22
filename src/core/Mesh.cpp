@@ -1,6 +1,6 @@
 #include "core/Mesh.h"
 
-Mesh::Mesh(std::string filePath) {
+Mesh::Mesh(const std::string &filePath) {
     VulkanEngine &engine = VulkanEngine::Get();
 
     _rid = engine.registerMesh(filePath);
@@ -20,6 +20,6 @@ void Mesh::set_transform(glm::mat4 t) {
     engine.setMeshTransform(_rid, t);
 }
 
-glm::mat4 Mesh::get_transform(glm::mat4 t) {
+glm::mat4 Mesh::get_transform() {
     return _transform;
 }

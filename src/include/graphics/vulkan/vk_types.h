@@ -7,6 +7,7 @@
 #include <optional>
 #include <span>
 #include <string>
+#include <type_traits>
 #include <vector>
 
 #include "core/Logging.h"
@@ -15,12 +16,13 @@
 #include "vk_mem_alloc.h"
 #include "vulkan/vulkan.h"
 
-#define VK_CHECK(x)                                      \
-    do {                                                 \
-        VkResult err = x;                                \
-        if (err) {                                       \
-            LOGE("Detected Vulkan error: {}", (int)err); \
-        }                                                \
+#define VK_CHECK(x)                                                   \
+    do {                                                              \
+        VkResult err = x;                                             \
+        if (err != VK_SUCCESS) {                                      \
+            LOGE("Detected Vulkan error: {}",                         \
+                 static_cast<std::underlying_type_t<VkResult>>(err)); \
+        }                                                             \
     } while (0)
 
 struct AllocatedImage {
@@ -82,6 +84,9 @@ class IRenderable {
 // the scene node can hold children and will also keep a transform to propagate
 // to them
 struct ENode : public IRenderable {
+    ENode() = default;
+
+    virtual ~ENode() = default;
     // parent pointer must be a weak pointer to avoid circular dependencies
     std::weak_ptr<ENode> parent;
     std::vector<std::shared_ptr<ENode>> children;
@@ -96,9 +101,9 @@ struct ENode : public IRenderable {
         }
     }
 
-    virtual void Draw(const glm::mat4& topMatrix, DrawContext& ctx) {
+    void Draw(const glm::mat4& topMatrix, DrawContext& ctx) override {
         // draw children
-        for (auto& c : children) {
+        for (const auto& c : children) {
             c->Draw(topMatrix, ctx);
         }
     }
