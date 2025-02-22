@@ -137,8 +137,8 @@ public:
 
     std::unordered_map<std::string, std::shared_ptr<LoadedGLTF>> loadedScenes;
 
-    Camera* mainCamera;
-    CameraController* cameraController;
+    Camera* mainCamera = nullptr;
+    std::unique_ptr<CameraController> cameraController;
 
     DrawContext mainDrawContext;
     std::unordered_map<std::string, std::shared_ptr<ENode>> loadedNodes;

@@ -242,7 +242,7 @@ void VulkanEngine::init_mesh_pipeline() {
 
     // connect the image format we will draw into, from draw image
     pipelineBuilder.set_color_attachment_format(_drawImage.imageFormat);
-    pipelineBuilder.set_depth_format(VK_FORMAT_UNDEFINED);
+    pipelineBuilder.set_depth_format(_depthImage.imageFormat);
 
     // finally build the pipeline
     _meshPipeline = pipelineBuilder.build_pipeline(_device);
@@ -303,7 +303,7 @@ void VulkanEngine::init_triangle_pipeline() {
 
     // connect the image format we will draw into, from draw image
     pipelineBuilder.set_color_attachment_format(_drawImage.imageFormat);
-    pipelineBuilder.set_depth_format(VK_FORMAT_UNDEFINED);
+    pipelineBuilder.set_depth_format(_depthImage.imageFormat);
 
     // finally build the pipeline
     _trianglePipeline = pipelineBuilder.build_pipeline(_device);
@@ -370,6 +370,7 @@ void VulkanEngine::init_imgui() {
     init_info.PipelineRenderingCreateInfo.colorAttachmentCount = 1;
     init_info.PipelineRenderingCreateInfo.pColorAttachmentFormats =
             &_swapchainImageFormat;
+    init_info.PipelineRenderingCreateInfo.depthAttachmentFormat = _depthImage.imageFormat;
 
     init_info.MSAASamples = VK_SAMPLE_COUNT_1_BIT;
 
@@ -497,11 +498,8 @@ void VulkanEngine::init_pipelines() {
 void VulkanEngine::init(SDL_Window* window) {
     _window = window;
 
-    // only one engine initialization is allowed with the application.
-    assert(loadedEngine == nullptr);
-    loadedEngine = this;
-
     init_vulkan();
+
     init_swapchain();
     init_commands();
     init_sync_structures();
@@ -510,17 +508,17 @@ void VulkanEngine::init(SDL_Window* window) {
     init_imgui();
     init_default_data();
 
+    // Настройка начальной позиции и вращения
     cameraController->setPosition(glm::vec3(0, 0, 5));
+    cameraController->lookAt(glm::vec3(0, 0, 0));
 
-    glm::quat initialRotation = glm::quat(glm::vec3(0.0f, 0.0f, 0.0f)); // pitch, yaw, roll
-    cameraController->setRotation(initialRotation);
-
-    const std::string structurePath = {std::string(ASSETS_DIR) +
-                                       "/basicmesh.glb"};
-    const auto structureFile = loadGltf(this, structurePath);
-
-    assert(structureFile.has_value());
-    loadedScenes["structure"] = *structureFile;
+    // Загрузка меша
+    const std::string structurePath = std::string(ASSETS_DIR) + "/basicmesh.glb";
+    if (auto structureFile = loadGltf(this, structurePath)) {
+        loadedScenes["structure"] = *structureFile;
+    } else {
+        throw std::runtime_error("Failed to load GLTF mesh: " + structurePath);
+    }
 
     _isInitialized = true;
 }
@@ -638,6 +636,13 @@ void VulkanEngine::init_vulkan() {
     vmaCreateAllocator(&allocatorInfo, &_allocator);
 
     _mainDeletionQueue.push_function([&] { vmaDestroyAllocator(_allocator); });
+
+    // Depth format checker
+    VkFormatProperties depthFormatProps;
+    vkGetPhysicalDeviceFormatProperties(_chosenGPU, VK_FORMAT_D32_SFLOAT, &depthFormatProps);
+    if (!(depthFormatProps.optimalTilingFeatures & VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT)) {
+        LOGE("Depth format D32_SFLOAT is not supported!");
+    }
 }
 
 void VulkanEngine::init_commands() {
@@ -762,14 +767,20 @@ void VulkanEngine::init_swapchain() {
     const VkImageViewCreateInfo rview_info = vkinit::imageview_create_info(
             _drawImage.imageFormat, _drawImage.image,
             VK_IMAGE_ASPECT_COLOR_BIT);
+    VkFormat depthFormat = VK_FORMAT_D32_SFLOAT;
+    _depthImage = create_image(
+            {_windowExtent.width, _windowExtent.height, 1},
+            depthFormat,
+            VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT,
+            false
+    );
 
     VK_CHECK(vkCreateImageView(_device, &rview_info, nullptr,
                                &_drawImage.imageView));
 
     // add to deletion queues
     _mainDeletionQueue.push_function([=, this] {
-        vkDestroyImageView(_device, _drawImage.imageView, nullptr);
-        vmaDestroyImage(_allocator, _drawImage.image, _drawImage.allocation);
+        destroy_image(_depthImage);
     });
 }
 
@@ -1447,6 +1458,10 @@ void MeshNode::Draw(const glm::mat4& topMatrix, DrawContext& ctx) {
 }
 
 void VulkanEngine::update_scene() {
+    if (!mainCamera) {
+        LOGE("Camera is not initialized!");
+        return;
+    }
 
     const glm::mat4 view = mainCamera->getViewMatrix();
 

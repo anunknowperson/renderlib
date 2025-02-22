@@ -6,8 +6,7 @@
 #include <glm/gtx/component_wise.hpp>
 #include <glm/gtx/quaternion.hpp>
 
-CameraController::CameraController(Camera& camera)
-    : _camera(camera), _pitch(0.0f), _yaw(0.0f) {}
+CameraController::CameraController(Camera& camera) : _camera(camera) {}
 
 void CameraController::setPosition(const glm::vec3& position) {
     _camera.setPosition(position);
@@ -17,58 +16,46 @@ glm::vec3 CameraController::getPosition() const {
     return _camera.getPosition();
 }
 
-void CameraController::setRotation(const glm::quat& rotation) {
+void CameraController::lookAt(const glm::vec3& target) {
+    glm::vec3 direction = glm::normalize(target - _camera.getPosition());
+    glm::quat rotation = glm::quatLookAt(direction, glm::vec3(0, 1, 0));
     _camera.setRotation(rotation);
 }
 
-glm::quat CameraController::getRotation() const {
-    return _camera.getRotation();
-}
-
-void CameraController::lookAt(const glm::vec3& target) {
-    glm::vec3 direction = glm::normalize(target - _camera.getPosition());
-    glm::quat rotation =
-            glm::quatLookAt(direction, glm::vec3(0.0f, 1.0f, 0.0f));
-    setRotation(rotation);
-}
-
 void CameraController::processSDLEvent(const SDL_Event& event) {
+    // Обработка движения мыши
     if (event.type == SDL_MOUSEMOTION) {
-        float sensitivity = 0.0001f;  // Adjusted sensitivity
-        _yaw -= event.motion.xrel * sensitivity;
-        _pitch -= event.motion.yrel * sensitivity;
+        float deltaYaw = -event.motion.xrel * _mouseSensitivity;
+        float deltaPitch = -event.motion.yrel * _mouseSensitivity;
 
-        // Clamp pitch to avoid gimbal lock
-        if (_pitch > glm::radians(89.0f)) _pitch = glm::radians(89.0f);
-        if (_pitch < glm::radians(-89.0f)) _pitch = glm::radians(-89.0f);
+        // Обновление углов Эйлера
+        glm::vec3 euler = glm::eulerAngles(_camera.getRotation());
+        euler.x += deltaPitch;
+        euler.y += deltaYaw;
 
-        // Convert yaw and pitch to quaternion
-        glm::quat yawQuat = glm::angleAxis(_yaw, glm::vec3(0.0f, 1.0f, 0.0f));
-        glm::quat pitchQuat =
-                glm::angleAxis(_pitch, glm::vec3(1.0f, 0.0f, 0.0f));
-        glm::quat rotation = yawQuat * pitchQuat;
-        setRotation(rotation);
+        // Ограничение угла pitch
+        euler.x = glm::clamp(euler.x, glm::radians(-89.0f), glm::radians(89.0f));
+
+        _camera.setRotation(glm::quat(euler));
     }
 
-    if (event.type == SDL_KEYDOWN) {
-        float moveSpeed = 0.1f;
-        glm::vec3 position = _camera.getPosition();
-
+    // Обработка клавиатуры
+    if (event.type == SDL_KEYDOWN || event.type == SDL_KEYUP) {
+        glm::vec3 moveDir(0);
         switch (event.key.keysym.sym) {
-            case SDLK_w:
-                position.z -= moveSpeed;
-                break;
-            case SDLK_s:
-                position.z += moveSpeed;
-                break;
-            case SDLK_a:
-                position.x -= moveSpeed;
-                break;
-            case SDLK_d:
-                position.x += moveSpeed;
-                break;
+            case SDLK_w: moveDir.z = -1; break;
+            case SDLK_s: moveDir.z = 1; break;
+            case SDLK_a: moveDir.x = -1; break;
+            case SDLK_d: moveDir.x = 1; break;
         }
 
-        _camera.setPosition(position);
+        // Преобразование направления в мировые координаты
+        glm::mat4 rotation = _camera.getRotationMatrix();
+        glm::vec3 worldMove = glm::vec3(rotation * glm::vec4(moveDir, 0));
+
+        // Обновление позиции
+        if (event.type == SDL_KEYDOWN) {
+            _camera.setPosition(_camera.getPosition() + worldMove * _moveSpeed);
+        }
     }
 }
