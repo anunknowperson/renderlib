@@ -15,7 +15,7 @@
 #include <thread>
 #include <utility>
 
-#include "graphics/vulkan/vk_engine.h"
+#include "graphics/vulkan/VkEngine.h"
 #include "imgui.h"
 #include "imgui_impl_sdl2.h"
 #include "imgui_impl_vulkan.h"

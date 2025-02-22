@@ -1,6 +1,4 @@
-﻿#include "graphics/vulkan/vk_loader.h"
-
-#include <array>
+﻿#include <array>
 #include <cstdint>
 #include <cstring>
 #include <fastgltf/core.hpp>
@@ -10,6 +8,8 @@
 #include <fastgltf/util.hpp>
 #include <fmt/base.h>
 #include <vk_mem_alloc.h>
+
+#include "graphics/vulkan/VkLoader.h"
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/detail/qualifier.hpp>
 #include <glm/detail/type_mat4x4.hpp>
@@ -23,9 +23,9 @@
 #include <utility>
 #include <variant>
 
-#include "graphics/vulkan/vk_descriptors.h"
-#include "graphics/vulkan/vk_engine.h"
-#include "graphics/vulkan/vk_types.h"
+#include "graphics/vulkan/VkDescriptors.h"
+#include "graphics/vulkan/VkEngine.h"
+#include "graphics/vulkan/VkTypes.h"
 
 std::optional<std::vector<std::shared_ptr<MeshAsset>>> loadGltfMeshes(
         VulkanEngine* engine, const std::filesystem::path& file_path) {

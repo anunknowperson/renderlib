@@ -3,7 +3,7 @@
 #include <filesystem>
 
 #include "glm/detail/type_mat4x4.hpp"
-#include "graphics/vulkan/vk_engine.h"
+#include "graphics/vulkan/VkEngine.h"
 
 class Mesh {
 public:

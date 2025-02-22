@@ -1,4 +1,4 @@
-﻿#include "graphics/vulkan/vk_initializers.h"
+﻿#include "graphics/vulkan/VkInitializers.h"
 
 //> init_cmd
 VkCommandPoolCreateInfo vkinit::commandPoolCreateInfo(

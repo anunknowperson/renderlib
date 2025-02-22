@@ -11,8 +11,8 @@
 #include <vector>
 #include <vulkan/vulkan_core.h>
 
-#include "vk_descriptors.h"
-#include "vk_types.h"
+#include "VkDescriptors.h"
+#include "VkTypes.h"
 
 class VulkanEngine;
 struct DrawContext;

@@ -1,6 +1,4 @@
-﻿#include "graphics/vulkan/vk_engine.h"
-
-#include <SDL_error.h>
+﻿#include <SDL_error.h>
 #include <SDL_stdinc.h>
 #include <SDL_video.h>
 #include <algorithm>
@@ -16,7 +14,8 @@
 
 #include "core/Logging.h"
 #include "core/config.h"
-#include "graphics/vulkan/vk_descriptors.h"
+#include "graphics/vulkan/VkDescriptors.h"
+#include "graphics/vulkan/VkEngine.h"
 #include "scene/Camera.h"
 
 #define VMA_IMPLEMENTATION
@@ -30,11 +29,11 @@
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/transform.hpp>
 
-#include "graphics/vulkan/vk_images.h"
-#include "graphics/vulkan/vk_initializers.h"
-#include "graphics/vulkan/vk_loader.h"
-#include "graphics/vulkan/vk_pipelines.h"
-#include "graphics/vulkan/vk_types.h"
+#include "graphics/vulkan/VkImages.h"
+#include "graphics/vulkan/VkInitializers.h"
+#include "graphics/vulkan/VkLoader.h"
+#include "graphics/vulkan/VkPipelines.h"
+#include "graphics/vulkan/VkTypes.h"
 
 VulkanEngine* loadedEngine = nullptr;
 

@@ -1,11 +1,10 @@
-﻿#include "graphics/vulkan/vk_pipelines.h"
-
-#include <cstdint>
+﻿#include <cstdint>
 #include <fmt/base.h>
 #include <fstream>
 #include <spdlog/spdlog.h>
 
-#include "graphics/vulkan/vk_initializers.h"
+#include "graphics/vulkan/VkInitializers.h"
+#include "graphics/vulkan/VkPipelines.h"
 
 bool vkutil::loadShaderModule(const char* file_path, VkDevice device,
                                 VkShaderModule* out_shader_module) {

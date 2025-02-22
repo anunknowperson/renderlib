@@ -1,8 +1,7 @@
-#include "graphics/vulkan/vk_images.h"
-
 #include <cstdint>
 
-#include "graphics/vulkan/vk_initializers.h"
+#include "graphics/vulkan/VkImages.h"
+#include "graphics/vulkan/VkInitializers.h"
 
 void vkutil::transitionImage(VkCommandBuffer cmd, VkImage image,
                               VkImageLayout current_layout,
