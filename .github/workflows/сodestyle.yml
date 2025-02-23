@@ -2,7 +2,7 @@ name: Codestyle
 
 on:
   workflow_run:
-    workflows: ["CMake on multiple platforms"] # or ["build.yml"]
+    workflows: ["CMake on multiple platforms"]
     types:
       - completed
   pull_request:
@@ -17,6 +17,7 @@ on:
       - cmake/**
       - scripts/**
       - shaders/**
+
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
@@ -60,17 +61,14 @@ jobs:
     strategy:
       matrix:
         preset:
-          - wx64-debug
           - lx64-debug
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
+          submodules: true
       - name: Install dependencies
         uses: ./.github/composite-actions/install-dependencies
-        with:
-          os: ubuntu
-          toolset: gcc
       - name: Configure CMake with Preset
         run: |
           cmake --preset=${{ matrix.preset }} -DCMAKE_EXPORT_COMPILE_COMMANDS=ON .
