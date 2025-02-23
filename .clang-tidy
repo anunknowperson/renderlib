@@ -18,8 +18,6 @@ CheckOptions:
     value: lower_case
   - key: readability-identifier-naming.MemberCase
     value: lower_case
-  - key: readability-identifier-naming.MemberPrefix
-    value: '_'
   - key: readability-identifier-naming.PrivateMemberPrefix
     value: '_'
   - key: readability-identifier-naming.ProtectedMemberPrefix
