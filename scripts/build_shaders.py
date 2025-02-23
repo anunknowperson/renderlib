@@ -1,32 +1,35 @@
-import os
+﻿import os
 import subprocess
 import argparse
 
-def main():
-    parser = argparse.ArgumentParser(description='Compile GLSL shaders to SPIR-V')
-    parser.add_argument('source_dir', help='Directory containing source shader files')
-    parser.add_argument('output_dir', help='Directory for compiled shader output')
-    args = parser.parse_args()
+def compile_shaders(source_dir: str, output_dir: str):
+    """Compile GLSL shaders to SPIR-V binaries."""
+    glslc = "glslc.exe" if os.name == "nt" else "glslc"
+    os.makedirs(output_dir, exist_ok=True)
 
-    # Ensure output directory exists
-    os.makedirs(args.output_dir, exist_ok=True)
+    # Process all shader files recursively
+    for root, _, files in os.walk(source_dir):
+        for filename in files:
+            if not filename.endswith((".vert", ".frag", ".comp")):
+                continue
 
-    # Select appropriate glslc executable based on platform
-    glslc_executable = "glslc.exe" if os.name == 'nt' else "glslc"
+            input_path = os.path.join(root, filename)
+            output_name = f"{os.path.splitext(filename)[0]}.spv"
+            output_path = os.path.join(output_dir, output_name)
 
-    print(f"Compiling shaders from {args.source_dir} to {args.output_dir}")
-
-    for filename in os.listdir(args.source_dir):
-        if filename.endswith((".vert", ".frag", ".comp")):
-            shader_file_path = os.path.join(args.source_dir, filename)
-            output_file = os.path.join(args.output_dir, filename + ".spv")
-            
-            command = [glslc_executable, shader_file_path, "-o", output_file]
             try:
-                subprocess.run(command, check=True)
-                print(f"Compiled {filename} to {output_file}")
+                subprocess.run([glslc, input_path, "-o", output_path], check=True)
+                print(f"[OK] {filename} → {output_name}")
             except subprocess.CalledProcessError as e:
-                print(f"Failed to compile {filename}: {e}")
+                print(f"[ERROR] {filename}: {e}")
+            except Exception as e:
+                print(f"[FATAL] {filename}: {e}")
 
 if __name__ == "__main__":
-    main()
+    # Configure command-line arguments
+    parser = argparse.ArgumentParser(description="GLSL to SPIR-V compiler")
+    parser.add_argument("--source", required=True, help="Source shaders directory")
+    parser.add_argument("--output", required=True, help="Output directory (build/demo)")
+    args = parser.parse_args()
+    
+    compile_shaders(args.source, args.output)
