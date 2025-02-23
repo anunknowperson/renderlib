@@ -1,30 +1,17 @@
 name: "Install Build Dependencies"
 description: "Installs dependencies required for building the project"
-inputs:
-  os:
-    description: "Operating system (e.g., ubuntu, windows)"
-    required: true
 runs:
   using: "composite"
   steps:
-    - name: Update APT package list (Linux)
-      if: startsWith('${{ inputs.os }}', 'Linux')
+    - name: Update APT and Other dependencies (Linux)
+      if: runner.os == 'Linux'
       shell: bash
       run: |
         sudo apt-get update
-
-    - name: Install xorg-dev (Linux)
-      if: startsWith('${{ inputs.os }}', 'Linux')
-      shell: bash
-      run: |
         sudo apt-get install -y xorg-dev
-
-    - name: Install libltdl-dev (Linux)
-      if: startsWith('${{ inputs.os }}', 'Linux')
-      shell: bash
-      run: |
         sudo apt-get install -y libltdl-dev
-
+        echo "Installed Linux Dependencies"
+        
     - name: Install latest CMake and Ninja
       uses: lukka/get-cmake@latest
 
@@ -38,13 +25,3 @@ runs:
         optional_components: com.lunarg.vulkan.vma
         cache: true
         stripdown: true
-
-    - name: Install Visual Studio Build Tools (Windows)
-      if: startsWith('${{ inputs.os }}', 'Windows')
-      shell: powershell
-      run: |
-        choco install visualstudio2022buildtools -y
-        Write-Host "Installed Visual Studio Build Tools using Chocolatey"
-        # Add the installation directory to PATH (adjust if needed)
-        [Environment]::SetEnvironmentVariable("PATH", "${env:PATH};C:\Program Files\Microsoft Visual Studio\2022\BuildTools\VC\Tools\MSVC\14.34.31931\bin\Hostx64\x64", "Machine")
-        Write-Host "Added Visual Studio to PATH"
