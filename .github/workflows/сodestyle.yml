@@ -80,6 +80,7 @@ jobs:
           build_dir: out/build/${{ matrix.preset }}
           config_file: '.clang-tidy'
           split_workflow: true
+          pr: ${{ github.event.pull_request.number }}
 
       - uses: ZedThree/clang-tidy-review/upload@v0.19.0
 
