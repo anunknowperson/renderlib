@@ -91,9 +91,9 @@ loadGltfMeshes(VulkanEngine* engine, std::filesystem::path filePath)
 				indices.reserve(indices.size()+indexaccessor.count);
 
 				fastgltf::iterateAccessor<std::uint32_t>(gltf, indexaccessor,
-						[&](std::uint32_t idx) {
-							indices.push_back(idx+initial_vtx);
-						});
+					[&](std::uint32_t idx) {
+						indices.push_back(idx + static_cast<std::uint32_t>(initial_vtx));
+					});
 			}
 
 			// load vertex positions
@@ -251,7 +251,7 @@ std::optional<std::shared_ptr<LoadedGLTF>> loadGltf(VulkanEngine* engine, std::s
 																	 {VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 3},
 																	 {VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 1}};
 
-	file.descriptorPool.init(engine->_device, gltf.materials.size(), sizes);
+	file.descriptorPool.init(engine->_device, static_cast<uint32_t>(gltf.materials.size()), sizes);
 
 	// load samplers
 	for (fastgltf::Sampler& sampler : gltf.samplers)
@@ -372,7 +372,7 @@ std::optional<std::shared_ptr<LoadedGLTF>> loadGltf(VulkanEngine* engine, std::s
 
 				fastgltf::iterateAccessor<std::uint32_t>(gltf, indexaccessor,
 						[&](std::uint32_t idx) {
-							indices.push_back(idx+initial_vtx);
+							indices.push_back(idx+ static_cast<std::uint32_t>(initial_vtx));
 						});
 			}
 

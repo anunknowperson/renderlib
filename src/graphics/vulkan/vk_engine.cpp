@@ -762,8 +762,8 @@ void VulkanEngine::draw_background(VkCommandBuffer cmd) {
 
     // execute the compute pipeline dispatch. We are using 16x16 workgroup size,
     // so we need to divide by it
-    vkCmdDispatch(cmd, std::ceil(_drawExtent.width / 16.0),
-                  std::ceil(_drawExtent.height / 16.0), 1);
+    vkCmdDispatch(cmd, static_cast<uint32_t>(std::ceil(_drawExtent.width / 16.0)),
+                  static_cast<uint32_t>(std::ceil(_drawExtent.height / 16.0)), 1);
 }
 
 void VulkanEngine::draw_imgui(VkCommandBuffer cmd,
@@ -819,8 +819,8 @@ void VulkanEngine::draw_geometry(VkCommandBuffer cmd) {
     VkViewport viewport{
         .x = 0,
         .y = 0,
-        .width = _drawExtent.width,
-        .height = _drawExtent.height,
+        .width = static_cast<float>(_drawExtent.width),
+        .height = static_cast<float>(_drawExtent.height),
         .minDepth = 0.f,
         .maxDepth = 1.f
     };
@@ -918,11 +918,11 @@ void VulkanEngine::draw() {
             VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT);
 
     _drawExtent.height =
-            std::min(_swapchainExtent.height, _drawImage.imageExtent.height) *
-            renderScale;
+            static_cast<uint32_t>(std::min(_swapchainExtent.height, _drawImage.imageExtent.height) *
+            renderScale);
     _drawExtent.width =
-            std::min(_swapchainExtent.width, _drawImage.imageExtent.width) *
-            renderScale;
+            static_cast<uint32_t>(std::min(_swapchainExtent.width, _drawImage.imageExtent.width) *
+            renderScale);
 
     VK_CHECK(vkBeginCommandBuffer(cmd, &cmdBeginInfo));
 
