@@ -3,15 +3,15 @@
 #include <filesystem>
 
 #include "glm/detail/type_mat4x4.hpp"
-#include "graphics/vulkan/vk_engine.h"
+#include "graphics/vulkan/VkEngine.h"
 
 class Mesh {
 public:
-    Mesh(const std::string& filePath);
+    Mesh(const std::string& file_path);
     ~Mesh();
 
-    void set_transform(glm::mat4 t);
-    glm::mat4 get_transform();
+    void setTransform(glm::mat4 t);
+    glm::mat4 getTransform();
 
 private:
     glm::mat4 _transform;

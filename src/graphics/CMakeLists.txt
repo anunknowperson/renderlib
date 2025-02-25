@@ -1,10 +1,10 @@
 target_sources(${PROJECT_NAME}
         PRIVATE
-        vulkan/vk_descriptors.cpp
-        vulkan/vk_engine.cpp
-        vulkan/vk_images.cpp
-        vulkan/vk_initializers.cpp
-        vulkan/vk_loader.cpp
-        vulkan/vk_pipelines.cpp
+        vulkan/VkDescriptors.cpp
+        vulkan/VkEngine.cpp
+        vulkan/VkImages.cpp
+        vulkan/VkInitializers.cpp
+        vulkan/VkLoader.cpp
+        vulkan/VkPipelines.cpp
         Graphics.cpp
 )

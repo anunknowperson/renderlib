@@ -7,5 +7,5 @@ target_sources(${PROJECT_NAME}
         ModelImpl.cpp
         View.cpp
         ViewImpl.cpp
-        createInstance.cpp
+        CreateInstance.cpp
 )
