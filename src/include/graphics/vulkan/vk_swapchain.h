@@ -48,7 +48,7 @@ public:
         return _swapchainImageViews;
     }
 private:
-    std::shared_ptr<VulkanContext> vCtxP;
+    std::shared_ptr<VulkanContext> vCtx;
 
     VmaAllocator _allocator;
 
