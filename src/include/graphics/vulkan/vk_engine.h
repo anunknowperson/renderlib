@@ -1,7 +1,5 @@
 ﻿#pragma once
 
-#include <random>
-#include <utility>
 #include <cstddef>
 #include <cstdint>
 #include <deque>
@@ -18,10 +16,7 @@
 #include <vulkan/vk_platform.h>
 #include <vulkan/vulkan_core.h>
 
-#include "core/Mesh.h"
-#include "scene/Camera.h"
 #include "vk_descriptors.h"
-#include "vk_loader.h"
 #include "vk_types.h"
 #include "vk_swapchain.h"
 
