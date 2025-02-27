@@ -1064,7 +1064,7 @@ void VulkanEngine::draw() {
 }
 
 void VulkanEngine::immediate_submit(
-        std::function<void(VkCommandBuffer cmd)>&& function) {
+        std::function<void(VkCommandBuffer cmd)>&& function) const {
     VK_CHECK(vkResetFences(vCtx->device, 1, &_immFence));
     VK_CHECK(vkResetCommandBuffer(_immCommandBuffer, 0));
 
