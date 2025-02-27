@@ -1,6 +1,23 @@
 ﻿#include "graphics/vulkan/vk_engine.h"
 
+#include <SDL_error.h>
+#include <SDL_stdinc.h>
+#include <SDL_video.h>
+#include <algorithm>
+#include <array>
+#include <cassert>
+#include <cmath>
+#include <cstring>
+#include <filesystem>
+#include <fmt/base.h>
+#include <optional>
+#include <random>
+#include <system_error>
+
+#include "core/Logging.h"
 #include "core/config.h"
+#include "graphics/vulkan/vk_descriptors.h"
+#include "scene/Camera.h"
 
 #define VMA_IMPLEMENTATION
 #include "SDL_vulkan.h"
@@ -52,6 +69,12 @@ VKAPI_ATTR VkBool32 VKAPI_CALL VulkanEngine::debugCallback(
             type = "Performance";
 
             break;
+
+        case VK_DEBUG_UTILS_MESSAGE_TYPE_DEVICE_ADDRESS_BINDING_BIT_EXT:
+            type = "Modified set of GPU-visible virtual addresses";
+            break;
+        default:
+            type = "Unknown";
     }
 
     std::string message = "(" + type + ")" + pCallbackData->pMessage;
@@ -66,6 +89,8 @@ VKAPI_ATTR VkBool32 VKAPI_CALL VulkanEngine::debugCallback(
         LOGW(message)
     } else if (messageSeverity >=
                VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT) {
+        LOGE("{}", message)
+    } else {
         LOGE("{}", message)
     }
 
