@@ -66,23 +66,6 @@ struct GLTFMetallic_Roughness {
             DescriptorAllocatorGrowable& descriptorAllocator);
 };
 
-// struct DeletionQueue {
-//     std::deque<std::function<void()>> deletors;
-//
-//     void push_function(std::function<void()>&& function) {
-//         deletors.push_back(function);
-//     }
-//
-//     void flush() {
-//         // reverse iterate the deletion queue to execute all the functions
-//         for (auto& deletor : std::ranges::reverse_view(deletors)) {
-//             deletor();  // call functors
-//         }
-//
-//         deletors.clear();
-//     }
-// };
-
 struct FrameData {
     VkCommandPool _commandPool;
     VkCommandBuffer _mainCommandBuffer;
@@ -126,14 +109,9 @@ struct DrawContext {
     std::vector<RenderObject> OpaqueSurfaces;
 };
 
-
-
-
-
-
 class VulkanEngine {
 public:
-    int64_t registerMesh(std::string filePath);
+    int64_t registerMesh(const std::string& filePath);
     void unregisterMesh(int64_t id);
 
     void setMeshTransform(int64_t id, glm::mat4 mat);
@@ -260,7 +238,7 @@ private:
     void init_commands();
     void init_sync_structures();
 
-    void draw_background(VkCommandBuffer cmd);
+    void draw_background(VkCommandBuffer cmd) const;
 
     void init_descriptors();
 

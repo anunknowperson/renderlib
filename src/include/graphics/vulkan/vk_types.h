@@ -63,7 +63,6 @@ struct VulkanContext {
     bool resize_requested;
 };
 
-
 struct AllocatedBuffer {
     VkBuffer buffer;
     VmaAllocation allocation;
