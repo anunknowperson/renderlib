@@ -22,11 +22,6 @@
 #define VMA_IMPLEMENTATION
 #include "SDL_vulkan.h"
 #include "VkBootstrap.h"
-#include "graphics/vulkan/vk_images.h"
-#include "graphics/vulkan/vk_initializers.h"
-#include "graphics/vulkan/vk_loader.h"
-#include "graphics/vulkan/vk_pipelines.h"
-#include "graphics/vulkan/vk_types.h"
 #include "imgui.h"
 #include "imgui_impl_sdl2.h"
 #include "imgui_impl_vulkan.h"
@@ -34,6 +29,12 @@
 
 #define GLM_ENABLE_EXPERIMENTAL
 #include "glm/gtx/transform.hpp"
+
+#include "graphics/vulkan/vk_images.h"
+#include "graphics/vulkan/vk_initializers.h"
+#include "graphics/vulkan/vk_loader.h"
+#include "graphics/vulkan/vk_pipelines.h"
+#include "graphics/vulkan/vk_types.h"
 
 VulkanEngine* loadedEngine = nullptr;
 
