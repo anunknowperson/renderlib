@@ -1,4 +1,5 @@
 #include "core/ModelImpl.h"
+#include "core/Mesh.h"
 
 #include <cassert>
 #include <cstring>
@@ -6,6 +7,7 @@
 #include <fastgltf/glm_element_traits.hpp>
 #include <fastgltf/tools.hpp>
 #include <iostream>
+#include <SDL_video.h>
 
 #include "core/config.h"
 #include "graphics/vulkan/MeshNode.h"
@@ -446,7 +448,7 @@ ModelImpl::~ModelImpl() {
 
 ModelImpl::ModelImpl() = default;
 
-void ModelImpl::registerWindow(struct SDL_Window* window) {
+void ModelImpl::registerWindow(SDL_Window* window) {
     _engine.mainCamera = &_camera;
     _engine.init(window);
 }

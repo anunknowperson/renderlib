@@ -1,7 +1,7 @@
 {
   "name": "renderlib",
   "version": "0.0.0",
-  "builtin-baseline": "7adc2e4d49e8d0efc07a369079faa6bc3dbb90f3",
+  "builtin-baseline": "d5ec528843d29e3a52d745a64b469f810b2cedbf",
   "dependencies": [
     "fastgltf",
     "flecs",
@@ -13,6 +13,7 @@
         "vulkan-binding"
       ]
     },
+    "gtest",
     {
       "name": "sdl2",
       "features": [
@@ -23,5 +24,11 @@
     "stb",
     "vk-bootstrap",
     "vulkan-memory-allocator"
+  ],
+  "overrides": [
+    {
+      "name": "fastgltf",
+      "version": "0.7.1"
+    }
   ]
 }

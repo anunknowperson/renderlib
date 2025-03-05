@@ -5,7 +5,7 @@
 #include "interfaces/IModel.h"
 #include "interfaces/IView.h"
 
-class ViewImpl : public IView {
+class ViewImpl final : public IView {
 public:
     explicit ViewImpl(IModel::Ptr model);
     ~ViewImpl() override;
@@ -16,5 +16,5 @@ public:
 private:
     IModel::Ptr _model;
 
-    struct SDL_Window* window{nullptr};
+    SDL_Window* window{nullptr};
 };

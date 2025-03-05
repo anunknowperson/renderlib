@@ -1,8 +1,10 @@
 #pragma once
 
+#include <cstdint>
 #include <filesystem>
 
 #include "graphics/vulkan/vk_descriptors.h"
+#include "graphics/vulkan/vk_types.h"
 
 class VulkanEngine;
 

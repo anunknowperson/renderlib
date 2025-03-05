@@ -1,5 +1,7 @@
 #include "graphics/vulkan/vk_images.h"
 
+#include <cstdint>
+
 #include "graphics/vulkan/vk_initializers.h"
 
 void vkutil::transition_image(VkCommandBuffer cmd, VkImage image,
@@ -18,10 +20,10 @@ void vkutil::transition_image(VkCommandBuffer cmd, VkImage image,
     imageBarrier.oldLayout = currentLayout;
     imageBarrier.newLayout = newLayout;
 
-    VkImageAspectFlags aspectMask =
+    const auto aspectMask = static_cast<VkImageAspectFlags>(
             (newLayout == VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_OPTIMAL)
                     ? VK_IMAGE_ASPECT_DEPTH_BIT
-                    : VK_IMAGE_ASPECT_COLOR_BIT;
+                    : VK_IMAGE_ASPECT_COLOR_BIT);
     imageBarrier.subresourceRange = vkinit::image_subresource_range(aspectMask);
     imageBarrier.image = image;
 
@@ -41,12 +43,12 @@ void vkutil::copy_image_to_image(VkCommandBuffer cmd, VkImage source,
     VkImageBlit2 blitRegion{.sType = VK_STRUCTURE_TYPE_IMAGE_BLIT_2,
                             .pNext = nullptr};
 
-    blitRegion.srcOffsets[1].x = srcSize.width;
-    blitRegion.srcOffsets[1].y = srcSize.height;
+    blitRegion.srcOffsets[1].x = static_cast<int32_t>(srcSize.width);
+    blitRegion.srcOffsets[1].y = static_cast<int32_t>(srcSize.height);
     blitRegion.srcOffsets[1].z = 1;
 
-    blitRegion.dstOffsets[1].x = dstSize.width;
-    blitRegion.dstOffsets[1].y = dstSize.height;
+    blitRegion.dstOffsets[1].x = static_cast<int32_t>(dstSize.width);
+    blitRegion.dstOffsets[1].y = static_cast<int32_t>(dstSize.height);
     blitRegion.dstOffsets[1].z = 1;
 
     blitRegion.srcSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;

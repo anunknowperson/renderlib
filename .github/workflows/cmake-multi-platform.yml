@@ -1,99 +1,47 @@
-# This starter workflow is for a CMake project running on multiple platforms. There is a different starter workflow if you just want a single platform.
-# See: https://github.com/actions/starter-workflows/blob/main/ci/cmake-single-platform.yml
-name: CMake on multiple platforms
+   name: CMake on multiple platforms
 
-on:
-  push:
-    branches: [ "main" ]
-  pull_request:
-    branches: [ "main" ]
+   on:
+     push:
+       branches: [ "main" ]
+     pull_request:
+       branches: [ "main" ]
 
-jobs:
-  build:
-    runs-on: ${{ matrix.os }}
+   jobs:
+     build:
+       runs-on: ${{ matrix.os }}
 
-    strategy:
-      # Set fail-fast to false to ensure that feedback is delivered for all matrix combinations. Consider changing this to true when your workflow is stable.
-      fail-fast: false
+       strategy:
+         fail-fast: false
+         matrix:
+           include:
+             - os: windows-latest
+               c_compiler: cl
+               preset: wx64-release
+             - os: ubuntu-latest
+               c_compiler: clang
+               preset: lx64-release
 
-      # Set up a matrix to run the following 3 configurations:
-      # 1. <Windows, Release, latest MSVC compiler toolchain on the default runner image, default generator>
-      # 2. <Linux, Release, latest GCC compiler toolchain on the default runner image, default generator>
-      # 3. <Linux, Release, latest Clang compiler toolchain on the default runner image, default generator>
-      #
-      # To add more build types (Release, Debug, RelWithDebInfo, etc.) customize the build_type list.
-      matrix:
-        
-        
-        include:
-          - os: windows-latest
-            c_compiler: cl
-            preset: wx64-debug
-          - os: windows-latest
-            c_compiler: cl
-            preset: wx64-release
-          - os: windows-latest
-            c_compiler: cl
-            preset: wx86-debug
-          - os: windows-latest
-            c_compiler: cl
-            preset: wx86-release
-          - os: ubuntu-latest
-            c_compiler: clang
-            preset: lx64-debug
-          - os: ubuntu-latest
-            c_compiler: clang
-            preset: lx64-release
-          - os: ubuntu-latest
-            c_compiler: clang
-            preset: lx86-debug
-          - os: ubuntu-latest
-            c_compiler: clang
-            preset: lx86-release
-      
+       steps:
+       - uses: actions/checkout@v4
+         with:
+           submodules: true
+           fetch-depth: '0'
 
-    steps:
-    - uses: actions/checkout@v3
-      with:
-        submodules: true
+       - name: Install Dependencies
+         uses: ./.github/composite-actions/install-dependencies
+         with:
+           os: ${{ matrix.os }}
 
-    - name: Update APT package list
-      if: startsWith(runner.os, 'Linux')
-      run: sudo apt-get update
+       - name: Set reusable strings
+         id: strings
+         shell: bash
+         run: |
+           echo "build-output-dir=${{ github.workspace }}/build" >> "$GITHUB_OUTPUT"
 
-    
-    - name: Install xorg-dev
-      if: startsWith(runner.os, 'Linux')
-      run: sudo apt-get install -y xorg-dev
-
-    - name: Setup Ninja
-      uses: ashutoshvarma/setup-ninja@v1.1
-  
-    - name: Restore from cache and setup vcpkg executable and data files.
-      uses: lukka/run-vcpkg@v11
-      with:
-        vcpkgJsonGlob: 'vcpkg.json'
-        vcpkgDirectory: 'vendor/vcpkg'
-    
-    - name: Setup Vulkan SDK
-      # You may pin to the exact commit or the version.
-      # uses: humbletim/setup-vulkan-sdk@72eed4b9dbeac5de168f83da8e30b1d0f8ac7f14
-      uses: humbletim/setup-vulkan-sdk@v1.2.0
-      with:
-        vulkan-query-version: 1.3.204.0
-        vulkan-components: Vulkan-Headers, Vulkan-Loader
-        vulkan-use-cache: true
-    
-
-    - name: Set reusable strings
-      # Turn repeated input strings (such as the build output directory) into step outputs. These step outputs can be used throughout the workflow file.
-      id: strings
-      shell: bash
-      run: |
-        echo "build-output-dir=${{ github.workspace }}/build" >> "$GITHUB_OUTPUT"
-
-    - name: Run CMake
-      uses: lukka/run-cmake@v10
-      id: runcmake
-      with:
-        configurePreset: ${{ matrix.preset }}
+       - name: Run CMake
+         uses: lukka/run-cmake@v10
+         id: runcmake
+         with:
+           configurePreset: ${{ matrix.preset }}
+           buildPreset: ${{ matrix.preset }}
+           testPreset: ${{ matrix.preset }}
