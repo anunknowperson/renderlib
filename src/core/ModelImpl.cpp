@@ -1,5 +1,5 @@
 #include "core/ModelImpl.h"
-#include "core/Mesh.h"
+#include "scene/Mesh.h"
 
 #include <cassert>
 #include <cstring>
@@ -8,6 +8,23 @@
 #include <fastgltf/tools.hpp>
 #include <iostream>
 #include <SDL_video.h>
+#include <fmt/base.h>
+#include <vulkan/vulkan_core.h>
+#include <cstdint>
+#include <filesystem>
+#include <memory>
+#include <optional>
+#include <random>
+#include <span>
+#include <stdexcept>
+#include <string>
+#include <string_view>
+#include <unordered_map>
+#include <utility>
+#include <variant>
+#include <vector>
+#include "graphics/vulkan/vk_descriptors.h"
+#include "graphics/vulkan/vk_types.h"
 
 #include "core/config.h"
 #include "graphics/vulkan/MeshNode.h"

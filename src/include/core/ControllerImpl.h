@@ -7,6 +7,8 @@
 #include "interfaces/IModel.h"
 #include "interfaces/IView.h"
 
+class MeshController;
+
 class ControllerImpl : public IController {
 public:
     explicit ControllerImpl(IModel::Ptr model, IView::Ptr view);

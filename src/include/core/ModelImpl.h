@@ -1,16 +1,10 @@
 #pragma once
 
 #include <glm/ext/matrix_float4x4.hpp>
-#include <memory>
-#include <string>
-#include <unordered_map>
-
 #include "graphics/vulkan/vk_engine.h"
 #include "interfaces/IModel.h"
 #include "scene/Camera.h"
 #include "scene/Mesh.h"
-
-class Mesh;
 
 class ModelImpl : public IModel {
 public:

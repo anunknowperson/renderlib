@@ -1,6 +1,7 @@
 ﻿#pragma once
 
 #include <random>
+#include <ranges>
 
 #include "RenderableGLTF.h"
 #include "interfaces/IModel.h"

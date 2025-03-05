@@ -1,11 +1,10 @@
 #include "core/ControllerImpl.h"
 
-#include <cassert>
-#include <chrono>
-#include <core/View.h>
 #include <graphics/vulkan/vk_engine.h>
-#include <iostream>
 #include <utility>
+
+#include "core/MeshController.h"
+#include "scene/Camera.h"
 
 ControllerImpl::ControllerImpl(IModel::Ptr model, IView::Ptr view)
     : _model(std::move(model)), _view(std::move(view)) {}
