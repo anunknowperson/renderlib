@@ -1,6 +1,7 @@
 #pragma once
 
-#include <memory>
+#include <SDL_events.h>
+#include <SDL_video.h>
 
 #include "interfaces/IModel.h"
 #include "interfaces/IView.h"
