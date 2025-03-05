@@ -1,20 +1,17 @@
 #include "core/ViewImpl.h"
 
 #include <SDL2/SDL.h>
-#include <SDL_events.h>
 #include <SDL_video.h>
 
-#include <chrono>
 #include <memory>
-#include <string>
-#include <thread>
 #include <utility>
-#include <variant>
 
 #include "graphics/vulkan/vk_engine.h"
 #include "imgui.h"
 #include "imgui_impl_sdl2.h"
 #include "imgui_impl_vulkan.h"
+
+#include <stdint.h>
 
 namespace {
 constexpr auto kWindowFlags =
