@@ -1,18 +1,10 @@
 ﻿#include "graphics/vulkan/RenderableGLTF.h"
-
-#include <iostream>
-
-#include "graphics/vulkan/vk_engine.h"
+#include <glm/fwd.hpp>
+#include <utility>
+#include <vector>
 #include "graphics/vulkan/vk_types.h"
-#include "stb_image.h"
 
 #define GLM_ENABLE_EXPERIMENTAL
-
-#include <fastgltf/core.hpp>
-#include <fastgltf/glm_element_traits.hpp>
-#include <fastgltf/tools.hpp>
-#include <fastgltf/types.hpp>
-#include <glm/gtx/quaternion.hpp>
 
 RenderableGLTF::RenderableGLTF(LoadedGltfPtr gltf) : _gltf(std::move(gltf)) {}
 
