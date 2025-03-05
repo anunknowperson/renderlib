@@ -1,18 +1,14 @@
 ﻿#pragma once
 
-#include <array>
-#include <deque>
-#include <functional>
 #include <memory>
-#include <optional>
 #include <span>
 #include <string>
-#include <type_traits>
 #include <vector>
 
 #include "core/Logging.h"
 #include "glm/mat4x4.hpp"
 #include "glm/vec4.hpp"
+#define VMA_IMPLEMENTATION
 #include "vk_mem_alloc.h"
 #include "vulkan/vulkan.h"
 

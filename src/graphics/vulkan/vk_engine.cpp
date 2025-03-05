@@ -9,7 +9,7 @@
 #include <algorithm>
 #include <array>
 #include <cmath>
-#include <glm/fwd.hpp>                        // for vec4, mat4, vec3
+#include <glm/fwd.hpp>
 #include "core/Logging.h"
 #include "graphics/vulkan/vk_descriptors.h"
 #include "scene/Camera.h"
@@ -31,6 +31,7 @@
 #include "imgui_impl_sdl2.h"
 #include "imgui_impl_vulkan.h"
 #include "interfaces/IModel.h"
+#define VMA_IMPLEMENTATION
 #include "vk_mem_alloc.h"
 
 #define GLM_ENABLE_EXPERIMENTAL
@@ -172,8 +173,8 @@ void VulkanEngine::init_default_data() {
 
     // write the buffer
     auto* sceneUniformData =
-            (GLTFMetallic_Roughness::MaterialConstants*)
-                    materialConstants.allocation->GetMappedData();
+            static_cast<GLTFMetallic_Roughness::MaterialConstants*>(
+                    materialConstants.allocation->GetMappedData());
     sceneUniformData->colorFactors = glm::vec4{1, 1, 1, 1};
     sceneUniformData->metal_rough_factors = glm::vec4{1, 0.5, 0, 0};
 
