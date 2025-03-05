@@ -19,7 +19,6 @@
 
 #include "core/config.h"
 
-
 #include "SDL_vulkan.h"
 #include "VkBootstrap.h"
 #include "graphics/vulkan/RenderableGLTF.h"
@@ -31,6 +30,7 @@
 #include "imgui_impl_sdl2.h"
 #include "imgui_impl_vulkan.h"
 #include "interfaces/IModel.h"
+
 #define VMA_IMPLEMENTATION
 #include "vk_mem_alloc.h"
 

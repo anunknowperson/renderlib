@@ -8,7 +8,7 @@
 #include "core/Logging.h"
 #include "glm/mat4x4.hpp"
 #include "glm/vec4.hpp"
-#define VMA_IMPLEMENTATION
+
 #include "vk_mem_alloc.h"
 #include "vulkan/vulkan.h"
 
