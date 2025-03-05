@@ -1,21 +1,30 @@
 ﻿#include "graphics/vulkan/vk_engine.h"
 
-#include <fastgltf/core.hpp>
+#include <SDL_error.h>
+#include <SDL_stdinc.h>
+#include <SDL_video.h>
+#include <cassert>
+#include <fmt/base.h>
+#include <cstring>
+#include <algorithm>
+#include <array>
+#include <cmath>
+#include <glm/fwd.hpp>                        // for vec4, mat4, vec3
+#include "core/Logging.h"
+#include "graphics/vulkan/vk_descriptors.h"
+#include "scene/Camera.h"
+
 #include <fastgltf/tools.hpp>
-#include <iostream>
 #include <ranges>
 
 #include "core/config.h"
 
-#define VMA_IMPLEMENTATION
-#include <fastgltf/glm_element_traits.hpp>
 
 #include "SDL_vulkan.h"
 #include "VkBootstrap.h"
 #include "graphics/vulkan/RenderableGLTF.h"
 #include "graphics/vulkan/vk_images.h"
 #include "graphics/vulkan/vk_initializers.h"
-// #include "graphics/vulkan/vk_loader.h"
 #include "graphics/vulkan/vk_pipelines.h"
 #include "graphics/vulkan/vk_types.h"
 #include "imgui.h"

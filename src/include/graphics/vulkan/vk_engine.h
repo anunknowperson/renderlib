@@ -1,16 +1,26 @@
 ﻿#pragma once
 
-#include <random>
+#include <cstddef>
+#include <cstdint>
+#include <vk_mem_alloc.h>
+#include <vulkan/vk_platform.h>
+#include <vulkan/vulkan_core.h>
+#include <deque>
+#include <functional>
+#include <memory>
+#include <span>
+#include <string>
+#include <unordered_map>
+#include <vector>
 #include <ranges>
 
-#include "RenderableGLTF.h"
 #include "interfaces/IModel.h"
-#include "scene/Camera.h"
-#include "scene/Mesh.h"
 #include "vk_descriptors.h"
-#include "vk_pipelines.h"
 #include "vk_types.h"
 
+class Camera;
+class VulkanEngine;
+namespace Mesh::GLTF { struct LoadedGLTF; }
 struct MeshAsset;
 
 constexpr unsigned int FRAME_OVERLAP = 2;
