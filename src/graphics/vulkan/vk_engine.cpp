@@ -2,6 +2,8 @@
 
 #include "core/config.h"
 
+#include "pipelines_interface.h"
+
 #define VMA_IMPLEMENTATION
 #include "SDL_vulkan.h"
 #include "VkBootstrap.h"
@@ -332,12 +334,38 @@ void VulkanEngine::init_background_pipelines() {
 }
 
 void VulkanEngine::init_pipelines() {
-    init_background_pipelines();
+    trianglePipeline = std::make_unique<TrianglePipeline>(_singleImageDescriptorLayout, _drawImage);
+    trianglePipeline->init(this);
 
-    pipelines.init(_device, _singleImageDescriptorLayout, _drawImage);
-    _mainDeletionQueue.push_function([&]() { pipelines.destroy(); });
+    meshPipeline = std::make_unique<MeshPipeline>(_singleImageDescriptorLayout, _drawImage);
+    meshPipeline->init(this);
 
-    metalRoughMaterial.build_pipelines(this);
+    gltfRoughPipeline = std::make_unique<GLTFRoughnessPipeline>();
+    gltfRoughPipeline->init(this);
+
+    GLTFMetallic_Roughness::MaterialResources materialResources{};
+    materialResources.colorImage = _whiteImage;
+    materialResources.colorSampler = _defaultSamplerLinear;
+    materialResources.metalRoughImage = _whiteImage;
+    materialResources.metalRoughSampler = _defaultSamplerLinear;
+
+    AllocatedBuffer materialConstants = create_buffer(
+        sizeof(GLTFMetallic_Roughness::MaterialConstants),
+        VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
+        VMA_MEMORY_USAGE_CPU_TO_GPU);
+    
+    auto* materialData = reinterpret_cast<GLTFMetallic_Roughness::MaterialConstants*>(
+        materialConstants.allocation->GetMappedData());
+    materialData->colorFactors = glm::vec4(1.0f);
+    materialData->metal_rough_factors = glm::vec4(1.0f, 0.5f, 0.0f, 0.0f);
+    
+    _mainDeletionQueue.push_function([=, this]() { destroy_buffer(materialConstants); });
+    
+    materialResources.dataBuffer = materialConstants.buffer;
+    materialResources.dataBufferOffset = 0;
+    
+    defaultData = gltfRoughPipeline->write_material(_device, MaterialPass::Opaque,
+                                                    materialResources, globalDescriptorAllocator);
 }
 
 void VulkanEngine::init(struct SDL_Window* window) {
@@ -634,6 +662,16 @@ void VulkanEngine::cleanup() {
 
         loadedScenes.clear();
 
+        if (trianglePipeline) {
+            trianglePipeline->destroy();
+        }
+        if (meshPipeline) {
+            meshPipeline->destroy();
+        }
+        if (gltfRoughPipeline) {
+            gltfRoughPipeline->destroy();
+        }
+
         _mainDeletionQueue.flush();
 
         for (int i = 0; i < FRAME_OVERLAP; i++) {
@@ -781,112 +819,71 @@ void VulkanEngine::draw_imgui(VkCommandBuffer cmd,
 }
 
 void VulkanEngine::draw_geometry(VkCommandBuffer cmd) {
-    // allocate a new uniform buffer for the scene data
+    // Allocate a uniform buffer for scene data as before
     AllocatedBuffer gpuSceneDataBuffer = create_buffer(
-            sizeof(GPUSceneData), VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
-            VMA_MEMORY_USAGE_CPU_TO_GPU);
-
-    // add it to the deletion queue of this frame, so it gets deleted once it's
-    // been used
-    get_current_frame()._deletionQueue.push_function(
-            [=, this]() { destroy_buffer(gpuSceneDataBuffer); });
-
-    // write the buffer
-    auto* sceneUniformData =
-            (GPUSceneData*)gpuSceneDataBuffer.allocation->GetMappedData();
+        sizeof(GPUSceneData),
+        VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
+        VMA_MEMORY_USAGE_CPU_TO_GPU);
+    
+    auto* sceneUniformData = reinterpret_cast<GPUSceneData*>(
+        gpuSceneDataBuffer.allocation->GetMappedData());
     *sceneUniformData = sceneData;
-
-    // create a descriptor set that binds that buffer and update it
-    VkDescriptorSet globalDescriptor =
-            get_current_frame()._frameDescriptors.allocate(
-                    _device, _gpuSceneDataDescriptorLayout);
-
-    DescriptorWriter writer;
-    writer.write_buffer(0, gpuSceneDataBuffer.buffer, sizeof(GPUSceneData), 0,
-                        VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER);
-    writer.update_set(_device, globalDescriptor);
-
-    VkRenderingAttachmentInfo colorAttachment = vkinit::attachment_info(
-            _drawImage.imageView, nullptr, VK_IMAGE_LAYOUT_GENERAL);
-
-    VkRenderingInfo renderInfo =
-            vkinit::rendering_info(_drawExtent, &colorAttachment, nullptr);
-    vkCmdBeginRendering(cmd, &renderInfo);
-
-    vkCmdBindPipeline(cmd, VK_PIPELINE_BIND_POINT_GRAPHICS,
-                      pipelines.trianglePipeline);
-
-    VkViewport viewport{
-        .x = 0,
-        .y = 0,
-        .width = static_cast<float>(_drawExtent.width),
-        .height = static_cast<float>(_drawExtent.height),
-        .minDepth = 0.f,
-        .maxDepth = 1.f
-    };
-
-    vkCmdSetViewport(cmd, 0, 1, &viewport);
-
-    VkRect2D scissor{
-        .offset = {
-            .x = 0,
-            .y = 0
-        },
-        .extent = {
-            .width = _drawExtent.width,
-            .height = _drawExtent.height
-        }
-    };
-
-    vkCmdSetScissor(cmd, 0, 1, &scissor);
-
-    // bind a texture
-    VkDescriptorSet imageSet = get_current_frame()._frameDescriptors.allocate(
-            _device, _singleImageDescriptorLayout);
+    
+    // Allocate and update a descriptor set for the scene uniform buffer
+    VkDescriptorSet globalDescriptor = get_current_frame()._frameDescriptors.allocate(
+        _device, _gpuSceneDataDescriptorLayout);
     {
         DescriptorWriter writer;
-        writer.write_image(0, _errorCheckerboardImage.imageView,
-                           _defaultSamplerNearest,
-                           VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
-                           VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER);
-
-        writer.update_set(_device, imageSet);
+        writer.write_buffer(0, gpuSceneDataBuffer.buffer, sizeof(GPUSceneData), 0,
+                            VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER);
+        writer.update_set(_device, globalDescriptor);
     }
-
+    
+    // Begin render pass using our draw image (unchanged)
+    VkRenderingAttachmentInfo colorAttachment = vkinit::attachment_info(
+        _drawImage.imageView, nullptr, VK_IMAGE_LAYOUT_GENERAL);
+    VkRenderingInfo renderInfo = vkinit::rendering_info(_drawExtent, &colorAttachment, nullptr);
+    vkCmdBeginRendering(cmd, &renderInfo);
+    
+    // Bind the mesh pipeline using the new interface:
+    vkCmdBindPipeline(cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, meshPipeline->getPipeline());
+    
+    // Bind the scene descriptor set on set 0
     vkCmdBindDescriptorSets(cmd, VK_PIPELINE_BIND_POINT_GRAPHICS,
-                            pipelines.meshPipelineLayout, 0, 1, &imageSet, 0,
-                            nullptr);
-
+                            meshPipeline->getPipelineLayout(), 0, 1, &globalDescriptor,
+                            0, nullptr);
+    
+    // For each render object, bind material-specific descriptor sets
     for (const RenderObject& draw : mainDrawContext.OpaqueSurfaces) {
+        // Bind the pipeline associated with the render object's material:
         vkCmdBindPipeline(cmd, VK_PIPELINE_BIND_POINT_GRAPHICS,
-                          draw.material->pipeline->pipeline);
+                          draw.material->pipeline->getPipeline());
+        // Bind global scene descriptors (set 0) and material-specific descriptors (set 1)
         vkCmdBindDescriptorSets(cmd, VK_PIPELINE_BIND_POINT_GRAPHICS,
-                                draw.material->pipeline->layout, 0, 1,
-                                &globalDescriptor, 0, nullptr);
+                                draw.material->pipeline->getPipelineLayout(),
+                                0, 1, &globalDescriptor, 0, nullptr);
         vkCmdBindDescriptorSets(cmd, VK_PIPELINE_BIND_POINT_GRAPHICS,
-                                draw.material->pipeline->layout, 1, 1,
-                                &draw.material->materialSet, 0, nullptr);
-
+                                draw.material->pipeline->getPipelineLayout(),
+                                1, 1, &draw.material->materialSet, 0, nullptr);
+        
         vkCmdBindIndexBuffer(cmd, draw.indexBuffer, 0, VK_INDEX_TYPE_UINT32);
-
+        
         GPUDrawPushConstants pushConstants{};
         pushConstants.vertexBuffer = draw.vertexBufferAddress;
         pushConstants.worldMatrix = draw.transform;
-        vkCmdPushConstants(cmd, draw.material->pipeline->layout,
+        vkCmdPushConstants(cmd, draw.material->pipeline->getPipelineLayout(),
                            VK_SHADER_STAGE_VERTEX_BIT, 0,
                            sizeof(GPUDrawPushConstants), &pushConstants);
-
+        
         vkCmdDrawIndexed(cmd, draw.indexCount, 1, draw.firstIndex, 0, 0);
     }
-
+    
     vkCmdEndRendering(cmd);
 }
 
 void VulkanEngine::draw() {
     update_scene();
 
-    // wait until the gpu has finished rendering the last frame. Timeout of 1
-    // second
     VK_CHECK(vkWaitForFences(_device, 1, &get_current_frame()._renderFence,
                              true, 1000000000));
 
@@ -895,7 +892,6 @@ void VulkanEngine::draw() {
 
     VK_CHECK(vkResetFences(_device, 1, &get_current_frame()._renderFence));
 
-    // request image from the swapchain
     uint32_t swapchainImageIndex;
     VkResult e = vkAcquireNextImageKHR(_device, _swapchain, 1000000000,
                                        get_current_frame()._swapchainSemaphore,
@@ -905,15 +901,10 @@ void VulkanEngine::draw() {
         return;
     }
 
-    // naming it cmd for shorter writing
     VkCommandBuffer cmd = get_current_frame()._mainCommandBuffer;
 
-    // now that we are sure that the commands finished executing, we can safely
-    // reset the command buffer to begin recording again.
     VK_CHECK(vkResetCommandBuffer(cmd, 0));
 
-    // begin the command buffer recording. We will use this command buffer
-    // exactly once, so we want to let vulkan know that
     VkCommandBufferBeginInfo cmdBeginInfo = vkinit::command_buffer_begin_info(
             VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT);
 
@@ -926,9 +917,6 @@ void VulkanEngine::draw() {
 
     VK_CHECK(vkBeginCommandBuffer(cmd, &cmdBeginInfo));
 
-    // transition our main draw image into general layout, so we can write into
-    // it, we will overwrite it all, so we don't care about what was the older
-    // layout
     vkutil::transition_image(cmd, _drawImage.image, VK_IMAGE_LAYOUT_UNDEFINED,
                              VK_IMAGE_LAYOUT_GENERAL);
 
@@ -939,8 +927,6 @@ void VulkanEngine::draw() {
 
     draw_geometry(cmd);
 
-    // transition the draw image and the swapchain image into their correct
-    // transfer layouts
     vkutil::transition_image(cmd, _drawImage.image,
                              VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
                              VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL);
@@ -948,32 +934,18 @@ void VulkanEngine::draw() {
                              VK_IMAGE_LAYOUT_UNDEFINED,
                              VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
 
-    // execute a copy from the draw image into the swapchain
     vkutil::copy_image_to_image(cmd, _drawImage.image,
                                 _swapchainImages[swapchainImageIndex],
                                 _drawExtent, _swapchainExtent);
 
-    // set swapchain image layout to Present, so we can show it on the screen
     vkutil::transition_image(cmd, _swapchainImages[swapchainImageIndex],
                              VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
                              VK_IMAGE_LAYOUT_PRESENT_SRC_KHR);
 
-    // draw imgui into the swapchain image
     draw_imgui(cmd, _swapchainImageViews[swapchainImageIndex]);
 
-    // set swapchain image layout to Present, so we can draw it
-    // vkutil::transition_image(cmd, _swapchainImages[swapchainImageIndex],
-    // VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
-    // VK_IMAGE_LAYOUT_PRESENT_SRC_KHR);
-
-    // finalize the command buffer (we can no longer add commands, but it can
-    // now be executed)
     VK_CHECK(vkEndCommandBuffer(cmd));
 
-    // prepare the submission to the queue.
-    // we want to wait on the _presentSemaphore, as that semaphore is signaled
-    // when the swapchain is ready we will signal the _renderSemaphore, to
-    // signal that rendering has finished
 
     VkCommandBufferSubmitInfo cmdinfo = vkinit::command_buffer_submit_info(cmd);
 
@@ -987,16 +959,9 @@ void VulkanEngine::draw() {
     VkSubmitInfo2 submit =
             vkinit::submit_info(&cmdinfo, &signalInfo, &waitInfo);
 
-    // submit command buffer to the queue and execute it.
-    //  _renderFence will now block until the graphic commands finish execution
     VK_CHECK(vkQueueSubmit2(_graphicsQueue, 1, &submit,
                             get_current_frame()._renderFence));
 
-    // prepare present
-    //  this will put the image we just rendered to into the visible window.
-    //  we want to wait on the _renderSemaphore for that,
-    //  as its necessary that drawing commands have finished before the image is
-    //  displayed to the user
     VkPresentInfoKHR presentInfo{
         .sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR,
         .pNext = nullptr,
@@ -1012,7 +977,6 @@ void VulkanEngine::draw() {
         resize_requested = true;
     }
 
-    // increase the number of frames drawn
     _frameNumber++;
 }
 

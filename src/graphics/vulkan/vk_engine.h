@@ -70,7 +70,9 @@ struct DrawContext {
 
 class VulkanEngine {
 public:
-    Pipelines pipelines;
+    std::unique_ptr<TrianglePipeline> trianglePipeline;
+    std::unique_ptr<MeshPipeline> meshPipeline;
+    std::unique_ptr<GLTFRoughnessPipeline> gltfRoughPipeline;
 
     int64_t registerMesh(std::string filePath);
     void unregisterMesh(int64_t id);
