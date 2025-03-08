@@ -534,10 +534,6 @@ void VulkanEngine::update_scene() {
         return;
     }
 
-    // Update the camera controller
-    float deltaTime = 1.0f / 60.0f; // Assuming a fixed timestep for simplicity
-    cameraController->update(deltaTime);
-
     const glm::mat4 view = mainCamera->getViewMatrix();
 
     glm::mat4 projection = glm::perspective(
@@ -1534,4 +1530,12 @@ void VulkanEngine::unregisterMesh(int64_t id) {
 
 void VulkanEngine::setMeshTransform(int64_t id, glm::mat4 mat) {
     transforms[id] = mat;
+}
+
+void VulkanEngine::setMainCamera(std::unique_ptr<Camera> camera) {
+    mainCamera = std::move(camera);
+}
+
+Camera* VulkanEngine::getMainCamera() const {
+    return mainCamera.get();
 }

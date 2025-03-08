@@ -10,8 +10,9 @@ ModelImpl::~ModelImpl() {
 
 ModelImpl::ModelImpl() : _cameraController(_camera) {}
 
-void ModelImpl::registerWindow(SDL_Window* window) {
-    _engine.mainCamera = &_camera;
+void ModelImpl::registerWindow(SDL_Window *window) {
+    auto camera = std::make_unique<Camera>();
+    _engine.setMainCamera(std::move(camera));
     _engine.init(window);
 }
 
@@ -19,8 +20,8 @@ void ModelImpl::updateVulkan() {
     _engine.update();
 }
 
-Camera *ModelImpl::getCamera() {
-    return &_camera;
+Camera* ModelImpl::getCamera() {
+    return _engine.getMainCamera();
 }
 
 void ModelImpl::createMesh(std::string name) {

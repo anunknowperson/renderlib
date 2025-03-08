@@ -254,6 +254,10 @@ public:
     AllocatedBuffer create_buffer(size_t allocSize, VkBufferUsageFlags usage,
                                   VmaMemoryUsage memoryUsage) const;
 
+    void setMainCamera(std::unique_ptr<Camera> camera);
+
+    Camera* getMainCamera() const;
+
 private:
     static VKAPI_ATTR VkBool32 VKAPI_CALL
     debugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,

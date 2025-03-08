@@ -12,7 +12,6 @@ public:
 
     void lookAt(const glm::vec3& target);
     void processSDLEvent(const SDL_Event& event);
-    void update(float deltaTime);
 
 private:
     Camera& _camera;
