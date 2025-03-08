@@ -1,0 +1,27 @@
+name: "Install Build Dependencies"
+description: "Installs dependencies required for building the project"
+runs:
+  using: "composite"
+  steps:
+    - name: Update APT and Other dependencies (Linux)
+      if: runner.os == 'Linux'
+      shell: bash
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y xorg-dev
+        sudo apt-get install -y libltdl-dev
+        echo "Installed Linux Dependencies"
+        
+    - name: Install latest CMake and Ninja
+      uses: lukka/get-cmake@latest
+
+    - name: Restore from cache and setup vcpkg executable and data files.
+      uses: lukka/run-vcpkg@v11
+
+    - name: Install Vulkan SDK
+      uses: jakoch/install-vulkan-sdk-action@v1.1.0
+      with:
+        vulkan_version: 1.4.304.1
+        optional_components: com.lunarg.vulkan.vma
+        cache: true
+        stripdown: true
