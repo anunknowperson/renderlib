@@ -507,9 +507,10 @@ void VulkanEngine::init(SDL_Window* window) {
     init_imgui();
     init_default_data();
 
-    mainCamera = new Camera(glm::vec3(0, 0, 5), 70.f,
-                            static_cast<float>(_windowExtent.width),
-                            static_cast<float>(_windowExtent.height));
+    // Initialize Camera and CameraController
+    mainCamera = std::make_unique<Camera>(glm::vec3(0, 0, 5), 70.f,
+                                          static_cast<float>(_windowExtent.width),
+                                          static_cast<float>(_windowExtent.height));
 
     cameraController = std::make_unique<CameraController>(*mainCamera);
     cameraController->setPosition(glm::vec3(0, 0, 5));
@@ -525,6 +526,42 @@ void VulkanEngine::init(SDL_Window* window) {
     }
 
     _isInitialized = true;
+}
+
+void VulkanEngine::update_scene() {
+    if (!mainCamera) {
+        LOGE("Camera is not initialized!");
+        return;
+    }
+
+    // Update the camera controller
+    float deltaTime = 1.0f / 60.0f; // Assuming a fixed timestep for simplicity
+    cameraController->update(deltaTime);
+
+    const glm::mat4 view = mainCamera->getViewMatrix();
+
+    glm::mat4 projection = glm::perspective(
+            glm::radians(mainCamera->getFOV()),
+            mainCamera->getScreenWidth() / mainCamera->getScreenHeight(),
+            0.1f, 10000.f);
+
+    // to opengl and gltf axis
+    projection[1][1] *= -1;
+
+    sceneData.view = view;
+    sceneData.proj = projection;
+    sceneData.viewproj = projection * view;
+
+    mainDrawContext.OpaqueSurfaces.clear();
+
+    sceneData.ambientColor = glm::vec4(.1f);
+    sceneData.sunlightColor = glm::vec4(1.f);
+    sceneData.sunlightDirection = glm::vec4(0, 1, 0.5, 1.f);
+
+    for (const auto& [key, mesh] : meshes) {
+        const std::shared_ptr<LoadedGLTF> loadedMesh = mesh;
+        loadedMesh->Draw(transforms[key], mainDrawContext);
+    }
 }
 
 void VulkanEngine::init_vulkan() {
@@ -1465,38 +1502,6 @@ void MeshNode::Draw(const glm::mat4& topMatrix, DrawContext& ctx) {
         ctx.OpaqueSurfaces.push_back(def);
     }
     ENode::Draw(topMatrix, ctx);
-}
-
-void VulkanEngine::update_scene() {
-    if (!mainCamera) {
-        LOGE("Camera is not initialized!");
-        return;
-    }
-
-    const glm::mat4 view = mainCamera->getViewMatrix();
-
-    glm::mat4 projection = glm::perspective(
-            glm::radians(70.f),
-            (float)_windowExtent.width / (float)_windowExtent.height, 0.1f,
-            10000.f);
-
-    // to opengl and gltf axis
-    projection[1][1] *= -1;
-
-    sceneData.view = view;
-    sceneData.proj = projection;
-    sceneData.viewproj = projection * view;
-
-    mainDrawContext.OpaqueSurfaces.clear();
-
-    sceneData.ambientColor = glm::vec4(.1f);
-    sceneData.sunlightColor = glm::vec4(1.f);
-    sceneData.sunlightDirection = glm::vec4(0, 1, 0.5, 1.f);
-
-    for (const auto& [key, mesh] : meshes) {
-        const std::shared_ptr<LoadedGLTF> loadedMesh = mesh;
-        loadedMesh->Draw(transforms[key], mainDrawContext);
-    }
 }
 
 int64_t VulkanEngine::registerMesh(const std::string& filePath) {

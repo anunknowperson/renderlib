@@ -137,9 +137,6 @@ public:
 
     std::unordered_map<std::string, std::shared_ptr<LoadedGLTF>> loadedScenes;
 
-    Camera* mainCamera = nullptr;
-    std::unique_ptr<CameraController> cameraController;
-
     DrawContext mainDrawContext;
     std::unordered_map<std::string, std::shared_ptr<ENode>> loadedNodes;
 
@@ -174,6 +171,8 @@ public:
 
     // run main loop
     void update();
+
+    void processSDLEvent(const SDL_Event& event);
 
     VkInstance _instance;                       // Vulkan library handle
     VkDebugUtilsMessengerEXT _debug_messenger;  // Vulkan debug output handle
@@ -261,6 +260,9 @@ private:
                   VkDebugUtilsMessageTypeFlagsEXT messageType,
                   const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData,
                   void* pUserData);
+
+    std::unique_ptr<Camera> mainCamera;
+    std::unique_ptr<CameraController> cameraController;
 
     void init_vulkan();
     void init_swapchain();
