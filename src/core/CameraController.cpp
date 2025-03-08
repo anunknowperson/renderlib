@@ -28,8 +28,8 @@ void CameraController::lookAt(const glm::vec3& target) {
 
 void CameraController::processSDLEvent(const SDL_Event& event) {
     if (event.type == SDL_MOUSEMOTION) {
-        _yaw   -= event.motion.xrel * _mouseSensitivity;
-        _pitch -= event.motion.yrel * _mouseSensitivity;
+        _yaw   -= static_cast<float>(event.motion.xrel) * _mouseSensitivity;
+        _pitch -= static_cast<float>(event.motion.yrel) * _mouseSensitivity;
 
         // Ограничение угла pitch
         _pitch = glm::clamp(_pitch, glm::radians(-89.0f), glm::radians(89.0f));
