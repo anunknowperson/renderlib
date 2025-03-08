@@ -1,8 +1,6 @@
-#include "core/CameraController.h"
-
-#include "iostream"
-
 #define GLM_ENABLE_EXPERIMENTAL
+#include "core/CameraController.h"
+#include <iostream>
 #include <glm/gtx/component_wise.hpp>
 #include <glm/gtx/quaternion.hpp>
 
@@ -31,14 +29,10 @@ void CameraController::processSDLEvent(const SDL_Event& event) {
         _yaw   -= static_cast<float>(event.motion.xrel) * _mouseSensitivity;
         _pitch -= static_cast<float>(event.motion.yrel) * _mouseSensitivity;
 
-        // Ограничение угла pitch
         _pitch = glm::clamp(_pitch, glm::radians(-89.0f), glm::radians(89.0f));
-
-        // Вычисляем новый кватернион на основе yaw и pitch (roll фиксирован равным 0)
         _camera.setRotation(glm::quat(glm::vec3(_pitch, _yaw, 0.0f)));
     }
 
-    // Обработка клавиатуры остаётся без изменений
     if (event.type == SDL_KEYDOWN || event.type == SDL_KEYUP) {
         glm::vec3 moveDir(0);
         switch (event.key.keysym.sym) {
