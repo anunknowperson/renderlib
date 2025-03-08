@@ -499,7 +499,6 @@ void VulkanEngine::init(SDL_Window* window) {
     _window = window;
 
     init_vulkan();
-
     init_swapchain();
     init_commands();
     init_sync_structures();
@@ -508,16 +507,21 @@ void VulkanEngine::init(SDL_Window* window) {
     init_imgui();
     init_default_data();
 
-    // Настройка начальной позиции и вращения
+    mainCamera = new Camera(glm::vec3(0, 0, 5), 70.f,
+                            static_cast<float>(_windowExtent.width),
+                            static_cast<float>(_windowExtent.height));
+
+    cameraController = std::make_unique<CameraController>(*mainCamera);
     cameraController->setPosition(glm::vec3(0, 0, 5));
     cameraController->lookAt(glm::vec3(0, 0, 0));
 
-    // Загрузка меша
     const std::string structurePath = std::string(ASSETS_DIR) + "/basicmesh.glb";
-    if (auto structureFile = loadGltf(this, structurePath)) {
-        loadedScenes["structure"] = *structureFile;
-    } else {
+    auto structureFile = loadGltf(this, structurePath);
+    if (!structureFile.has_value()) {
         throw std::runtime_error("Failed to load GLTF mesh: " + structurePath);
+    } else {
+        LOGI("GLTF successfully loaded: " + structurePath);
+        loadedScenes["structure"] = *structureFile;
     }
 
     _isInitialized = true;
@@ -1080,13 +1084,11 @@ void VulkanEngine::draw() {
                     VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT);
 
     _drawExtent.height = static_cast<uint32_t>(
-            (float)std::min(_swapchainExtent.height,
-                            _drawImage.imageExtent.height) *
-            renderScale);
+            std::min(static_cast<float>(_swapchainExtent.height),
+                     static_cast<float>(_drawImage.imageExtent.height)) * renderScale);
     _drawExtent.width = static_cast<uint32_t>(
-            (float)std::min(_swapchainExtent.width,
-                            _drawImage.imageExtent.width) *
-            renderScale);
+            std::min(static_cast<float>(_swapchainExtent.width),
+                     static_cast<float>(_drawImage.imageExtent.width)) * renderScale);
 
     VK_CHECK(vkBeginCommandBuffer(cmd, &cmdBeginInfo));
 
@@ -1439,21 +1441,29 @@ MaterialInstance GLTFMetallic_Roughness::write_material(
 }
 
 void MeshNode::Draw(const glm::mat4& topMatrix, DrawContext& ctx) {
+    if (!mesh) {
+        LOGE("MeshNode::Draw: mesh is null");
+        return;
+    }
+    if (mesh->surfaces.empty()) {
+        LOGW("MeshNode::Draw: surfaces is empty");
+        return;
+    }
     const glm::mat4 nodeMatrix = topMatrix * worldTransform;
-
     for (auto& [startIndex, count, material] : mesh->surfaces) {
+        if (!material) {
+            LOGE("MeshNode::Draw: material is null");
+            continue;
+        }
         RenderObject def{};
         def.indexCount = count;
         def.firstIndex = startIndex;
         def.indexBuffer = mesh->meshBuffers.indexBuffer.buffer;
         def.material = &material->data;
-
         def.transform = nodeMatrix;
         def.vertexBufferAddress = mesh->meshBuffers.vertexBufferAddress;
-
         ctx.OpaqueSurfaces.push_back(def);
     }
-
     ENode::Draw(topMatrix, ctx);
 }
 
