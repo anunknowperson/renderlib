@@ -1,5 +1,4 @@
 #include "graphics/vulkan/pipelines.h"
-
 #include "graphics/vulkan/vk_engine.h"
 
 void GLTFMetallic_Roughness::build_pipelines(VulkanEngine* engine) {
@@ -134,110 +133,48 @@ void Pipelines::init(VkDevice device,
     _singleImageDescriptorLayout = singleImageDescriptorLayout;
     _drawImage = drawImage;
 
-    init_mesh_pipeline();
-    init_triangle_pipeline();
-}
+    GraphicsPipeline::GraphicsPipelineConfig triangleConfig;
+    triangleConfig.vertexShaderPath = "./shaders/colored_triangle.vert.spv";
+    triangleConfig.fragmentShaderPath = "./shaders/colored_triangle.frag.spv";
+    triangleConfig.colorFormat = _drawImage.imageFormat;
+    triangleConfig.depthFormat = VK_FORMAT_UNDEFINED;
+    triangleConfig.depthTest = false;
+    triangleConfig.cullMode = VK_CULL_MODE_NONE;
+    triangleConfig.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
 
-void Pipelines::init_mesh_pipeline() {
-    VkShaderModule fragShader =
-            load_shader("./shaders/tex_image.frag.spv", "fragment");
-    VkShaderModule vertShader =
-            load_shader("./shaders/colored_triangle_mesh.vert.spv", "vertex");
-
-    create_mesh_pipeline_layout();
-    build_mesh_pipeline(fragShader, vertShader);
-
-    vkDestroyShaderModule(_device, fragShader, nullptr);
-    vkDestroyShaderModule(_device, vertShader, nullptr);
-}
-
-void Pipelines::init_triangle_pipeline() {
-    VkShaderModule fragShader =
-            load_shader("./shaders/colored_triangle.frag.spv", "fragment");
-    VkShaderModule vertShader =
-            load_shader("./shaders/colored_triangle.vert.spv", "vertex");
-
-    create_triangle_pipeline_layout();
-    build_triangle_pipeline(fragShader, vertShader);
-
-    vkDestroyShaderModule(_device, fragShader, nullptr);
-    vkDestroyShaderModule(_device, vertShader, nullptr);
-}
-
-VkShaderModule Pipelines::load_shader(const std::filesystem::path path, const char* type) {
-    std::string str = path.string();
-    const char* cPath = str.c_str();  // warning: potential dangling pointer in c string if str leaves scope. Ñ~ÑÄ ÑrÑÇÑÄÑtÑu ÑÑÑÖÑÑ Ñ~ÑÄÑÇÑ}, ÑÑÑpÑ{ Ñ{ÑpÑ{ ÑÅÑÄÑÉÑ|Ñu ÑxÑpÑsÑÇÑÖÑxÑ{Ñy ÑÅÑÖÑÑÑé ÑqÑÄÑ|ÑéÑäÑu Ñ~Ñu ÑyÑÉÑÅÑÄÑ|ÑéÑxÑÖÑuÑÑÑÉÑë.
-    VkShaderModule shaderModule;
-    if (!vkutil::load_shader_module(cPath, _device, &shaderModule)) {
-        fmt::println("Error when building the {} shader module", type);
-    } else {
-        fmt::println("{} shader successfully loaded", type);
-    }
-    return shaderModule;
-}
-
-void Pipelines::create_mesh_pipeline_layout() {
+    trianglePipeline = std::make_unique<GraphicsPipeline>(triangleConfig);
+    trianglePipeline->init(device);
+    
+    GraphicsPipeline::GraphicsPipelineConfig meshConfig;
+    meshConfig.vertexShaderPath = "./shaders/colored_triangle_mesh.vert.spv";
+    meshConfig.fragmentShaderPath = "./shaders/tex_image.frag.spv";
+    meshConfig.colorFormat = _drawImage.imageFormat;
+    meshConfig.depthFormat = VK_FORMAT_UNDEFINED;
+    meshConfig.depthTest = true;
+    meshConfig.depthCompareOp = VK_COMPARE_OP_GREATER;
+    meshConfig.cullMode = VK_CULL_MODE_NONE;
+    meshConfig.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
+    
     VkPushConstantRange bufferRange{};
     bufferRange.offset = 0;
     bufferRange.size = sizeof(GPUDrawPushConstants);
     bufferRange.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
+    meshConfig.pushConstants.push_back(bufferRange);
+    
+    meshConfig.descriptorSetLayouts.push_back(_singleImageDescriptorLayout);
 
-    VkPipelineLayoutCreateInfo pipeline_layout_info =
-            vkinit::pipeline_layout_create_info();
-    pipeline_layout_info.pPushConstantRanges = &bufferRange;
-    pipeline_layout_info.pushConstantRangeCount = 1;
-    pipeline_layout_info.pSetLayouts = &_singleImageDescriptorLayout;
-    pipeline_layout_info.setLayoutCount = 1;
+    meshPipeline = std::make_unique<GraphicsPipeline>(meshConfig);
+    meshPipeline->init(device);
 
-    VK_CHECK(vkCreatePipelineLayout(_device, &pipeline_layout_info, nullptr,
-                                    &meshPipelineLayout));
-}
-
-void Pipelines::build_mesh_pipeline(VkShaderModule fragShader,
-                                    VkShaderModule vertShader) {
-    PipelineBuilder pipelineBuilder;
-    pipelineBuilder._pipelineLayout = meshPipelineLayout;
-    pipelineBuilder.set_shaders(vertShader, fragShader);
-    pipelineBuilder.set_input_topology(VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST);
-    pipelineBuilder.set_polygon_mode(VK_POLYGON_MODE_FILL);
-    pipelineBuilder.set_cull_mode(VK_CULL_MODE_NONE, VK_FRONT_FACE_CLOCKWISE);
-    pipelineBuilder.set_multisampling_none();
-    pipelineBuilder.disable_blending();
-    pipelineBuilder.enable_depthtest(true, VK_COMPARE_OP_GREATER);
-    pipelineBuilder.set_color_attachment_format(_drawImage.imageFormat);
-    pipelineBuilder.set_depth_format(VK_FORMAT_UNDEFINED);
-
-    meshPipeline = pipelineBuilder.build_pipeline(_device);
-}
-
-void Pipelines::create_triangle_pipeline_layout() {
-    VkPipelineLayoutCreateInfo pipeline_layout_info =
-            vkinit::pipeline_layout_create_info();
-    VK_CHECK(vkCreatePipelineLayout(_device, &pipeline_layout_info, nullptr,
-                                    &trianglePipelineLayout));
-}
-
-void Pipelines::build_triangle_pipeline(VkShaderModule fragShader,
-                                        VkShaderModule vertShader) {
-    PipelineBuilder pipelineBuilder;
-    pipelineBuilder._pipelineLayout = trianglePipelineLayout;
-    pipelineBuilder.set_shaders(vertShader, fragShader);
-    pipelineBuilder.set_input_topology(VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST);
-    pipelineBuilder.set_polygon_mode(VK_POLYGON_MODE_FILL);
-    pipelineBuilder.set_cull_mode(VK_CULL_MODE_NONE, VK_FRONT_FACE_CLOCKWISE);
-    pipelineBuilder.set_multisampling_none();
-    pipelineBuilder.disable_blending();
-    pipelineBuilder.disable_depthtest();
-    pipelineBuilder.set_color_attachment_format(_drawImage.imageFormat);
-    pipelineBuilder.set_depth_format(VK_FORMAT_UNDEFINED);
-
-    trianglePipeline = pipelineBuilder.build_pipeline(_device);
+    fmt::println("Pipelines initialized successfully");
 }
 
 void Pipelines::destroy() {
-    vkDestroyPipelineLayout(_device, trianglePipelineLayout, nullptr);
-    vkDestroyPipeline(_device, trianglePipeline, nullptr);
-
-    vkDestroyPipelineLayout(_device, meshPipelineLayout, nullptr);
-    vkDestroyPipeline(_device, meshPipeline, nullptr);
+    if (trianglePipeline) {
+        trianglePipeline->destroy();
+    }
+    
+    if (meshPipeline) {
+        meshPipeline->destroy();
+    }
 }

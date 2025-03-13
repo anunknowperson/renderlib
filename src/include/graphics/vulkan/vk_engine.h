@@ -9,6 +9,7 @@
 #include "vk_pipelines.h"
 #include "vk_types.h"
 #include "pipelines.h"
+#include "ComputePipeline.h"
 
 constexpr unsigned int FRAME_OVERLAP = 2;
 
@@ -76,6 +77,7 @@ struct DrawContext {
 class VulkanEngine {
 public:
     Pipelines pipelines;
+    std::unique_ptr<ComputePipeline> gradientPipeline;
 
     int64_t registerMesh(std::string filePath);
     void unregisterMesh(int64_t id);
@@ -151,9 +153,6 @@ public:
 
     VkDescriptorSet _drawImageDescriptors;
     VkDescriptorSetLayout _drawImageDescriptorLayout;
-
-    VkPipeline _gradientPipeline;
-    VkPipelineLayout _gradientPipelineLayout;
 
     // immediate submit structures
     VkFence _immFence;

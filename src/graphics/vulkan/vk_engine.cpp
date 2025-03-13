@@ -291,44 +291,17 @@ void VulkanEngine::init_descriptors() {
 }
 
 void VulkanEngine::init_background_pipelines() {
-    VkPipelineLayoutCreateInfo computeLayout{};
-    computeLayout.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
-    computeLayout.pNext = nullptr;
-    computeLayout.pSetLayouts = &_drawImageDescriptorLayout;
-    computeLayout.setLayoutCount = 1;
-
-    VK_CHECK(vkCreatePipelineLayout(_device, &computeLayout, nullptr,
-                                    &_gradientPipelineLayout));
-
-    VkShaderModule computeDrawShader;
-    if (!vkutil::load_shader_module("./shaders/gradient.comp.spv", _device,
-                                    &computeDrawShader)) {
-        fmt::println("Error when building the compute shader \n");
-    }
-
-    VkPipelineShaderStageCreateInfo stageinfo{};
-    stageinfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
-    stageinfo.pNext = nullptr;
-    stageinfo.stage = VK_SHADER_STAGE_COMPUTE_BIT;
-    stageinfo.module = computeDrawShader;
-    stageinfo.pName = "main";
-
-    VkComputePipelineCreateInfo computePipelineCreateInfo{};
-    computePipelineCreateInfo.sType =
-            VK_STRUCTURE_TYPE_COMPUTE_PIPELINE_CREATE_INFO;
-    computePipelineCreateInfo.pNext = nullptr;
-    computePipelineCreateInfo.layout = _gradientPipelineLayout;
-    computePipelineCreateInfo.stage = stageinfo;
-
-    VK_CHECK(vkCreateComputePipelines(_device, VK_NULL_HANDLE, 1,
-                                      &computePipelineCreateInfo, nullptr,
-                                      &_gradientPipeline));
-
-    vkDestroyShaderModule(_device, computeDrawShader, nullptr);
-
+    ComputePipeline::ComputePipelineConfig config;
+    config.descriptorSetLayout = _drawImageDescriptorLayout;
+    config.shaderPath = "./shaders/gradient.comp.spv";
+    
+    gradientPipeline = std::make_unique<ComputePipeline>(config);
+    gradientPipeline->init(_device);
+    
     _mainDeletionQueue.push_function([&]() {
-        vkDestroyPipelineLayout(_device, _gradientPipelineLayout, nullptr);
-        vkDestroyPipeline(_device, _gradientPipeline, nullptr);
+        if (gradientPipeline) {
+            gradientPipeline->destroy();
+        }
     });
 }
 
@@ -753,18 +726,16 @@ GPUMeshBuffers VulkanEngine::uploadMesh(std::span<uint32_t> indices,
 
 void VulkanEngine::draw_background(VkCommandBuffer cmd) {
     // bind the gradient drawing compute pipeline
-    vkCmdBindPipeline(cmd, VK_PIPELINE_BIND_POINT_COMPUTE, _gradientPipeline);
+    gradientPipeline->bind(cmd);
 
-    // bind the descriptor set containing the draw image for the compute
-    // pipeline
-    vkCmdBindDescriptorSets(cmd, VK_PIPELINE_BIND_POINT_COMPUTE,
-                            _gradientPipelineLayout, 0, 1,
-                            &_drawImageDescriptors, 0, nullptr);
+    // bind descriptor sets
+    gradientPipeline->bindDescriptorSets(cmd, &_drawImageDescriptors, 1);
 
-    // execute the compute pipeline dispatch. We are using 16x16 workgroup size,
-    // so we need to divide by it
-    vkCmdDispatch(cmd, static_cast<uint32_t>(std::ceil(_drawExtent.width / 16.0)),
-                  static_cast<uint32_t>(std::ceil(_drawExtent.height / 16.0)), 1);
+    // dispatch the compute shader
+    gradientPipeline->dispatch(cmd, 
+        static_cast<uint32_t>(std::ceil(_drawExtent.width / 16.0)),
+        static_cast<uint32_t>(std::ceil(_drawExtent.height / 16.0)), 
+        1);
 }
 
 void VulkanEngine::draw_imgui(VkCommandBuffer cmd,
@@ -814,8 +785,7 @@ void VulkanEngine::draw_geometry(VkCommandBuffer cmd) {
             vkinit::rendering_info(_drawExtent, &colorAttachment, nullptr);
     vkCmdBeginRendering(cmd, &renderInfo);
 
-    vkCmdBindPipeline(cmd, VK_PIPELINE_BIND_POINT_GRAPHICS,
-                      pipelines.trianglePipeline);
+    pipelines.trianglePipeline->bind(cmd);
 
     // set dynamic viewport and scissor
     VkViewport viewport = {};
@@ -846,9 +816,7 @@ void VulkanEngine::draw_geometry(VkCommandBuffer cmd) {
                                     VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER);
     single_image_writer.update_set(_device, imageSet);
 
-    vkCmdBindDescriptorSets(cmd, VK_PIPELINE_BIND_POINT_GRAPHICS,
-                            pipelines.meshPipelineLayout, 0, 1, &imageSet, 0,
-                            nullptr);
+    pipelines.meshPipeline->bindDescriptorSets(cmd, &imageSet, 1);
 
     for (const RenderObject& draw : mainDrawContext.OpaqueSurfaces) {
         vkCmdBindPipeline(cmd, VK_PIPELINE_BIND_POINT_GRAPHICS,

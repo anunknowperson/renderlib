@@ -7,6 +7,9 @@
 #include "vk_initializers.h"
 #include "vk_pipelines.h"
 #include "vk_types.h"
+#include "IPipeline.h"
+#include "GraphicsPipeline.h"
+#include "ComputePipeline.h"
 
 class VulkanEngine;
 
@@ -57,11 +60,8 @@ private:
 
 class Pipelines {
 public:
-    VkPipelineLayout trianglePipelineLayout;
-    VkPipeline trianglePipeline;
-
-    VkPipelineLayout meshPipelineLayout;
-    VkPipeline meshPipeline;
+    std::unique_ptr<GraphicsPipeline> trianglePipeline;
+    std::unique_ptr<GraphicsPipeline> meshPipeline;
 
     void init(VkDevice device,
               VkDescriptorSetLayout singleImageDescriptorLayout,
@@ -72,15 +72,4 @@ private:
     VkDevice _device;
     VkDescriptorSetLayout _singleImageDescriptorLayout;
     AllocatedImage _drawImage;
-
-    void init_mesh_pipeline();
-    void init_triangle_pipeline();
-
-    VkShaderModule load_shader(const std::filesystem::path  path, const char* type);
-    void create_mesh_pipeline_layout();
-    void build_mesh_pipeline(VkShaderModule fragShader,
-                             VkShaderModule vertShader);
-    void create_triangle_pipeline_layout();
-    void build_triangle_pipeline(VkShaderModule fragShader,
-                                 VkShaderModule vertShader);
 };
