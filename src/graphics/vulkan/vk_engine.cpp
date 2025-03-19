@@ -503,9 +503,9 @@ void VulkanEngine::init(SDL_Window* window) {
     loadedEngine = this;
     init_vulkan();
     init_swapchain();
-    VulkanEngine* vk_engine = new VulkanEngine();
-    command_buffers.init_commands(vk_engine);
-    delete vk_engine;
+    
+    command_buffers.init_commands(this);
+    
     init_sync_structures();
     init_descriptors();
     init_pipelines();
@@ -848,8 +848,6 @@ GPUMeshBuffers VulkanEngine::uploadMesh(std::span<uint32_t> indices,
     // copy index buffer
     memcpy((char*)data + vertexBufferSize, indices.data(), indexBufferSize);
 
-    VulkanEngine* vk_engine = new VulkanEngine();
-
     command_buffers.immediate_submit([&](VkCommandBuffer cmd) {
         VkBufferCopy vertexCopy{0};
         vertexCopy.dstOffset = 0;
@@ -867,8 +865,8 @@ GPUMeshBuffers VulkanEngine::uploadMesh(std::span<uint32_t> indices,
         vkCmdCopyBuffer(cmd, staging.buffer, newSurface.indexBuffer.buffer, 1,
                         &indexCopy);
             },
-            vk_engine);
-    delete vk_engine;
+            this);
+
     _mainDeletionQueue.push_function(
             [=, this] { destroy_buffer(newSurface.vertexBuffer); });
     _mainDeletionQueue.push_function(
@@ -1224,8 +1222,6 @@ AllocatedImage VulkanEngine::create_image(const void* data, VkExtent3D size,
                                  VK_IMAGE_USAGE_TRANSFER_SRC_BIT,
                          mipmapped);
 
-    VulkanEngine* vk_engine = new VulkanEngine();
-
     command_buffers.immediate_submit([&](VkCommandBuffer cmd) {
         vkutil::transition_image(cmd, new_image.image,
                                  VK_IMAGE_LAYOUT_UNDEFINED,
@@ -1251,8 +1247,7 @@ AllocatedImage VulkanEngine::create_image(const void* data, VkExtent3D size,
                                  VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
                                  VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
             },
-            vk_engine);
-    delete vk_engine;
+            (VulkanEngine*)this);
 
     destroy_buffer(uploadbuffer);
 
