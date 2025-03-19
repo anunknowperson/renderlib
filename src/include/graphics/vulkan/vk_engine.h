@@ -18,6 +18,7 @@
 
 #include "vk_descriptors.h"
 #include "vk_types.h"
+#include "vk_command_buffers.h" 
 
 class Camera;
 class VulkanEngine;
@@ -122,6 +123,8 @@ struct DrawContext {
 
 class VulkanEngine {
 public:
+    CommandBuffers command_buffers;
+
     int64_t registerMesh(const std::string& filePath);
     void unregisterMesh(int64_t id);
 
@@ -213,8 +216,6 @@ public:
 
     GPUMeshBuffers rectangle;
 
-    void immediate_submit(
-            std::function<void(VkCommandBuffer cmd)>&& function) const;
     GPUMeshBuffers uploadMesh(std::span<uint32_t> indices,
                               std::span<Vertex> vertices);
 
@@ -259,7 +260,6 @@ private:
 
     void init_vulkan();
     void init_swapchain();
-    void init_commands();
     void init_sync_structures();
 
     void create_swapchain(uint32_t width, uint32_t height);
