@@ -16,12 +16,9 @@
 #include <vulkan/vk_platform.h>
 #include <vulkan/vulkan_core.h>
 
-#include "core/CameraController.h"
-#include "core/Mesh.h"
-#include "scene/Camera.h"
-
 #include "vk_descriptors.h"
 #include "vk_types.h"
+#include "vk_command_buffers.h" 
 
 class Camera;
 class VulkanEngine;
@@ -126,6 +123,8 @@ struct DrawContext {
 
 class VulkanEngine {
 public:
+    CommandBuffers command_buffers;
+
     int64_t registerMesh(const std::string& filePath);
     void unregisterMesh(int64_t id);
 
@@ -136,6 +135,8 @@ public:
     std::unordered_map<int64_t, glm::mat4> transforms;
 
     std::unordered_map<std::string, std::shared_ptr<LoadedGLTF>> loadedScenes;
+
+    Camera* mainCamera;
 
     DrawContext mainDrawContext;
     std::unordered_map<std::string, std::shared_ptr<ENode>> loadedNodes;
@@ -171,8 +172,6 @@ public:
 
     // run main loop
     void update();
-
-    void processSDLEvent(const SDL_Event& event);
 
     VkInstance _instance;                       // Vulkan library handle
     VkDebugUtilsMessengerEXT _debug_messenger;  // Vulkan debug output handle
@@ -217,8 +216,6 @@ public:
 
     GPUMeshBuffers rectangle;
 
-    void immediate_submit(
-            std::function<void(VkCommandBuffer cmd)>&& function) const;
     GPUMeshBuffers uploadMesh(std::span<uint32_t> indices,
                               std::span<Vertex> vertices);
 
@@ -254,10 +251,6 @@ public:
     AllocatedBuffer create_buffer(size_t allocSize, VkBufferUsageFlags usage,
                                   VmaMemoryUsage memoryUsage) const;
 
-    void setMainCamera(std::unique_ptr<Camera> camera);
-
-    Camera* getMainCamera() const;
-
 private:
     static VKAPI_ATTR VkBool32 VKAPI_CALL
     debugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
@@ -265,12 +258,8 @@ private:
                   const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData,
                   void* pUserData);
 
-    std::unique_ptr<Camera> mainCamera;
-    std::unique_ptr<CameraController> cameraController;
-
     void init_vulkan();
     void init_swapchain();
-    void init_commands();
     void init_sync_structures();
 
     void create_swapchain(uint32_t width, uint32_t height);
