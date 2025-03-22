@@ -2,10 +2,6 @@
 #include "graphics/vulkan/vk_engine.h"
 #include "graphics/vulkan/vk_initializers.h"
 
-
-
-
-
 void CommandBuffers::init_commands(VulkanEngine* vk_engine) {
     // create a command pool for commands submitted to the graphics queue.
     // we also want the pool to allow for resetting of individual command
@@ -29,28 +25,28 @@ void CommandBuffers::init_commands(VulkanEngine* vk_engine) {
     }
 
     VK_CHECK(vkCreateCommandPool(vk_engine->_device, &commandPoolInfo, nullptr,
-                                 &(vk_engine->_immCommandPool)));
+                                 &(m_immCommandPool)));
 
     // allocate the command buffer for immediate submits
     const VkCommandBufferAllocateInfo cmdAllocInfo =
-            vkinit::command_buffer_allocate_info(vk_engine->_immCommandPool, 1);
+            vkinit::command_buffer_allocate_info(m_immCommandPool, 1);
 
     VK_CHECK(vkAllocateCommandBuffers(vk_engine->_device, &cmdAllocInfo,
-                                      &(vk_engine->_immCommandBuffer)));
+                                      &(m_immCommandBuffer)));
 
-    vk_engine->_mainDeletionQueue.push_function([=, this] {
-        vkDestroyCommandPool(vk_engine->_device, vk_engine->_immCommandPool,
+    vk_engine->_mainDeletionQueue.push_function([=] {
+        vkDestroyCommandPool(vk_engine->_device, m_immCommandPool,
                              nullptr);
     });
 }
 
 void CommandBuffers::immediate_submit(
-        std::function<void(VkCommandBuffer cmd)>&& function,
+        std::function<void(VkCommandBuffer cmd)>&& recordCommands,
         VulkanEngine* vk_engine) const {
     VK_CHECK(vkResetFences(vk_engine->_device, 1, &(vk_engine->_immFence)));
-    VK_CHECK(vkResetCommandBuffer(vk_engine->_immCommandBuffer, 0));
+    VK_CHECK(vkResetCommandBuffer(m_immCommandBuffer, 0));
 
-    const VkCommandBuffer cmd = vk_engine->_immCommandBuffer;
+    const VkCommandBuffer cmd = m_immCommandBuffer;
 
     const VkCommandBufferBeginInfo cmdBeginInfo =
             vkinit::command_buffer_begin_info(
@@ -58,7 +54,7 @@ void CommandBuffers::immediate_submit(
 
     VK_CHECK(vkBeginCommandBuffer(cmd, &cmdBeginInfo));
 
-    function(cmd);
+    recordCommands(cmd);
 
     VK_CHECK(vkEndCommandBuffer(cmd));
 

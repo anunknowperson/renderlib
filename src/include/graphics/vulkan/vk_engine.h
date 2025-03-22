@@ -205,8 +205,6 @@ public:
 
     // immediate submit structures
     VkFence _immFence;
-    VkCommandBuffer _immCommandBuffer;
-    VkCommandPool _immCommandPool;
 
     VkPipelineLayout _trianglePipelineLayout;
     VkPipeline _trianglePipeline;
