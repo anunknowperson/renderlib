@@ -3,22 +3,25 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtx/quaternion.hpp>
 
-Camera::Camera() {
+Camera::Camera() : _nearClip(0.1f), _farClip(10000.f) {
     updateProjectionMatrix();
     updateViewMatrix();
 }
 
-Camera::Camera(const glm::vec3& position, float fov, float screenWidth, float screenHeight)
-    : _position(position),
-      _fov(fov),
-      _screenWidth(screenWidth),
-      _screenHeight(screenHeight) {
+Camera::Camera(
+    const glm::vec3& position,
+    float fov,
+    float screenWidth,
+    float screenHeight,
+    float nearClip,
+    float farClip
+) : _position(position),
+    _fov(fov),
+    _screenWidth(screenWidth),
+    _screenHeight(screenHeight),
+    _nearClip(nearClip),
+    _farClip(farClip) {
     updateProjectionMatrix();
-    updateViewMatrix();
-}
-
-void Camera::update(float deltaTime) {
-    _position += _velocity * deltaTime;
     updateViewMatrix();
 }
 
@@ -37,15 +40,15 @@ glm::mat4 Camera::getRotationMatrix() const {
 void Camera::updateViewMatrix() {
     const glm::mat4 translation = glm::translate(glm::mat4(1.0f), _position);
     const glm::mat4 rotation = glm::mat4_cast(_rotation);
-    _viewMatrix = glm::inverse(translation * rotation);
+    _viewMatrix = glm::inverse(rotation) * glm::inverse(translation);
 }
 
 void Camera::updateProjectionMatrix() {
     _projectionMatrix = glm::perspective(
-            glm::radians(_fov),
-            _screenWidth / _screenHeight,
-            _nearClip,
-            _farClip
+        glm::radians(_fov),
+        _screenWidth / _screenHeight,
+        _nearClip,
+        _farClip
     );
     _projectionMatrix[1][1] *= -1;
 }

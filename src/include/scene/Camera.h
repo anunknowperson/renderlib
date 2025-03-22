@@ -1,16 +1,18 @@
 #pragma once
-
-#include <SDL2/SDL_events.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/quaternion.hpp>
-#include <glm/mat4x4.hpp>
 
 class Camera {
 public:
     Camera();
-    Camera(const glm::vec3& position, float fov, float screenWidth, float screenHeight);
-
-    void update(float deltaTime);
+    Camera(
+        const glm::vec3& position,
+        float fov,
+        float screenWidth,
+        float screenHeight,
+        float nearClip = 0.1f,
+        float farClip = 10000.f
+    );
 
     glm::mat4 getViewMatrix() const;
     glm::mat4 getProjectionMatrix() const;
@@ -40,13 +42,11 @@ private:
 
     glm::vec3 _position {0.f};
     glm::quat _rotation {1.f, 0.f, 0.f, 0.f};
-    glm::vec3 _velocity {0.f};
-
     float _fov {45.f};
     float _screenWidth {800.f};
     float _screenHeight {600.f};
-    float _nearClip {0.1f};
-    float _farClip {10000.f};
+    float _nearClip;
+    float _farClip;
 
     glm::mat4 _viewMatrix {1.f};
     glm::mat4 _projectionMatrix {1.f};
