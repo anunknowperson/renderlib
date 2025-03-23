@@ -504,7 +504,7 @@ void VulkanEngine::init(SDL_Window* window) {
     init_vulkan();
     init_swapchain();
     
-    command_buffers.init_commands(this);
+    command_buffers.init_commands(*this);
     
     init_sync_structures();
     init_descriptors();
@@ -865,7 +865,7 @@ GPUMeshBuffers VulkanEngine::uploadMesh(std::span<uint32_t> indices,
         vkCmdCopyBuffer(cmd, staging.buffer, newSurface.indexBuffer.buffer, 1,
                         &indexCopy);
             },
-            this);
+            *this);
 
     _mainDeletionQueue.push_function(
             [=, this] { destroy_buffer(newSurface.vertexBuffer); });
@@ -1247,7 +1247,7 @@ AllocatedImage VulkanEngine::create_image(const void* data, VkExtent3D size,
                                  VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
                                  VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
             },
-            (VulkanEngine*)this);
+            *(VulkanEngine*)this);
 
     destroy_buffer(uploadbuffer);
 
