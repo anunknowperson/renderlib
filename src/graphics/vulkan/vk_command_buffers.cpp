@@ -34,10 +34,9 @@ void CommandBuffers::init_commands(VulkanEngine& vk_engine) {
     VK_CHECK(vkAllocateCommandBuffers(vk_engine._device, &cmdAllocInfo,
                                       &(m_immCommandBuffer)));
 
-    vk_engine._mainDeletionQueue.push_function([=] {
+    vk_engine._mainDeletionQueue.push_function([this, vk_engine] {
         vkDestroyCommandPool(vk_engine._device, m_immCommandPool,
                              nullptr);
-
     });
 }
 
