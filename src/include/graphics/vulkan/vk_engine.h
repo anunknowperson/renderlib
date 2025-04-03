@@ -123,8 +123,6 @@ struct DrawContext {
 
 class VulkanEngine {
 public:
-    CommandBuffers command_buffers;
-
     int64_t registerMesh(const std::string& filePath);
     void unregisterMesh(int64_t id);
 
@@ -250,6 +248,8 @@ public:
                                   VmaMemoryUsage memoryUsage) const;
 
 private:
+    CommandBuffers m_command_buffers;
+
     static VKAPI_ATTR VkBool32 VKAPI_CALL
     debugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
                   VkDebugUtilsMessageTypeFlagsEXT messageType,
@@ -259,6 +259,7 @@ private:
     void init_vulkan();
     void init_swapchain();
     void init_sync_structures();
+    void init_command_buffer();
 
     void create_swapchain(uint32_t width, uint32_t height);
     void destroy_swapchain();

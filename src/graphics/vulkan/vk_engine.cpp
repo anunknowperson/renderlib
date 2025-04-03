@@ -503,9 +503,7 @@ void VulkanEngine::init(SDL_Window* window) {
     loadedEngine = this;
     init_vulkan();
     init_swapchain();
-    
-    command_buffers.init_commands(*this);
-    
+    init_command_buffer();
     init_sync_structures();
     init_descriptors();
     init_pipelines();
@@ -526,6 +524,13 @@ void VulkanEngine::init(SDL_Window* window) {
     loadedScenes["structure"] = *structureFile;
 
     _isInitialized = true;
+}
+
+void VulkanEngine::init_command_buffer() {
+    m_command_buffers = CommandBuffers(
+            std::make_unique<uint32_t>(_graphicsQueueFamily),
+            _device, _frames);
+    m_command_buffers.init_commands();
 }
 
 void VulkanEngine::init_vulkan() {
@@ -624,6 +629,7 @@ void VulkanEngine::init_vulkan() {
 
     _graphicsQueue = queue_ret.value();
 
+    /*
     auto queue_family_ret = vkbDevice.get_queue_index(vkb::QueueType::graphics);
     if (!queue_family_ret) {
         LOGE("Failed to retrieve graphics queue family. Error: {}",
@@ -631,6 +637,7 @@ void VulkanEngine::init_vulkan() {
     }
 
     _graphicsQueueFamily = queue_family_ret.value();
+    */
 
     // initialize the memory allocator
     VmaAllocatorCreateInfo allocatorInfo = {};
@@ -864,8 +871,7 @@ GPUMeshBuffers VulkanEngine::uploadMesh(std::span<uint32_t> indices,
 
         vkCmdCopyBuffer(cmd, staging.buffer, newSurface.indexBuffer.buffer, 1,
                         &indexCopy);
-            },
-            *this);
+            });
 
     _mainDeletionQueue.push_function(
             [=, this] { destroy_buffer(newSurface.vertexBuffer); });
@@ -1246,8 +1252,7 @@ AllocatedImage VulkanEngine::create_image(const void* data, VkExtent3D size,
         vkutil::transition_image(cmd, new_image.image,
                                  VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
                                  VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
-            },
-            *(VulkanEngine*)this);
+            });
 
     destroy_buffer(uploadbuffer);
 
