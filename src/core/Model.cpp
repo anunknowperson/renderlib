@@ -4,9 +4,4 @@ IModel::Ptr createModel() {
     return std::make_shared<ModelImpl>();
 }
 
-int foo()
-
-
-{
-
-}
+int foo() {}
