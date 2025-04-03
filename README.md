@@ -6,9 +6,9 @@
 
 ### 1. Downloading the repository:
 
-Start by cloning the repository with `git clone --recurse-submodules https://github.com/anunknowperson/renderlib.git`
+Start by cloning the repository with ```git clone --recurse-submodules https://github.com/anunknowperson/renderlib.git```
 
-If the repository was cloned non-recursively previously, use `git submodule update --init` to clone the necessary submodules.
+If the repository was cloned non-recursively previously, use ```git submodule update --init``` to clone the necessary submodules.
 
 ### 2. Dependencies:
 
