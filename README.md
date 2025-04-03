@@ -16,7 +16,7 @@ If the repository was cloned non-recursively previously, use ```git submodule up
 
 ### 3. Configure
 
-This project uses CMake and CmakePresets to generate the build files. You can see the list of existing presets by running ```cmake --list-presets```. When, after selecting a preset, you can configure it using the following command:
+This project uses CMake and CmakePresets to generate the build files. You can see the list of existing presets by running ```cmake --list-presets```. Then, after selecting a preset, you can configure it using the following command:
 
 ```bash
 cmake --preset <preset>
