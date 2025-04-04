@@ -27,12 +27,6 @@ jobs:
           submodules: true
           fetch-depth: '0'
 
-      - name: Install Linux Build Tools
-        if: runner.os == 'Linux'
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y ninja-build build-essential texinfo
-
       - name: Install Dependencies
         uses: ./.github/composite-actions/install-dependencies
         with:
@@ -43,7 +37,6 @@ jobs:
         shell: bash
         run: |
           echo "build-output-dir=${{ github.workspace }}/build" >> "$GITHUB_OUTPUT"
-
       - name: Run CMake
         uses: lukka/run-cmake@v10
         id: runcmake
@@ -51,4 +44,3 @@ jobs:
           configurePreset: ${{ matrix.preset }}
           buildPreset: ${{ matrix.preset }}
           testPreset: ${{ matrix.preset }}
-          cmakeGenerator: ${{ runner.os == 'Linux' && 'Unix Makefiles' || '' }}
