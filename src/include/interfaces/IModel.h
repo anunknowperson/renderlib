@@ -9,6 +9,7 @@
 #include "SDL2/SDL.h"
 #include "SDL2/SDL_vulkan.h"
 #include "scene/Camera.h"
+#include "core/CameraController.h"
 
 /*!
  * \brief Interface for managing models and their integration with Vulkan.
@@ -77,6 +78,7 @@ public:
      * model. Can be used to access and modify camera properties.
      */
     [[nodiscard]] virtual Camera* getCamera() = 0;
+    virtual CameraController* getCameraController() const = 0;
 
     /*! \brief
      * Gets the chip handler from HIDAPI required to change the settings by the
