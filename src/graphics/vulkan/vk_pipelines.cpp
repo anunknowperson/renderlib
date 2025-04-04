@@ -4,15 +4,23 @@
 #include <fmt/base.h>
 #include <fstream>
 #include <spdlog/spdlog.h>
+#include <filesystem>
 
 #include "graphics/vulkan/vk_initializers.h"
 
 bool vkutil::load_shader_module(const char* filePath, VkDevice device,
                                 VkShaderModule* outShaderModule) {
     // open the file. With cursor at the end
+    if (!std::filesystem::exists(filePath)) {
+        spdlog::warn("Shader file does not exist: {}", filePath);
+        return false;
+    }
+
+    // Открываем файл в бинарном режиме, с курсором в конце
     std::ifstream file(filePath, std::ios::ate | std::ios::binary);
 
     if (!file.is_open()) {
+        spdlog::error("Failed to open shader file: {}", filePath);
         return false;
     }
 
@@ -25,6 +33,7 @@ bool vkutil::load_shader_module(const char* filePath, VkDevice device,
         spdlog::error("Failed to open file {}", filePath);
         return false;
     }
+
     // spirv expects the buffer to be on uint32, so make sure to reserve a int
     // vector big enough for the entire file
     std::vector<uint32_t> buffer(static_cast<uint32_t>(fileSize) /
@@ -51,11 +60,15 @@ bool vkutil::load_shader_module(const char* filePath, VkDevice device,
 
     // check that the creation goes well.
     VkShaderModule shaderModule;
-    if (vkCreateShaderModule(device, &createInfo, nullptr, &shaderModule) !=
-        VK_SUCCESS) {
+    VkResult result =
+            vkCreateShaderModule(device, &createInfo, nullptr, &shaderModule);
+    if (result != VK_SUCCESS) {
+        spdlog::error("Error: Failed to create shader module. VkResult: {}",
+                      static_cast<int>(result));
         return false;
     }
     *outShaderModule = shaderModule;
+    spdlog::info("Shader module created successfully.");
     return true;
 }
 

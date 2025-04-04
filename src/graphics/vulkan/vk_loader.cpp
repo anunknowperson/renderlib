@@ -30,7 +30,7 @@
 std::optional<std::vector<std::shared_ptr<MeshAsset>>> loadGltfMeshes(
         VulkanEngine* engine, const std::filesystem::path& filePath) {
     if (!std::filesystem::exists(filePath)) {
-        std::cout << "Failed to find " << filePath << '\n';
+        spdlog::warn("Failed to find file: {}", filePath.string());
         return {};
     }
 
@@ -56,6 +56,11 @@ std::optional<std::vector<std::shared_ptr<MeshAsset>>> loadGltfMeshes(
             fastgltf::Options::LoadExternalImages |
             fastgltf::Options::GenerateMeshIndices;
 
+    if (!std::filesystem::exists(path)) {
+        spdlog::warn("Failed to find file: {}", path.string());
+        return {};
+    }
+
     fastgltf::GltfDataBuffer data;
     data.loadFromFile(path);
 
@@ -64,8 +69,8 @@ std::optional<std::vector<std::shared_ptr<MeshAsset>>> loadGltfMeshes(
     if (asset) {
         gltf = std::move(asset.get());
     } else {
-        fmt::print("Failed to load glTF: {} \n",
-                   fastgltf::to_underlying(asset.error()));
+        spdlog::error("Failed to load glTF: {}",
+                      fastgltf::to_underlying(asset.error()));
         return {};
     }
 
@@ -208,6 +213,12 @@ std::optional<std::shared_ptr<LoadedGLTF>> loadGltf(VulkanEngine* engine,
     scene->creator = engine;
     LoadedGLTF& file = *scene;
 
+    std::filesystem::path path = filePath;
+    if (!std::filesystem::exists(path)) {
+        std::cerr << "Failed to find file: " << path << std::endl;
+        return {};
+    }
+
     fastgltf::Parser parser{};
 
     constexpr auto gltfOptions =
@@ -220,8 +231,6 @@ std::optional<std::shared_ptr<LoadedGLTF>> loadGltf(VulkanEngine* engine,
     data.loadFromFile(filePath);
 
     fastgltf::Asset gltf;
-
-    std::filesystem::path path = filePath;
 
     auto type = fastgltf::determineGltfFileType(&data);
     if (type == fastgltf::GltfType::glTF) {
