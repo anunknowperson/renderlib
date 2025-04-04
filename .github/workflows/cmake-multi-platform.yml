@@ -27,21 +27,11 @@ jobs:
           submodules: true
           fetch-depth: '0'
 
-      - name: Install CMake on Windows
-        if: runner.os == 'Windows'
-        run: |
-          choco install cmake --version=3.24.0
-          set PATH=C:\Program Files\CMake\bin;%PATH%
-
-      - name: Install CMake on Ubuntu
+      - name: Install Linux Build Tools
         if: runner.os == 'Linux'
         run: |
           sudo apt-get update
-          sudo apt-get install -y wget
-          wget https://github.com/Kitware/CMake/releases/download/v3.24.0/cmake-3.24.0-linux-x86_64.sh
-          sudo mkdir /opt/cmake
-          sudo sh cmake-3.24.0-linux-x86_64.sh --skip-license --prefix=/opt/cmake
-          sudo ln -s /opt/cmake/bin/cmake /usr/local/bin/cmake
+          sudo apt-get install -y ninja-build build-essential texinfo
 
       - name: Install Dependencies
         uses: ./.github/composite-actions/install-dependencies
@@ -61,3 +51,4 @@ jobs:
           configurePreset: ${{ matrix.preset }}
           buildPreset: ${{ matrix.preset }}
           testPreset: ${{ matrix.preset }}
+          cmakeGenerator: ${{ runner.os == 'Linux' && 'Unix Makefiles' || '' }}
