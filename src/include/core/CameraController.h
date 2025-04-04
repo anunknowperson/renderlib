@@ -2,6 +2,7 @@
 
 #include "scene/Camera.h"
 #include <glm/glm.hpp>
+#include <SDL.h>
 
 class CameraController {
 public:
@@ -12,6 +13,12 @@ public:
 
     void lookAt(const glm::vec3& target);
 
+    void update();
+    void processSDLEvent(SDL_Event& e);
+
 private:
     Camera& _camera;
+    bool _keyStates[SDL_NUM_SCANCODES]{};
+    glm::vec2 _lastMousePos{0.0f};
+    bool _mouseDown = false;
 };
