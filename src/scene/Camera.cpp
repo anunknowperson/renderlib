@@ -3,106 +3,140 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtx/quaternion.hpp>
 
-Camera::Camera() : _nearClip(0.1f), _farClip(10000.f) {
-    updateProjectionMatrix();
-    updateViewMatrix();
-}
+BaseCamera::BaseCamera(const glm::vec3& position, float nearClip, float farClip)
+    : _position(position), _nearClip(nearClip), _farClip(farClip) {}
 
-Camera::Camera(
-    const glm::vec3& position,
-    float fov,
-    float screenWidth,
-    float screenHeight,
-    float nearClip,
-    float farClip
-) : _position(position),
-    _fov(fov),
-    _screenWidth(screenWidth),
-    _screenHeight(screenHeight),
-    _nearClip(nearClip),
-    _farClip(farClip) {
-    updateProjectionMatrix();
-    updateViewMatrix();
-}
-
-glm::mat4 Camera::getViewMatrix() const {
+glm::mat4 BaseCamera::getViewMatrix() const {
+    if (_viewDirty) {
+        updateViewMatrix();
+        _viewDirty = false;
+    }
     return _viewMatrix;
 }
 
-glm::mat4 Camera::getProjectionMatrix() const {
+glm::mat4 BaseCamera::getProjectionMatrix() const {
+    if (_projDirty) {
+        updateProjectionMatrix();
+        _projDirty = false;
+    }
     return _projectionMatrix;
 }
 
-glm::mat4 Camera::getRotationMatrix() const {
-    return glm::mat4_cast(_rotation);
+glm::vec3 BaseCamera::getPosition() const {
+    return _position;
 }
 
-void Camera::updateViewMatrix() {
+void BaseCamera::setPosition(const glm::vec3& position) {
+    _position = position;
+    _viewDirty = true;
+}
+
+glm::quat BaseCamera::getRotation() const {
+    return _rotation;
+}
+
+void BaseCamera::setRotation(const glm::quat& rotation) {
+    _rotation = rotation;
+    _viewDirty = true;
+}
+
+glm::vec3 BaseCamera::getEulerAngles() const {
+    return glm::degrees(glm::eulerAngles(_rotation));
+}
+
+void BaseCamera::setEulerAngles(const glm::vec3& angles) {
+    _rotation = glm::quat(glm::radians(angles));
+    _viewDirty = true;
+}
+
+void BaseCamera::updateViewMatrix() const {
     const glm::mat4 translation = glm::translate(glm::mat4(1.0f), _position);
     const glm::mat4 rotation = glm::mat4_cast(_rotation);
     _viewMatrix = glm::inverse(rotation) * glm::inverse(translation);
 }
 
-void Camera::updateProjectionMatrix() {
+PerspectiveCamera::PerspectiveCamera(const glm::vec3& position, float fov,
+                                     float aspectRatio, float nearClip, float farClip)
+    : BaseCamera(position, nearClip, farClip), _fov(fov), _aspectRatio(aspectRatio) {
+    _projDirty = true;
+}
+
+void PerspectiveCamera::updateViewport(float width, float height) {
+    _aspectRatio = width / height;
+    _projDirty = true;
+}
+
+float PerspectiveCamera::getFOV() const {
+    return _fov;
+}
+
+void PerspectiveCamera::setFOV(float fov) {
+    _fov = fov;
+    _projDirty = true;
+}
+
+void PerspectiveCamera::updateProjectionMatrix() const {
     _projectionMatrix = glm::perspective(
         glm::radians(_fov),
-        _screenWidth / _screenHeight,
+        _aspectRatio,
         _nearClip,
         _farClip
+    );
+    _projectionMatrix[1][1] *= -1; // Flip for Vulkan
+}
+
+OrthographicCamera::OrthographicCamera(const glm::vec3& position, float size,
+                                       float aspectRatio, float nearClip, float farClip)
+    : BaseCamera(position, nearClip, farClip), _size(size), _aspectRatio(aspectRatio) {
+    _projDirty = true;
+}
+
+void OrthographicCamera::updateViewport(float width, float height) {
+    _aspectRatio = width / height;
+    _projDirty = true;
+}
+
+float OrthographicCamera::getSize() const {
+    return _size;
+}
+
+void OrthographicCamera::setSize(float size) {
+    _size = size;
+    _projDirty = true;
+}
+
+void OrthographicCamera::updateProjectionMatrix() const {
+    float halfSize = _size * 0.5f;
+    float halfWidth = halfSize * _aspectRatio;
+    _projectionMatrix = glm::ortho(
+        -halfWidth, halfWidth,
+        -halfSize, halfSize,
+        _nearClip, _farClip
     );
     _projectionMatrix[1][1] *= -1;
 }
 
-glm::vec3 Camera::getPosition() const {
-    return _position;
-}
+Camera::Camera() : PerspectiveCamera() {}
 
-void Camera::setPosition(const glm::vec3& position) {
-    _position = position;
-    updateViewMatrix();
-}
-
-glm::quat Camera::getRotation() const {
-    return _rotation;
-}
-
-void Camera::setRotation(const glm::quat& rotation) {
-    _rotation = rotation;
-    updateViewMatrix();
-}
-
-float Camera::getFOV() const {
-    return _fov;
-}
-
-void Camera::setFOV(float fov) {
-    _fov = fov;
-    updateProjectionMatrix();
-}
+Camera::Camera(const glm::vec3& position, float fov,
+               float screenWidth, float screenHeight,
+               float nearClip, float farClip)
+    : PerspectiveCamera(position, fov, screenWidth / screenHeight, nearClip, farClip) {}
 
 float Camera::getScreenWidth() const {
-    return _screenWidth;
+    return _aspectRatio * getScreenHeight();
 }
 
 void Camera::setScreenWidth(float width) {
-    _screenWidth = width;
-    updateProjectionMatrix();
+    _aspectRatio = width / getScreenHeight();
+    _projDirty = true;
 }
 
 float Camera::getScreenHeight() const {
-    return _screenHeight;
+    return 1.0f;
 }
 
 void Camera::setScreenHeight(float height) {
-    _screenHeight = height;
-    updateProjectionMatrix();
-}
-
-glm::vec3 Camera::getEulerAngles() const {
-    return glm::degrees(glm::eulerAngles(_rotation));
-}
-
-void Camera::setEulerAngles(const glm::vec3& angles) {
-    _rotation = glm::quat(glm::radians(angles));
-    updateViewMatrix();
+    _aspectRatio = getScreenWidth() / height;
+    _projDirty = true;
 }

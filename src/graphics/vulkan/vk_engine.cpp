@@ -21,6 +21,7 @@
 #include "core/CameraController.h"
 
 #define VMA_IMPLEMENTATION
+#include "SDL.h"
 #include <SDL_vulkan.h>
 #include <VkBootstrap.h>
 #include <imgui.h>
