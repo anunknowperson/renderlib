@@ -18,6 +18,7 @@
 #include "core/config.h"
 #include "graphics/vulkan/vk_descriptors.h"
 #include "scene/Camera.h"
+#include "core/CameraController.h"
 
 #define VMA_IMPLEMENTATION
 #include <SDL_vulkan.h>
@@ -243,7 +244,7 @@ void VulkanEngine::init_mesh_pipeline() {
 
     // connect the image format we will draw into, from draw image
     pipelineBuilder.set_color_attachment_format(_drawImage.imageFormat);
-    pipelineBuilder.set_depth_format(VK_FORMAT_UNDEFINED);
+    pipelineBuilder.set_depth_format(VK_FORMAT_D32_SFLOAT);
 
     // finally build the pipeline
     _meshPipeline = pipelineBuilder.build_pipeline(_device);
@@ -304,7 +305,7 @@ void VulkanEngine::init_triangle_pipeline() {
 
     // connect the image format we will draw into, from draw image
     pipelineBuilder.set_color_attachment_format(_drawImage.imageFormat);
-    pipelineBuilder.set_depth_format(VK_FORMAT_UNDEFINED);
+    pipelineBuilder.set_depth_format(VK_FORMAT_D32_SFLOAT);
 
     // finally build the pipeline
     _trianglePipeline = pipelineBuilder.build_pipeline(_device);
@@ -512,11 +513,16 @@ void VulkanEngine::init(SDL_Window* window) {
     init_imgui();
     init_default_data();
 
-    mainCamera->velocity = glm::vec3(0.f);
-    mainCamera->position = glm::vec3(0, 0, 5);
+    mainCamera = new Camera(
+    glm::vec3(0.0f, 0.0f, 5.0f),
+    70.0f,
+    static_cast<float>(_windowExtent.width),
+    static_cast<float>(_windowExtent.height),
+    0.1f,
+    10000.0f
+    );
 
-    mainCamera->pitch = 0;
-    mainCamera->yaw = 0;
+    cameraController = new CameraController(*mainCamera);
 
     const std::string structurePath = {std::string(ASSETS_DIR) +
                                        "/basicmesh.glb"};
@@ -779,6 +785,9 @@ void VulkanEngine::cleanup() {
 
     // clear engine pointer
     loadedEngine = nullptr;
+
+    delete cameraController;
+    delete mainCamera;
 }
 
 AllocatedBuffer VulkanEngine::create_buffer(size_t allocSize,
@@ -1156,6 +1165,13 @@ void VulkanEngine::resize_swapchain() {
 }
 
 void VulkanEngine::update() {
+    static float lastFrameTime = 0.0f;
+    float currentTime = SDL_GetTicks() * 0.001f;
+    frameTime = currentTime - lastFrameTime;
+    lastFrameTime = currentTime;
+
+    process_events();
+
     if (resize_requested) {
         resize_swapchain();
     }
@@ -1388,14 +1404,11 @@ void MeshNode::Draw(const glm::mat4& topMatrix, DrawContext& ctx) {
 }
 
 void VulkanEngine::update_scene() {
-    mainCamera->update();
+    cameraController->update();
 
     const glm::mat4 view = mainCamera->getViewMatrix();
 
-    glm::mat4 projection = glm::perspective(
-            glm::radians(70.f),
-            (float)_windowExtent.width / (float)_windowExtent.height, 0.1f,
-            10000.f);
+    glm::mat4 projection = mainCamera->getProjectionMatrix();
 
     // to opengl and gltf axis
     projection[1][1] *= -1;
@@ -1413,6 +1426,19 @@ void VulkanEngine::update_scene() {
     for (const auto& [key, mesh] : meshes) {
         const std::shared_ptr<LoadedGLTF> loadedMesh = mesh;
         loadedMesh->Draw(transforms[key], mainDrawContext);
+    }
+}
+
+void VulkanEngine::process_events() {
+    SDL_Event e;
+    while (SDL_PollEvent(&e)) {
+        ImGui_ImplSDL2_ProcessEvent(&e);
+
+        cameraController->processSDLEvent(e);
+
+        if (e.type == SDL_QUIT) {
+            resize_requested = true;
+        }
     }
 }
 
