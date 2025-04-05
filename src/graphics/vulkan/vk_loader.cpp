@@ -34,7 +34,7 @@ std::optional<std::vector<std::shared_ptr<MeshAsset>>> loadGltfMeshes(
         return {};
     }
 
-    spdlog::info("Loading: {}", filePath);
+    std::cout << "Loading " << filePath << '\n';
 
     fastgltf::Asset gltf;
 
@@ -207,17 +207,15 @@ VkSamplerMipmapMode extract_mipmap_mode(fastgltf::Filter filter) {
 
 std::optional<std::shared_ptr<LoadedGLTF>> loadGltf(VulkanEngine* engine,
                                                     std::string_view filePath) {
-    spdlog::info("Loading GLTF: {}", filePath);
+    std::cout << "Loading GLTF " << filePath << '\n';
+
+    if (!std::filesystem::exists(filePath)) {
+        spdlog::warn("Warning: File does not exist: {}", filePath);
+    }
 
     auto scene = std::make_shared<LoadedGLTF>();
     scene->creator = engine;
     LoadedGLTF& file = *scene;
-
-    std::filesystem::path path = filePath;
-    if (!std::filesystem::exists(path)) {
-        spdlog::warn("Failed to find file: {}", path.string());
-        return {};
-    }
 
     fastgltf::Parser parser{};
 
@@ -232,14 +230,16 @@ std::optional<std::shared_ptr<LoadedGLTF>> loadGltf(VulkanEngine* engine,
 
     fastgltf::Asset gltf;
 
+    std::filesystem::path path = filePath;
+
     auto type = fastgltf::determineGltfFileType(&data);
     if (type == fastgltf::GltfType::glTF) {
         auto load = parser.loadGltf(&data, path.parent_path(), gltfOptions);
         if (load) {
             gltf = std::move(load.get());
         } else {
-            spdlog::warn("Failed to load glTF: {}",
-                          fastgltf::to_underlying(load.error()));
+            std::cerr << "Failed to load glTF: "
+                      << fastgltf::to_underlying(load.error()) << std::endl;
             return {};
         }
     } else if (type == fastgltf::GltfType::GLB) {
@@ -248,12 +248,12 @@ std::optional<std::shared_ptr<LoadedGLTF>> loadGltf(VulkanEngine* engine,
         if (load) {
             gltf = std::move(load.get());
         } else {
-            spdlog::warn("Failed to load glTF: {}",
-                         fastgltf::to_underlying(load.error()));
+            std::cerr << "Failed to load glTF: "
+                      << fastgltf::to_underlying(load.error()) << std::endl;
             return {};
         }
     } else {
-        spdlog::warn("Failed to determine glTF container");
+        std::cerr << "Failed to determine glTF container" << std::endl;
         return {};
     }
 
