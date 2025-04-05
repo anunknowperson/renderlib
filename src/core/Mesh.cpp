@@ -2,7 +2,7 @@
 
 Mesh::Mesh(const std::string &filePath) {
     VulkanEngine &engine = VulkanEngine::Get();
-    
+
     _rid = engine.registerMesh(filePath);
 }
 
