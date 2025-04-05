@@ -1429,7 +1429,6 @@ int64_t VulkanEngine::registerMesh(const std::string& filePath) {
     const int64_t random_int64 = distribution(generator);
 
     const std::string structurePath = {std::string(ASSETS_DIR) + filePath};
-
     const auto structureFile = loadGltf(this, structurePath);
 
     assert(structureFile.has_value());
