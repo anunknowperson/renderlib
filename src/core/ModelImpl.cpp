@@ -28,11 +28,6 @@ Camera *ModelImpl::getCamera() {
 void ModelImpl::createMesh(std::string name) {
     std::string filePath = "/basicmesh.glb";
 
-    /* if (!std::filesystem::exists(filePath)) {
-        std::cerr << "Warning: Mesh file not found at " << filePath
-                  << std::endl;
-    }*/
-
     const auto mesh = std::make_shared<Mesh>(filePath);
 
     mesh->set_transform(glm::mat4(1.0f));
@@ -43,8 +38,3 @@ void ModelImpl::createMesh(std::string name) {
 void ModelImpl::setMeshTransform(std::string name, glm::mat4x4 transform) {
     _meshes[name]->set_transform(transform);
 }
-
-/*        : _dev { openDevice() }
-        , _brightness { collectBrightness(_dev) }
-        , _rgb { collectRGB(_dev) }
-{*/

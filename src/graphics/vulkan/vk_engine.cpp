@@ -118,19 +118,7 @@ void VulkanEngine::init_default_data() {
     rect_indices[2] = 2;
 
     const auto path_to_assets = std::string(ASSETS_DIR) + "/basicmesh.glb";
-
-    if (!std::filesystem::exists(path_to_assets)) {
-        spdlog::warn("Warning: Asset file not found: {}", path_to_assets);
-    } else {
-        auto meshes = loadGltfMeshes(this, path_to_assets);
-        if (!meshes) {
-            spdlog::error("Error: Failed to load meshes from: {}",
-                          path_to_assets);
-        } else {
-            testMeshes = std::move(*meshes);
-            spdlog::info("Meshes loaded successfully from: {}", path_to_assets);
-        }
-    }
+    testMeshes = loadGltfMeshes(this, path_to_assets).value();
 
     // 3 default textures, white, grey, black. 1 pixel each
     const uint32_t white = glm::packUnorm4x8(glm::vec4(1, 1, 1, 1));
@@ -532,19 +520,12 @@ void VulkanEngine::init(SDL_Window* window) {
 
     const std::string structurePath = {std::string(ASSETS_DIR) +
                                        "/basicmesh.glb"};
-    if (!std::filesystem::exists(structurePath)) {
-        spdlog::warn("Warning: File not found: {}", structurePath);
-    } else {
-        const auto structureFile = loadGltf(this, structurePath);
+    const auto structureFile = loadGltf(this, structurePath);
 
-        if (!structureFile) {
-            spdlog::error("Error: Failed to load GLTF file: {}", structurePath);
-        } else {
-            loadedScenes["structure"] = *structureFile;
-            _isInitialized = true;
-            spdlog::info("GLTF file loaded successfully: {}", structurePath);
-        }
-    }
+    assert(structureFile.has_value());
+    loadedScenes["structure"] = *structureFile;
+
+    _isInitialized = true;
 }
 
 void VulkanEngine::init_vulkan() {
@@ -1449,22 +1430,13 @@ int64_t VulkanEngine::registerMesh(const std::string& filePath) {
 
     const std::string structurePath = {std::string(ASSETS_DIR) + filePath};
 
-    if (!std::filesystem::exists(structurePath)) {
-        spdlog::warn("Warning: Mesh file not found: {}", structurePath);
-        return -1; 
-    }
-
     const auto structureFile = loadGltf(this, structurePath);
 
-    if (!structureFile) {
-        spdlog::error("Error: Failed to load mesh file: {}", structurePath);
-        return -1;
-    }
+    assert(structureFile.has_value());
 
     meshes[random_int64] = *structureFile;
     transforms[random_int64] = glm::mat4(1.0f);
 
-    spdlog::info("Mesh loaded successfully: {}", structurePath);
     return random_int64;
 }
 
