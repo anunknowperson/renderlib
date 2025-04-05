@@ -30,7 +30,7 @@
 std::optional<std::vector<std::shared_ptr<MeshAsset>>> loadGltfMeshes(
         VulkanEngine* engine, const std::filesystem::path& filePath) {
     if (!std::filesystem::exists(filePath)) {
-        std::cout << "Failed to find " << filePath << '\n';
+        spdlog::warn("Failed to find file: {}", filePath.string());
         return {};
     }
 
@@ -56,6 +56,11 @@ std::optional<std::vector<std::shared_ptr<MeshAsset>>> loadGltfMeshes(
             fastgltf::Options::LoadExternalImages |
             fastgltf::Options::GenerateMeshIndices;
 
+    if (!std::filesystem::exists(path)) {
+        spdlog::warn("Failed to find file: {}", path.string());
+        return {};
+    }
+
     fastgltf::GltfDataBuffer data;
     data.loadFromFile(path);
 
@@ -64,8 +69,8 @@ std::optional<std::vector<std::shared_ptr<MeshAsset>>> loadGltfMeshes(
     if (asset) {
         gltf = std::move(asset.get());
     } else {
-        fmt::print("Failed to load glTF: {} \n",
-                   fastgltf::to_underlying(asset.error()));
+        spdlog::error("Failed to load glTF: {}",
+                      fastgltf::to_underlying(asset.error()));
         return {};
     }
 
@@ -202,7 +207,11 @@ VkSamplerMipmapMode extract_mipmap_mode(fastgltf::Filter filter) {
 
 std::optional<std::shared_ptr<LoadedGLTF>> loadGltf(VulkanEngine* engine,
                                                     std::string_view filePath) {
-    fmt::print("Loading GLTF: {}", filePath);
+    std::cout << "Loading GLTF " << filePath << '\n';
+
+    if (!std::filesystem::exists(filePath)) {
+        spdlog::warn("Warning: File does not exist: {}", filePath);
+    }
 
     auto scene = std::make_shared<LoadedGLTF>();
     scene->creator = engine;
