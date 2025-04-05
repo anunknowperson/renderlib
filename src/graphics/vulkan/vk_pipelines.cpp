@@ -16,7 +16,7 @@ bool vkutil::load_shader_module(const char* filePath, VkDevice device,
         return false;
     }
 
-    // Открываем файл в бинарном режиме, с курсором в конце
+    // Open the file in binary mode, with the cursor at the end
     std::ifstream file(filePath, std::ios::ate | std::ios::binary);
 
     if (!file.is_open()) {

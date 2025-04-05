@@ -34,7 +34,7 @@ std::optional<std::vector<std::shared_ptr<MeshAsset>>> loadGltfMeshes(
         return {};
     }
 
-    std::cout << "Loading " << filePath << '\n';
+    spdlog::info("Loading: {}", filePath);
 
     fastgltf::Asset gltf;
 
@@ -207,7 +207,7 @@ VkSamplerMipmapMode extract_mipmap_mode(fastgltf::Filter filter) {
 
 std::optional<std::shared_ptr<LoadedGLTF>> loadGltf(VulkanEngine* engine,
                                                     std::string_view filePath) {
-    std::cout << "Loading GLTF: " << filePath << '\n';
+    spdlog::info("Loading GLTF: {}", filePath);
 
     auto scene = std::make_shared<LoadedGLTF>();
     scene->creator = engine;
@@ -215,7 +215,7 @@ std::optional<std::shared_ptr<LoadedGLTF>> loadGltf(VulkanEngine* engine,
 
     std::filesystem::path path = filePath;
     if (!std::filesystem::exists(path)) {
-        std::cerr << "Failed to find file: " << path << std::endl;
+        spdlog::warn("Failed to find file: {}", path.string());
         return {};
     }
 
@@ -238,8 +238,8 @@ std::optional<std::shared_ptr<LoadedGLTF>> loadGltf(VulkanEngine* engine,
         if (load) {
             gltf = std::move(load.get());
         } else {
-            std::cerr << "Failed to load glTF: "
-                      << fastgltf::to_underlying(load.error()) << std::endl;
+            spdlog::warn("Failed to load glTF: {}",
+                          fastgltf::to_underlying(load.error()));
             return {};
         }
     } else if (type == fastgltf::GltfType::GLB) {
@@ -248,12 +248,12 @@ std::optional<std::shared_ptr<LoadedGLTF>> loadGltf(VulkanEngine* engine,
         if (load) {
             gltf = std::move(load.get());
         } else {
-            std::cerr << "Failed to load glTF: "
-                      << fastgltf::to_underlying(load.error()) << std::endl;
+            spdlog::warn("Failed to load glTF: {}",
+                         fastgltf::to_underlying(load.error()));
             return {};
         }
     } else {
-        std::cerr << "Failed to determine glTF container" << std::endl;
+        spdlog::warn("Failed to determine glTF container");
         return {};
     }
 
