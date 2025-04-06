@@ -117,27 +117,27 @@ void VulkanEngine::init_default_data() {
     rect_indices[1] = 1;
     rect_indices[2] = 2;
 
-    const auto path_to_assets = std::string(ASSETS_DIR) + "/basicmesh.glb";
+    auto path_to_assets = std::string(ASSETS_DIR) + "/basicmesh.glb";
     testMeshes = loadGltfMeshes(this, path_to_assets).value();
 
     // 3 default textures, white, grey, black. 1 pixel each
-    const uint32_t white = glm::packUnorm4x8(glm::vec4(1, 1, 1, 1));
+    uint32_t white = glm::packUnorm4x8(glm::vec4(1, 1, 1, 1));
     _whiteImage =
             create_image(&white, VkExtent3D{1, 1, 1}, VK_FORMAT_R8G8B8A8_UNORM,
                          VK_IMAGE_USAGE_SAMPLED_BIT);
 
-    const uint32_t grey = glm::packUnorm4x8(glm::vec4(0.66f, 0.66f, 0.66f, 1));
+    uint32_t grey = glm::packUnorm4x8(glm::vec4(0.66f, 0.66f, 0.66f, 1));
     _greyImage =
             create_image(&grey, VkExtent3D{1, 1, 1}, VK_FORMAT_R8G8B8A8_UNORM,
                          VK_IMAGE_USAGE_SAMPLED_BIT);
 
-    const uint32_t black = glm::packUnorm4x8(glm::vec4(0, 0, 0, 0));
+    uint32_t black = glm::packUnorm4x8(glm::vec4(0, 0, 0, 0));
     _blackImage =
             create_image(&black, VkExtent3D{1, 1, 1}, VK_FORMAT_R8G8B8A8_UNORM,
                          VK_IMAGE_USAGE_SAMPLED_BIT);
 
     // checkerboard image
-    const uint32_t magenta = glm::packUnorm4x8(glm::vec4(1, 0, 1, 1));
+    uint32_t magenta = glm::packUnorm4x8(glm::vec4(1, 0, 1, 1));
     std::array<uint32_t, 16 * 16> pixels{};  // for 16x16 checkerboard texture
     for (size_t x = 0; x < 16; x++) {
         for (size_t y = 0; y < 16; y++) {
@@ -168,7 +168,7 @@ void VulkanEngine::init_default_data() {
     materialResources.metalRoughSampler = _defaultSamplerLinear;
 
     // set the uniform buffer for the material data
-    const AllocatedBuffer materialConstants = create_buffer(
+    AllocatedBuffer materialConstants = create_buffer(
             sizeof(GLTFMetallic_Roughness::MaterialConstants),
             VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VMA_MEMORY_USAGE_CPU_TO_GPU);
 
@@ -800,7 +800,7 @@ GPUMeshBuffers VulkanEngine::uploadMesh(std::span<uint32_t> indices,
     // copy index buffer
     memcpy((char*)data + vertexBufferSize, indices.data(), indexBufferSize);
 
-    command_buffers.immediate_submit([&](VkCommandBuffer cmd) {
+    immediate_submit([&](VkCommandBuffer cmd) {
         VkBufferCopy vertexCopy{0};
         vertexCopy.dstOffset = 0;
         vertexCopy.srcOffset = 0;
@@ -1090,7 +1090,7 @@ void VulkanEngine::draw() {
 }
 
 void VulkanEngine::immediate_submit(
-        std::function<void(VkCommandBuffer cmd)>&& function) const {
+        std::function<void(VkCommandBuffer cmd)>&& function) {
     VK_CHECK(vkResetFences(vCtx->device, 1, &_immFence));
     VK_CHECK(vkResetCommandBuffer(_immCommandBuffer, 0));
 
@@ -1168,24 +1168,24 @@ AllocatedImage VulkanEngine::create_image(VkExtent3D size, VkFormat format,
     return newImage;
 }
 
-AllocatedImage VulkanEngine::create_image(const void* data, VkExtent3D size,
+AllocatedImage VulkanEngine::create_image(void* data, VkExtent3D size,
                                           VkFormat format,
                                           VkImageUsageFlags usage,
-                                          bool mipmapped) const {
-    const size_t data_size = size.depth * size.width * size.height * 4;
-    const AllocatedBuffer uploadbuffer =
+                                          bool mipmapped) {
+    size_t data_size = size.depth * size.width * size.height * 4;
+    AllocatedBuffer uploadbuffer =
             create_buffer(data_size, VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
                           VMA_MEMORY_USAGE_CPU_TO_GPU);
 
     memcpy(uploadbuffer.info.pMappedData, data, data_size);
 
-    const AllocatedImage new_image =
+    AllocatedImage new_image =
             create_image(size, format,
                          usage | VK_IMAGE_USAGE_TRANSFER_DST_BIT |
                                  VK_IMAGE_USAGE_TRANSFER_SRC_BIT,
                          mipmapped);
 
-    command_buffers.immediate_submit([&](VkCommandBuffer cmd) {
+    immediate_submit([&](VkCommandBuffer cmd) {
         vkutil::transition_image(cmd, new_image.image,
                                  VK_IMAGE_LAYOUT_UNDEFINED,
                                  VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
@@ -1209,8 +1209,7 @@ AllocatedImage VulkanEngine::create_image(const void* data, VkExtent3D size,
         vkutil::transition_image(cmd, new_image.image,
                                  VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
                                  VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
-            },
-            (VulkanEngine*)this);
+            });
 
     destroy_buffer(uploadbuffer);
 
