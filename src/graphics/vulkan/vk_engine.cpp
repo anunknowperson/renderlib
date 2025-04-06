@@ -35,6 +35,7 @@
 #include "graphics/vulkan/vk_loader.h"
 #include "graphics/vulkan/vk_pipelines.h"
 #include "graphics/vulkan/vk_types.h"
+#include "graphics/vulkan/vk_command_buffers.h"
 
 VulkanEngine* loadedEngine = nullptr;
 
@@ -70,7 +71,6 @@ VKAPI_ATTR VkBool32 VKAPI_CALL VulkanEngine::debugCallback(
             type = "Performance";
 
             break;
-
         case VK_DEBUG_UTILS_MESSAGE_TYPE_DEVICE_ADDRESS_BINDING_BIT_EXT:
             type = "Modified set of GPU-visible virtual addresses";
             break;
@@ -117,27 +117,27 @@ void VulkanEngine::init_default_data() {
     rect_indices[1] = 1;
     rect_indices[2] = 2;
 
-    auto path_to_assets = std::string(ASSETS_DIR) + "/basicmesh.glb";
+    const auto path_to_assets = std::string(ASSETS_DIR) + "/basicmesh.glb";
     testMeshes = loadGltfMeshes(this, path_to_assets).value();
 
     // 3 default textures, white, grey, black. 1 pixel each
-    uint32_t white = glm::packUnorm4x8(glm::vec4(1, 1, 1, 1));
+    const uint32_t white = glm::packUnorm4x8(glm::vec4(1, 1, 1, 1));
     _whiteImage =
             create_image(&white, VkExtent3D{1, 1, 1}, VK_FORMAT_R8G8B8A8_UNORM,
                          VK_IMAGE_USAGE_SAMPLED_BIT);
 
-    uint32_t grey = glm::packUnorm4x8(glm::vec4(0.66f, 0.66f, 0.66f, 1));
+    const uint32_t grey = glm::packUnorm4x8(glm::vec4(0.66f, 0.66f, 0.66f, 1));
     _greyImage =
             create_image(&grey, VkExtent3D{1, 1, 1}, VK_FORMAT_R8G8B8A8_UNORM,
                          VK_IMAGE_USAGE_SAMPLED_BIT);
 
-    uint32_t black = glm::packUnorm4x8(glm::vec4(0, 0, 0, 0));
+    const uint32_t black = glm::packUnorm4x8(glm::vec4(0, 0, 0, 0));
     _blackImage =
             create_image(&black, VkExtent3D{1, 1, 1}, VK_FORMAT_R8G8B8A8_UNORM,
                          VK_IMAGE_USAGE_SAMPLED_BIT);
 
     // checkerboard image
-    uint32_t magenta = glm::packUnorm4x8(glm::vec4(1, 0, 1, 1));
+    const uint32_t magenta = glm::packUnorm4x8(glm::vec4(1, 0, 1, 1));
     std::array<uint32_t, 16 * 16> pixels{};  // for 16x16 checkerboard texture
     for (size_t x = 0; x < 16; x++) {
         for (size_t y = 0; y < 16; y++) {
@@ -168,7 +168,7 @@ void VulkanEngine::init_default_data() {
     materialResources.metalRoughSampler = _defaultSamplerLinear;
 
     // set the uniform buffer for the material data
-    AllocatedBuffer materialConstants = create_buffer(
+    const AllocatedBuffer materialConstants = create_buffer(
             sizeof(GLTFMetallic_Roughness::MaterialConstants),
             VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VMA_MEMORY_USAGE_CPU_TO_GPU);
 
@@ -505,7 +505,7 @@ void VulkanEngine::init(SDL_Window* window) {
     loadedEngine = this;
     init_vulkan();
     _swapchainСontrollerP = vk_swapchain::make_swapchain_controller(vCtx, _allocator, _window);
-    init_commands();
+    command_buffers.init_commands(this);
     init_sync_structures();
     init_descriptors();
     init_pipelines();
@@ -518,8 +518,8 @@ void VulkanEngine::init(SDL_Window* window) {
     mainCamera->pitch = 0;
     mainCamera->yaw = 0;
 
-    std::string structurePath = {std::string(ASSETS_DIR) + "/basicmesh.glb"};
-    auto structureFile = loadGltf(this, structurePath);
+    const std::string structurePath = {std::string(ASSETS_DIR) + "/basicmesh.glb"};
+    const auto structureFile = loadGltf(this, structurePath);
 
     assert(structureFile.has_value());
     loadedScenes["structure"] = *structureFile;
@@ -643,42 +643,6 @@ void VulkanEngine::init_vulkan() {
             [&]() { vmaDestroyAllocator(_allocator); });
 }
 
-void VulkanEngine::init_commands() {
-    // create a command pool for commands submitted to the graphics queue.
-    // we also want the pool to allow for resetting of individual command
-    // buffers
-    const VkCommandPoolCreateInfo commandPoolInfo =
-            vkinit::command_pool_create_info(
-                    _graphicsQueueFamily,
-                    VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT);
-
-    for (auto & _frame : _frames) {
-        VK_CHECK(vkCreateCommandPool(vCtx->device, &commandPoolInfo, nullptr,
-                                     &_frame._commandPool));
-
-        // allocate the default command buffer that we will use for rendering
-        VkCommandBufferAllocateInfo cmdAllocInfo =
-                vkinit::command_buffer_allocate_info(_frame._commandPool, 1);
-
-        VK_CHECK(vkAllocateCommandBuffers(vCtx->device, &cmdAllocInfo,
-                                          &_frame._mainCommandBuffer));
-    }
-
-    VK_CHECK(vkCreateCommandPool(vCtx->device, &commandPoolInfo, nullptr,
-                                 &_immCommandPool));
-
-    // allocate the command buffer for immediate submits
-    VkCommandBufferAllocateInfo cmdAllocInfo =
-            vkinit::command_buffer_allocate_info(_immCommandPool, 1);
-
-    VK_CHECK(vkAllocateCommandBuffers(vCtx->device, &cmdAllocInfo,
-                                      &_immCommandBuffer));
-
-    vCtx->mainDeletionQueue.push_function([=, this]() {
-        vkDestroyCommandPool(vCtx->device, _immCommandPool, nullptr);
-    });
-}
-
 void VulkanEngine::init_sync_structures() {
     const VkFenceCreateInfo fenceCreateInfo =
             vkinit::fence_create_info(VK_FENCE_CREATE_SIGNALED_BIT);
@@ -800,7 +764,7 @@ GPUMeshBuffers VulkanEngine::uploadMesh(std::span<uint32_t> indices,
     // copy index buffer
     memcpy((char*)data + vertexBufferSize, indices.data(), indexBufferSize);
 
-    immediate_submit([&](VkCommandBuffer cmd) {
+    command_buffers.immediate_submit([&](VkCommandBuffer cmd) {
         VkBufferCopy vertexCopy{0};
         vertexCopy.dstOffset = 0;
         vertexCopy.srcOffset = 0;
@@ -816,7 +780,7 @@ GPUMeshBuffers VulkanEngine::uploadMesh(std::span<uint32_t> indices,
 
         vkCmdCopyBuffer(cmd, staging.buffer, newSurface.indexBuffer.buffer, 1,
                         &indexCopy);
-    });
+    }, this);
     vCtx->mainDeletionQueue.push_function(
             [=, this] { destroy_buffer(newSurface.vertexBuffer); });
     vCtx->mainDeletionQueue.push_function(
@@ -845,9 +809,9 @@ void VulkanEngine::draw_background(VkCommandBuffer cmd) const {
 
 void VulkanEngine::draw_imgui(VkCommandBuffer cmd,
                               VkImageView targetImageView) const {
-    VkRenderingAttachmentInfo colorAttachment = vkinit::attachment_info(
+    const VkRenderingAttachmentInfo colorAttachment = vkinit::attachment_info(
             targetImageView, nullptr, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
-    VkRenderingInfo renderInfo =
+    const VkRenderingInfo renderInfo =
             vkinit::rendering_info(_swapchainСontrollerP->get_swapchain_extent(), &colorAttachment, nullptr);
 
     vkCmdBeginRendering(cmd, &renderInfo);
@@ -1089,35 +1053,6 @@ void VulkanEngine::draw() {
     _frameNumber++;
 }
 
-void VulkanEngine::immediate_submit(
-        std::function<void(VkCommandBuffer cmd)>&& function) {
-    VK_CHECK(vkResetFences(vCtx->device, 1, &_immFence));
-    VK_CHECK(vkResetCommandBuffer(_immCommandBuffer, 0));
-
-    const VkCommandBuffer cmd = _immCommandBuffer;
-
-    const VkCommandBufferBeginInfo cmdBeginInfo =
-            vkinit::command_buffer_begin_info(
-                    VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT);
-
-    VK_CHECK(vkBeginCommandBuffer(cmd, &cmdBeginInfo));
-
-    function(cmd);
-
-    VK_CHECK(vkEndCommandBuffer(cmd));
-
-    const VkCommandBufferSubmitInfo cmdinfo =
-            vkinit::command_buffer_submit_info(cmd);
-    const VkSubmitInfo2 submit =
-            vkinit::submit_info(&cmdinfo, nullptr, nullptr);
-
-    // submit command buffer to the queue and execute it.
-    //  _renderFence will now block until the graphic commands finish execution
-    VK_CHECK(vkQueueSubmit2(_graphicsQueue, 1, &submit, _immFence));
-
-    VK_CHECK(vkWaitForFences(vCtx->device, 1, &_immFence, true, 9999999999));
-}
-
 void VulkanEngine::update() {
     if (vCtx->resize_requested) {
         _swapchainСontrollerP->resize_swapchain();
@@ -1168,10 +1103,10 @@ AllocatedImage VulkanEngine::create_image(VkExtent3D size, VkFormat format,
     return newImage;
 }
 
-AllocatedImage VulkanEngine::create_image(void* data, VkExtent3D size,
+AllocatedImage VulkanEngine::create_image(const void* data, VkExtent3D size,
                                           VkFormat format,
                                           VkImageUsageFlags usage,
-                                          bool mipmapped) {
+                                          bool mipmapped) const {
     size_t data_size = size.depth * size.width * size.height * 4;
     AllocatedBuffer uploadbuffer =
             create_buffer(data_size, VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
@@ -1185,7 +1120,7 @@ AllocatedImage VulkanEngine::create_image(void* data, VkExtent3D size,
                                  VK_IMAGE_USAGE_TRANSFER_SRC_BIT,
                          mipmapped);
 
-    immediate_submit([&](VkCommandBuffer cmd) {
+    command_buffers.immediate_submit([&](VkCommandBuffer cmd) {
         vkutil::transition_image(cmd, new_image.image,
                                  VK_IMAGE_LAYOUT_UNDEFINED,
                                  VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
@@ -1209,7 +1144,7 @@ AllocatedImage VulkanEngine::create_image(void* data, VkExtent3D size,
         vkutil::transition_image(cmd, new_image.image,
                                  VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
                                  VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
-            });
+            },(VulkanEngine*)this);
 
     destroy_buffer(uploadbuffer);
 

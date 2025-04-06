@@ -19,6 +19,7 @@
 #include "vk_descriptors.h"
 #include "vk_types.h"
 #include "vk_swapchain.h"
+#include "vk_command_buffers.h"
 
 class Camera;
 class VulkanEngine;
@@ -106,6 +107,8 @@ struct DrawContext {
 
 class VulkanEngine {
 public:
+    CommandBuffers command_buffers;
+
     int64_t registerMesh(const std::string& filePath);
     void unregisterMesh(int64_t id);
 
@@ -184,7 +187,6 @@ public:
 
     GPUMeshBuffers rectangle;
 
-    void immediate_submit(std::function<void(VkCommandBuffer cmd)>&& function);
     GPUMeshBuffers uploadMesh(std::span<uint32_t> indices,
                               std::span<Vertex> vertices);
 
@@ -197,9 +199,9 @@ public:
     AllocatedImage create_image(VkExtent3D size, VkFormat format,
                                 VkImageUsageFlags usage,
                                 bool mipmapped = false) const;
-    AllocatedImage create_image(void* data, VkExtent3D size,
+    AllocatedImage create_image(const void* data, VkExtent3D size,
                                 VkFormat format, VkImageUsageFlags usage,
-                                bool mipmapped = false);
+                                bool mipmapped = false) const;
     void destroy_image(const AllocatedImage& img) const;
 
     AllocatedImage _whiteImage;
@@ -229,7 +231,6 @@ private:
                   void* pUserData);
 
     void init_vulkan();
-    void init_commands();
     void init_sync_structures();
 
     void draw_background(VkCommandBuffer cmd) const;

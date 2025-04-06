@@ -5,6 +5,8 @@
 #include <vector>
 #include <functional>
 
+#include "vk_types.h"
+
 class VulkanEngine;
 
 class CommandBuffers {
