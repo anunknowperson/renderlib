@@ -221,7 +221,6 @@ public:
                                   VmaMemoryUsage memoryUsage) const;
 
 private:
-    // std::unique_ptr<ISwapchainController> _swapchainСontrollerP;
     ISwapchainController::Ptr _swapchainСontrollerP;
 
     static VKAPI_ATTR VkBool32 VKAPI_CALL
