@@ -33,8 +33,7 @@ std::optional<std::vector<std::shared_ptr<MeshAsset>>> loadGltfMeshes(
         spdlog::warn("Failed to find file: {}", filePath.string());
         return {};
     }
-
-    std::cout << "Loading " << filePath << '\n';
+    spdlog::info("Loading: {}", filePath.string());
 
     fastgltf::Asset gltf;
 
@@ -207,7 +206,7 @@ VkSamplerMipmapMode extract_mipmap_mode(fastgltf::Filter filter) {
 
 std::optional<std::shared_ptr<LoadedGLTF>> loadGltf(VulkanEngine* engine,
                                                     std::string_view filePath) {
-    std::cout << "Loading GLTF " << filePath << '\n';
+    spdlog::info("Loading GLTF: {}", filePath);
 
     if (!std::filesystem::exists(filePath)) {
         spdlog::warn("Warning: File does not exist: {}", filePath);
