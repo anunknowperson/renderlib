@@ -4,15 +4,24 @@
 #include <fmt/base.h>
 #include <fstream>
 #include <spdlog/spdlog.h>
+#include <filesystem>
 
 #include "graphics/vulkan/vk_initializers.h"
+#include "core/Logging.h"
 
 bool vkutil::load_shader_module(const char* filePath, VkDevice device,
                                 VkShaderModule* outShaderModule) {
     // open the file. With cursor at the end
+    if (!std::filesystem::exists(filePath)) {
+        LOGE("Shader file does not exist: {}", filePath);
+        return false;
+    }
+
+    // Open the file in binary mode, with the cursor at the end
     std::ifstream file(filePath, std::ios::ate | std::ios::binary);
 
     if (!file.is_open()) {
+        LOGE("Failed to open shader file: {}", filePath);
         return false;
     }
 
@@ -22,9 +31,10 @@ bool vkutil::load_shader_module(const char* filePath, VkDevice device,
     const auto fileSize = file.tellg();
 
     if (fileSize == -1) {
-        spdlog::error("Failed to open file {}", filePath);
+        LOGE("Failed to open file {}", filePath);
         return false;
     }
+
     // spirv expects the buffer to be on uint32, so make sure to reserve a int
     // vector big enough for the entire file
     std::vector<uint32_t> buffer(static_cast<uint32_t>(fileSize) /
@@ -51,11 +61,14 @@ bool vkutil::load_shader_module(const char* filePath, VkDevice device,
 
     // check that the creation goes well.
     VkShaderModule shaderModule;
-    if (vkCreateShaderModule(device, &createInfo, nullptr, &shaderModule) !=
-        VK_SUCCESS) {
+    VkResult result =
+            vkCreateShaderModule(device, &createInfo, nullptr, &shaderModule);
+    if (result != VK_SUCCESS) {
+        LOGE("Error: Failed to create shader module.");
         return false;
     }
     *outShaderModule = shaderModule;
+    LOGI("Shader module created successfully.");
     return true;
 }
 
@@ -145,7 +158,7 @@ VkPipeline PipelineBuilder::build_pipeline(VkDevice device) const {
     VkPipeline newPipeline;
     if (vkCreateGraphicsPipelines(device, VK_NULL_HANDLE, 1, &pipelineInfo,
                                   nullptr, &newPipeline) != VK_SUCCESS) {
-        fmt::println("failed to create pipeline");
+        LOGE("failed to create pipeline");
         return VK_NULL_HANDLE;  // failed to create graphics pipeline
     } else {
         return newPipeline;
