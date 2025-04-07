@@ -23,6 +23,7 @@
 #include <utility>
 #include <variant>
 
+#include "core/Logging.h"
 #include "graphics/vulkan/vk_descriptors.h"
 #include "graphics/vulkan/vk_engine.h"
 #include "graphics/vulkan/vk_types.h"
@@ -30,10 +31,10 @@
 std::optional<std::vector<std::shared_ptr<MeshAsset>>> loadGltfMeshes(
         VulkanEngine* engine, const std::filesystem::path& filePath) {
     if (!std::filesystem::exists(filePath)) {
-        spdlog::warn("Failed to find file: {}", filePath.string());
+        LOGW("Failed to find file: {}", filePath.string());
         return {};
     }
-    spdlog::info("Loading: {}", filePath.string());
+    LOGI("Loading: {}", filePath.string());
 
     fastgltf::Asset gltf;
 
@@ -56,7 +57,7 @@ std::optional<std::vector<std::shared_ptr<MeshAsset>>> loadGltfMeshes(
             fastgltf::Options::GenerateMeshIndices;
 
     if (!std::filesystem::exists(path)) {
-        spdlog::warn("Failed to find file: {}", path.string());
+        LOGW("Failed to find file: {}", path.string());
         return {};
     }
 
@@ -68,7 +69,7 @@ std::optional<std::vector<std::shared_ptr<MeshAsset>>> loadGltfMeshes(
     if (asset) {
         gltf = std::move(asset.get());
     } else {
-        spdlog::error("Failed to load glTF: {}",
+        LOGE("Failed to load glTF: {}",
                       fastgltf::to_underlying(asset.error()));
         return {};
     }
@@ -206,10 +207,10 @@ VkSamplerMipmapMode extract_mipmap_mode(fastgltf::Filter filter) {
 
 std::optional<std::shared_ptr<LoadedGLTF>> loadGltf(VulkanEngine* engine,
                                                     std::string_view filePath) {
-    spdlog::info("Loading GLTF: {}", filePath);
+    LOGI("Loading GLTF: {}", filePath);
 
     if (!std::filesystem::exists(filePath)) {
-        spdlog::warn("Warning: File does not exist: {}", filePath);
+        LOGW("File does not exist: {}", filePath);
     }
 
     auto scene = std::make_shared<LoadedGLTF>();
@@ -237,8 +238,7 @@ std::optional<std::shared_ptr<LoadedGLTF>> loadGltf(VulkanEngine* engine,
         if (load) {
             gltf = std::move(load.get());
         } else {
-            std::cerr << "Failed to load glTF: "
-                      << fastgltf::to_underlying(load.error()) << std::endl;
+            LOGE("Failed to load glTF: {} ", fastgltf::to_underlying(load.error()));
             return {};
         }
     } else if (type == fastgltf::GltfType::GLB) {
@@ -247,12 +247,11 @@ std::optional<std::shared_ptr<LoadedGLTF>> loadGltf(VulkanEngine* engine,
         if (load) {
             gltf = std::move(load.get());
         } else {
-            std::cerr << "Failed to load glTF: "
-                      << fastgltf::to_underlying(load.error()) << std::endl;
+            LOGE("Failed to load glTF: {} ", fastgltf::to_underlying(load.error()));
             return {};
         }
     } else {
-        std::cerr << "Failed to determine glTF container" << std::endl;
+        LOGE("Failed to determine glTF container");
         return {};
     }
 

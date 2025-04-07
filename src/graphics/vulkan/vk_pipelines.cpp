@@ -7,12 +7,13 @@
 #include <filesystem>
 
 #include "graphics/vulkan/vk_initializers.h"
+#include "core/Logging.h"
 
 bool vkutil::load_shader_module(const char* filePath, VkDevice device,
                                 VkShaderModule* outShaderModule) {
     // open the file. With cursor at the end
     if (!std::filesystem::exists(filePath)) {
-        spdlog::warn("Shader file does not exist: {}", filePath);
+        LOGE("Shader file does not exist: {}", filePath);
         return false;
     }
 
@@ -20,7 +21,7 @@ bool vkutil::load_shader_module(const char* filePath, VkDevice device,
     std::ifstream file(filePath, std::ios::ate | std::ios::binary);
 
     if (!file.is_open()) {
-        spdlog::error("Failed to open shader file: {}", filePath);
+        LOGE("Failed to open shader file: {}", filePath);
         return false;
     }
 
@@ -30,7 +31,7 @@ bool vkutil::load_shader_module(const char* filePath, VkDevice device,
     const auto fileSize = file.tellg();
 
     if (fileSize == -1) {
-        spdlog::error("Failed to open file {}", filePath);
+        LOGE("Failed to open file {}", filePath);
         return false;
     }
 
@@ -63,12 +64,11 @@ bool vkutil::load_shader_module(const char* filePath, VkDevice device,
     VkResult result =
             vkCreateShaderModule(device, &createInfo, nullptr, &shaderModule);
     if (result != VK_SUCCESS) {
-        spdlog::error("Error: Failed to create shader module. VkResult: {}",
-                      static_cast<int>(result));
+        LOGE("Error: Failed to create shader module.");
         return false;
     }
     *outShaderModule = shaderModule;
-    spdlog::info("Shader module created successfully.");
+    LOGI("Shader module created successfully.");
     return true;
 }
 
@@ -158,7 +158,7 @@ VkPipeline PipelineBuilder::build_pipeline(VkDevice device) const {
     VkPipeline newPipeline;
     if (vkCreateGraphicsPipelines(device, VK_NULL_HANDLE, 1, &pipelineInfo,
                                   nullptr, &newPipeline) != VK_SUCCESS) {
-        fmt::println("failed to create pipeline");
+        LOGE("failed to create pipeline");
         return VK_NULL_HANDLE;  // failed to create graphics pipeline
     } else {
         return newPipeline;
