@@ -1,3 +1,5 @@
+#include <cinttypes>
+
 #include "graphics/vulkan/vk_command_buffers.h"
 #include "graphics/vulkan/vk_engine.h"
 #include "graphics/vulkan/vk_initializers.h"
@@ -26,7 +28,7 @@ void CommandBuffers::init_commands() {
                     m_graphicsQueueFamily,
                     VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT);
 
-    for (unsigned int i = 0; i < FRAME_OVERLAP; i++) {
+    for (int64_t i = 0; i < FRAME_OVERLAP; i++) {
         VK_CHECK(vkCreateCommandPool(m_device, &commandPoolInfo, nullptr,
                                      &m_frames[i]._commandPool));
 

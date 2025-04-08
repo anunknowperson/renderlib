@@ -528,13 +528,12 @@ void VulkanEngine::init(SDL_Window* window) {
 
 void VulkanEngine::init_command_buffer() {
     m_command_buffers =
-            new CommandBuffers(_device, _graphicsQueueFamily, _graphicsQueue,
+            std::make_unique<CommandBuffers>(_device, _graphicsQueueFamily, _graphicsQueue,
                                _frames, &_mainDeletionQueue, *this);
 
     m_command_buffers->init_commands();
 
     _mainDeletionQueue.push_function([this]() {
-        delete m_command_buffers;
         m_command_buffers = nullptr;
     });
 }
@@ -634,16 +633,6 @@ void VulkanEngine::init_vulkan() {
     }
 
     _graphicsQueue = queue_ret.value();
-
-    /*
-    auto queue_family_ret = vkbDevice.get_queue_index(vkb::QueueType::graphics);
-    if (!queue_family_ret) {
-        LOGE("Failed to retrieve graphics queue family. Error: {}",
-             queue_family_ret.error().message());
-    }
-
-    _graphicsQueueFamily = queue_family_ret.value();
-    */
 
     // initialize the memory allocator
     VmaAllocatorCreateInfo allocatorInfo = {};
