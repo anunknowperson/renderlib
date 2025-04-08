@@ -6,8 +6,8 @@ CommandBuffers::CommandBuffers(VkDevice device, uint32_t graphicsQueueFamily,
                                VkQueue graphicsQueue, FrameData* frames,
                                DeletionQueue* deletionQueue,
                                VulkanEngine& engine)
-    : m_device(device),
-      m_graphicsQueueFamily(graphicsQueueFamily),
+    : m_graphicsQueueFamily(graphicsQueueFamily),
+      m_device(device),
       m_graphicsQueue(graphicsQueue),
       m_frames(frames),
       m_mainDeletionQueue(deletionQueue),
@@ -26,7 +26,7 @@ void CommandBuffers::init_commands() {
                     m_graphicsQueueFamily,
                     VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT);
 
-    for (int i = 0; i < FRAME_OVERLAP; i++) {
+    for (unsigned int i = 0; i < FRAME_OVERLAP; i++) {
         VK_CHECK(vkCreateCommandPool(m_device, &commandPoolInfo, nullptr,
                                      &m_frames[i]._commandPool));
 
