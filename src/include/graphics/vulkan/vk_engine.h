@@ -16,9 +16,11 @@
 #include <vulkan/vk_platform.h>
 #include <vulkan/vulkan_core.h>
 
+#include "vk_command_buffers.h"
 #include "vk_descriptors.h"
 #include "vk_types.h"
-#include "vk_command_buffers.h" 
+
+class CommandBuffers;
 
 class Camera;
 class VulkanEngine;
@@ -248,7 +250,7 @@ public:
                                   VmaMemoryUsage memoryUsage) const;
 
 private:
-    CommandBuffers m_command_buffers;
+    CommandBuffers* m_command_buffers = nullptr;
 
     static VKAPI_ATTR VkBool32 VKAPI_CALL
     debugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,

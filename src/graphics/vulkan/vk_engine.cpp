@@ -30,12 +30,12 @@
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/transform.hpp>
 
+#include "graphics/vulkan/vk_command_buffers.h"
 #include "graphics/vulkan/vk_images.h"
 #include "graphics/vulkan/vk_initializers.h"
 #include "graphics/vulkan/vk_loader.h"
 #include "graphics/vulkan/vk_pipelines.h"
 #include "graphics/vulkan/vk_types.h"
-#include "graphics/vulkan/vk_command_buffers.h"
 
 VulkanEngine* loadedEngine = nullptr;
 
@@ -527,10 +527,16 @@ void VulkanEngine::init(SDL_Window* window) {
 }
 
 void VulkanEngine::init_command_buffer() {
-    m_command_buffers = CommandBuffers(
-            std::make_unique<uint32_t>(_graphicsQueueFamily),
-            _device, _frames);
-    m_command_buffers.init_commands();
+    m_command_buffers =
+            new CommandBuffers(_device, _graphicsQueueFamily, _graphicsQueue,
+                               _frames, &_mainDeletionQueue, *this);
+
+    m_command_buffers->init_commands();
+
+    _mainDeletionQueue.push_function([this]() {
+        delete m_command_buffers;
+        m_command_buffers = nullptr;
+    });
 }
 
 void VulkanEngine::init_vulkan() {
@@ -855,7 +861,7 @@ GPUMeshBuffers VulkanEngine::uploadMesh(std::span<uint32_t> indices,
     // copy index buffer
     memcpy((char*)data + vertexBufferSize, indices.data(), indexBufferSize);
 
-    command_buffers.immediate_submit([&](VkCommandBuffer cmd) {
+    m_command_buffers->immediate_submit([&](VkCommandBuffer cmd) {
         VkBufferCopy vertexCopy{0};
         vertexCopy.dstOffset = 0;
         vertexCopy.srcOffset = 0;
@@ -871,7 +877,7 @@ GPUMeshBuffers VulkanEngine::uploadMesh(std::span<uint32_t> indices,
 
         vkCmdCopyBuffer(cmd, staging.buffer, newSurface.indexBuffer.buffer, 1,
                         &indexCopy);
-            });
+    });
 
     _mainDeletionQueue.push_function(
             [=, this] { destroy_buffer(newSurface.vertexBuffer); });
@@ -1228,7 +1234,7 @@ AllocatedImage VulkanEngine::create_image(const void* data, VkExtent3D size,
                                  VK_IMAGE_USAGE_TRANSFER_SRC_BIT,
                          mipmapped);
 
-    command_buffers.immediate_submit([&](VkCommandBuffer cmd) {
+    m_command_buffers->immediate_submit([&](VkCommandBuffer cmd) {
         vkutil::transition_image(cmd, new_image.image,
                                  VK_IMAGE_LAYOUT_UNDEFINED,
                                  VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
@@ -1252,7 +1258,7 @@ AllocatedImage VulkanEngine::create_image(const void* data, VkExtent3D size,
         vkutil::transition_image(cmd, new_image.image,
                                  VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
                                  VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
-            });
+    });
 
     destroy_buffer(uploadbuffer);
 
