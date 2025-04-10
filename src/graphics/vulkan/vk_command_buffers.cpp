@@ -5,7 +5,6 @@
 
 
 
-
 void CommandBuffers::init_commands(VulkanEngine* vk_engine) {
     // create a command pool for commands submitted to the graphics queue.
     // we also want the pool to allow for resetting of individual command
@@ -16,7 +15,7 @@ void CommandBuffers::init_commands(VulkanEngine* vk_engine) {
                     VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT);
 
     for (auto& _frame : vk_engine->_frames) {
-        VK_CHECK(vkCreateCommandPool(vk_engine->_device, &commandPoolInfo,
+        VK_CHECK(vkCreateCommandPool(vk_engine->vCtx->device, &commandPoolInfo,
                                      nullptr,
                                      &_frame._commandPool));
 
@@ -24,22 +23,22 @@ void CommandBuffers::init_commands(VulkanEngine* vk_engine) {
         VkCommandBufferAllocateInfo cmdAllocInfo =
                 vkinit::command_buffer_allocate_info(_frame._commandPool, 1);
 
-        VK_CHECK(vkAllocateCommandBuffers(vk_engine->_device, &cmdAllocInfo,
+        VK_CHECK(vkAllocateCommandBuffers(vk_engine->vCtx->device, &cmdAllocInfo,
                                           &_frame._mainCommandBuffer));
     }
 
-    VK_CHECK(vkCreateCommandPool(vk_engine->_device, &commandPoolInfo, nullptr,
+    VK_CHECK(vkCreateCommandPool(vk_engine->vCtx->device, &commandPoolInfo, nullptr,
                                  &(vk_engine->_immCommandPool)));
 
     // allocate the command buffer for immediate submits
     const VkCommandBufferAllocateInfo cmdAllocInfo =
             vkinit::command_buffer_allocate_info(vk_engine->_immCommandPool, 1);
 
-    VK_CHECK(vkAllocateCommandBuffers(vk_engine->_device, &cmdAllocInfo,
+    VK_CHECK(vkAllocateCommandBuffers(vk_engine->vCtx->device, &cmdAllocInfo,
                                       &(vk_engine->_immCommandBuffer)));
 
-    vk_engine->_mainDeletionQueue.push_function([=] {
-    vkDestroyCommandPool(vk_engine->_device, vk_engine->_immCommandPool,
+    vk_engine->vCtx->mainDeletionQueue.push_function([=] {
+    vkDestroyCommandPool(vk_engine->vCtx->device, vk_engine->_immCommandPool,
                          nullptr);
     });
 }
@@ -47,7 +46,7 @@ void CommandBuffers::init_commands(VulkanEngine* vk_engine) {
 void CommandBuffers::immediate_submit(
         std::function<void(VkCommandBuffer cmd)>&& function,
         VulkanEngine* vk_engine) const {
-    VK_CHECK(vkResetFences(vk_engine->_device, 1, &(vk_engine->_immFence)));
+    VK_CHECK(vkResetFences(vk_engine->vCtx->device, 1, &(vk_engine->_immFence)));
     VK_CHECK(vkResetCommandBuffer(vk_engine->_immCommandBuffer, 0));
 
     const VkCommandBuffer cmd = vk_engine->_immCommandBuffer;
@@ -72,6 +71,6 @@ void CommandBuffers::immediate_submit(
     VK_CHECK(vkQueueSubmit2(vk_engine->_graphicsQueue, 1, &submit,
                             vk_engine->_immFence));
 
-    VK_CHECK(vkWaitForFences(vk_engine->_device, 1, &(vk_engine->_immFence), true,
+    VK_CHECK(vkWaitForFences(vk_engine->vCtx->device, 1, &(vk_engine->_immFence), true,
                              9999999999));
 }
