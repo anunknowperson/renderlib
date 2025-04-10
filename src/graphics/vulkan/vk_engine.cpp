@@ -30,12 +30,12 @@
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/transform.hpp>
 
+#include "graphics/vulkan/vk_command_buffers.h"
 #include "graphics/vulkan/vk_images.h"
 #include "graphics/vulkan/vk_initializers.h"
 #include "graphics/vulkan/vk_loader.h"
 #include "graphics/vulkan/vk_pipelines.h"
 #include "graphics/vulkan/vk_types.h"
-#include "graphics/vulkan/vk_command_buffers.h"
 
 VulkanEngine* loadedEngine = nullptr;
 
@@ -503,9 +503,7 @@ void VulkanEngine::init(SDL_Window* window) {
     loadedEngine = this;
     init_vulkan();
     init_swapchain();
-    
-    command_buffers.init_commands(this);
-    
+    init_command_buffer();
     init_sync_structures();
     init_descriptors();
     init_pipelines();
@@ -526,6 +524,18 @@ void VulkanEngine::init(SDL_Window* window) {
     loadedScenes["structure"] = *structureFile;
 
     _isInitialized = true;
+}
+
+void VulkanEngine::init_command_buffer() {
+    m_command_buffers =
+            std::make_unique<CommandBuffers>(_device, _graphicsQueueFamily, _graphicsQueue,
+                               _frames, &_mainDeletionQueue, *this);
+
+    m_command_buffers->init_commands();
+
+    _mainDeletionQueue.push_function([this]() {
+        m_command_buffers = nullptr;
+    });
 }
 
 void VulkanEngine::init_vulkan() {
@@ -623,14 +633,6 @@ void VulkanEngine::init_vulkan() {
     }
 
     _graphicsQueue = queue_ret.value();
-
-    auto queue_family_ret = vkbDevice.get_queue_index(vkb::QueueType::graphics);
-    if (!queue_family_ret) {
-        LOGE("Failed to retrieve graphics queue family. Error: {}",
-             queue_family_ret.error().message());
-    }
-
-    _graphicsQueueFamily = queue_family_ret.value();
 
     // initialize the memory allocator
     VmaAllocatorCreateInfo allocatorInfo = {};
@@ -848,7 +850,7 @@ GPUMeshBuffers VulkanEngine::uploadMesh(std::span<uint32_t> indices,
     // copy index buffer
     memcpy((char*)data + vertexBufferSize, indices.data(), indexBufferSize);
 
-    command_buffers.immediate_submit([&](VkCommandBuffer cmd) {
+    m_command_buffers->immediate_submit([&](VkCommandBuffer cmd) {
         VkBufferCopy vertexCopy{0};
         vertexCopy.dstOffset = 0;
         vertexCopy.srcOffset = 0;
@@ -864,8 +866,7 @@ GPUMeshBuffers VulkanEngine::uploadMesh(std::span<uint32_t> indices,
 
         vkCmdCopyBuffer(cmd, staging.buffer, newSurface.indexBuffer.buffer, 1,
                         &indexCopy);
-            },
-            this);
+    });
 
     _mainDeletionQueue.push_function(
             [=, this] { destroy_buffer(newSurface.vertexBuffer); });
@@ -1222,7 +1223,7 @@ AllocatedImage VulkanEngine::create_image(const void* data, VkExtent3D size,
                                  VK_IMAGE_USAGE_TRANSFER_SRC_BIT,
                          mipmapped);
 
-    command_buffers.immediate_submit([&](VkCommandBuffer cmd) {
+    m_command_buffers->immediate_submit([&](VkCommandBuffer cmd) {
         vkutil::transition_image(cmd, new_image.image,
                                  VK_IMAGE_LAYOUT_UNDEFINED,
                                  VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
@@ -1246,8 +1247,7 @@ AllocatedImage VulkanEngine::create_image(const void* data, VkExtent3D size,
         vkutil::transition_image(cmd, new_image.image,
                                  VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
                                  VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
-            },
-            (VulkanEngine*)this);
+    });
 
     destroy_buffer(uploadbuffer);
 
