@@ -28,28 +28,29 @@ void CommandBuffers::init_commands() {
                     m_graphicsQueueFamily,
                     VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT);
 
-    for (int64_t i = 0; i < FRAME_OVERLAP; i++) {
+    for (uint8_t frame_index = 0; frame_index < FRAME_OVERLAP; ++frame_index) {
         VK_CHECK(vkCreateCommandPool(m_device, &commandPoolInfo, nullptr,
-                                     &m_frames[i]._commandPool));
+                                     &m_frames[frame_index]._commandPool));
 
         // allocate the default command buffer that we will use for rendering
         VkCommandBufferAllocateInfo cmdAllocInfo =
-                vkinit::command_buffer_allocate_info(m_frames[i]._commandPool,
+                vkinit::command_buffer_allocate_info(
+                        m_frames[frame_index]._commandPool,
                                                      1);
 
         VK_CHECK(vkAllocateCommandBuffers(m_device, &cmdAllocInfo,
-                                          &m_frames[i]._mainCommandBuffer));
+                &m_frames[frame_index]._mainCommandBuffer));
     }
 
     VK_CHECK(vkCreateCommandPool(m_device, &commandPoolInfo, nullptr,
-                                 &(m_immCommandPool)));
+                                 &m_immCommandPool));
 
     // allocate the command buffer for immediate submits
     const VkCommandBufferAllocateInfo cmdAllocInfo =
             vkinit::command_buffer_allocate_info(m_immCommandPool, 1);
 
     VK_CHECK(vkAllocateCommandBuffers(m_device, &cmdAllocInfo,
-                                      &(m_immCommandBuffer)));
+                                      &m_immCommandBuffer));
 
     m_mainDeletionQueue->push_function([this] {
         vkDestroyCommandPool(m_device, m_immCommandPool, nullptr);
@@ -59,7 +60,7 @@ void CommandBuffers::init_commands() {
 
 void CommandBuffers::immediate_submit(
         std::function<void(VkCommandBuffer cmd)>&& recordCommands) const {
-    VK_CHECK(vkResetFences(m_device, 1, &(m_immFence)));
+    VK_CHECK(vkResetFences(m_device, 1, &m_immFence));
     VK_CHECK(vkResetCommandBuffer(m_immCommandBuffer, 0));
 
     const VkCommandBuffer cmd = m_immCommandBuffer;
@@ -83,5 +84,5 @@ void CommandBuffers::immediate_submit(
     //  _renderFence will now block until the graphic commands finish execution
     VK_CHECK(vkQueueSubmit2(m_graphicsQueue, 1, &submit, m_immFence));
 
-    VK_CHECK(vkWaitForFences(m_device, 1, &(m_immFence), true, 9999999999));
+    VK_CHECK(vkWaitForFences(m_device, 1, &m_immFence, true, 9999999999));
 }

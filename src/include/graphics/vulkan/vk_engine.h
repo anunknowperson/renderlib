@@ -250,7 +250,7 @@ public:
                                   VmaMemoryUsage memoryUsage) const;
 
 private:
-    std::unique_ptr <CommandBuffers> m_command_buffers = nullptr;
+    std::unique_ptr<CommandBuffers> m_command_buffers = nullptr;
 
     static VKAPI_ATTR VkBool32 VKAPI_CALL
     debugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
