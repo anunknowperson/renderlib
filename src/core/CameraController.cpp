@@ -1,4 +1,5 @@
 #define GLM_ENABLE_EXPERIMENTAL
+#include "iostream"
 #include "core/CameraController.h"
 #include <SDL_events.h>
 #include <glm/gtc/quaternion.hpp>
@@ -154,16 +155,18 @@ bool FPSCameraController::handleInput(const InputEvent& event) {
                 _rotating = true;
                 _lastMouseX = static_cast<float>(event.x);
                 _lastMouseY = static_cast<float>(event.y);
+                SDL_SetRelativeMouseMode(SDL_TRUE);
                 return true;
             }
-            return false;
+        return false;
 
         case InputEvent::Type::MouseUp:
             if (event.key == SDL_BUTTON_RIGHT) {
                 _rotating = false;
+                SDL_SetRelativeMouseMode(SDL_FALSE);
                 return true;
             }
-            return false;
+        return false;
 
         case InputEvent::Type::MouseMove:
             if (_rotating) {
