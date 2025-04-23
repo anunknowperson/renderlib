@@ -1,41 +1,41 @@
-#include <cassert>
-#include <chrono>
-#include <iostream>
-#include <utility>
-
 #include "core/ControllerImpl.h"
 
+#include <chrono>
+#include <cmath>
+#include <string>
+#include <utility>
+
 #define GLM_ENABLE_EXPERIMENTAL
-#include <core/View.h>
 #include <glm/gtx/transform.hpp>
 
-ControllerImpl::ControllerImpl(IModel::Ptr model)
-    : _model(std::move(model)) {
-}
+#include "core/View.h"
+#include "scene/Camera.h"
+
+ControllerImpl::ControllerImpl(IModel::Ptr model) : _model(std::move(model)) {}
 
 double getCurrentGlobalTime() {
     // Get the current time point
-    auto now = std::chrono::system_clock::now();
+    const auto now = std::chrono::system_clock::now();
 
     // Cast to a time duration since the epoch
-    auto durationSinceEpoch = now.time_since_epoch();
+    const auto durationSinceEpoch = now.time_since_epoch();
 
     // Convert to seconds in double precision
-    std::chrono::duration<double> seconds = durationSinceEpoch;
+    const std::chrono::duration<double> seconds = durationSinceEpoch;
 
     // Return the double value
     return seconds.count();
 }
 
 void updateCube(const std::shared_ptr<IModel> &_model, int name) {
-    double sinValue = std::sin(getCurrentGlobalTime() + name) * 5.0f;
+    const double sinValue = std::sin(getCurrentGlobalTime() + name) * 5.0;
 
+    const glm::mat4 scale = glm::scale(glm::vec3{0.2f});
+    const glm::mat4 translation = glm::translate(
+            glm::vec3{static_cast<float>(name) - 2.5f, sinValue, 0});
 
-    glm::mat4 scale = glm::scale(glm::vec3{0.2});
-    glm::mat4 translation = glm::translate(glm::vec3{name - 2.5f, sinValue, 0});
-
-
-    _model->setMeshTransform("cube" + name, scale * translation);
+    _model->setMeshTransform("cube" + std::to_string(name),
+                             scale * translation);
 }
 
 void updateCubes(const std::shared_ptr<IModel> &_model) {
@@ -43,7 +43,6 @@ void updateCubes(const std::shared_ptr<IModel> &_model) {
         updateCube(_model, i);
     }
 }
-
 
 void ControllerImpl::update() const {
     _model->updateVulkan();

@@ -1,8 +1,8 @@
-#include <cassert>
-#include <cstring>
-#include <iostream>
-
 #include "core/ModelImpl.h"
+
+#include <SDL_video.h>
+
+#include "core/Mesh.h"
 
 ModelImpl::~ModelImpl() {
     _engine.cleanup();
@@ -10,7 +10,7 @@ ModelImpl::~ModelImpl() {
 
 ModelImpl::ModelImpl() = default;
 
-void ModelImpl::registerWindow(struct SDL_Window *window) {
+void ModelImpl::registerWindow(SDL_Window *window) {
     _engine.mainCamera = &_camera;
     _engine.init(window);
 }
@@ -24,9 +24,7 @@ Camera *ModelImpl::getCamera() {
 }
 
 void ModelImpl::createMesh(std::string name) {
-
-
-    auto mesh = std::make_shared<Mesh>("/basicmesh.glb");
+    const auto mesh = std::make_shared<Mesh>("/basicmesh.glb");
 
     mesh->set_transform(glm::mat4(1.0f));
 
