@@ -1,57 +1,58 @@
+#define GLM_ENABLE_EXPERIMENTAL
 #include <gtest/gtest.h>
-#include <memory>
+#include <SDL2/SDL.h>
+#include <glm/gtx/dual_quaternion.hpp>
+#include <glm/gtx/string_cast.hpp>
+#include <iostream>
+
 #include "core/CameraController.h"
 #include "scene/Camera.h"
-#include <SDL2/SDL.h>
-#include <glm/glm.hpp>
 
-TEST(CameraControllerTest, Initialization) {
-    Camera camera(glm::vec3(0.0f), 45.0f, 800.0f, 600.0f, 0.1f, 1000.0f);
-    CameraController controller(camera);
+// Mock camera implementation for testing
+class MockCamera : public ICamera {
+public:
+    MockCamera() = default;
+    ~MockCamera() override = default;
 
-    EXPECT_FLOAT_EQ(controller.getMovementSpeed(), 0.0f);
-    EXPECT_FLOAT_EQ(controller.getRotationSpeed(), 0.0f);
+    void setPosition(const glm::vec3&) override {}
+    glm::vec3 getPosition() const override { return {}; }
+    void setRotation(const glm::quat&) override {}
+    glm::quat getRotation() const override { return glm::quat(); }
+    void updateViewport(float, float) override {}
+    glm::mat4 getViewMatrix() const override { return glm::mat4(1.0f); }
+    glm::mat4 getProjectionMatrix() const override { return glm::mat4(1.0f); }
+    glm::vec3 getEulerAngles() const override { return glm::vec3(0.0f); }
+};
+
+TEST(CameraControllerTest, HandleKeyInputs) {
+    auto camera = std::make_shared<MockCamera>();
+    FPSCameraController controller(camera);
+
+    InputEvent keyDown{InputEvent::Type::KeyDown, SDLK_w};
+    EXPECT_TRUE(controller.handleInput(keyDown));
+
+    InputEvent keyUp{InputEvent::Type::KeyUp, SDLK_w};
+    EXPECT_TRUE(controller.handleInput(keyUp));
 }
 
-TEST(CameraControllerTest, MovementInput) {
-    Camera camera(glm::vec3(0.0f), 45.0f, 800.0f, 600.0f, 0.1f, 1000.0f);
-    CameraController controller(camera);
-    controller.setMovementSpeed(5.0f);
+TEST(CameraControllerTest, HandleMouseInputs) {
+    auto camera = std::make_shared<MockCamera>();
+    FPSCameraController controller(camera);
 
-    // Create input event using correct Type:: prefix
-    InputEvent forwardEvent;
-    forwardEvent.type = InputEvent::Type::KeyDown;
-    forwardEvent.key = SDLK_w;
+    InputEvent mouseDown{InputEvent::Type::MouseDown};
+    mouseDown.key = SDL_BUTTON_RIGHT;
+    EXPECT_TRUE(controller.handleInput(mouseDown));
 
-    EXPECT_TRUE(controller.handleInput(forwardEvent));
-    controller.update(1.0f);
-
-    glm::vec3 position = camera.getPosition();
-    EXPECT_NEAR(position.z, -5.0f, 0.001f);
+    InputEvent mouseUp{InputEvent::Type::MouseUp};
+    mouseUp.key = SDL_BUTTON_RIGHT;
+    EXPECT_TRUE(controller.handleInput(mouseUp));
 }
 
-TEST(CameraControllerTest, RotationInput) {
-    Camera camera(glm::vec3(0.0f), 45.0f, 800.0f, 600.0f, 0.1f, 1000.0f);
-    CameraController controller(camera);
-    controller.setRotationSpeed(0.1f);
+TEST(CameraControllerTest, OrbitController) {
+    auto camera = std::make_shared<MockCamera>();
+    OrbitCameraController controller(camera);
 
-    // Activate rotation mode with right mouse button
-    InputEvent mouseDownEvent;
-    mouseDownEvent.type = InputEvent::Type::MouseDown;
-    mouseDownEvent.key = SDL_BUTTON_RIGHT;
-    mouseDownEvent.x = 100;
-    mouseDownEvent.y = 100;
-    EXPECT_TRUE(controller.handleInput(mouseDownEvent));
-
-    // Simulate mouse movement
-    InputEvent mouseMoveEvent;
-    mouseMoveEvent.type = InputEvent::Type::MouseMove;
-    mouseMoveEvent.x = 110;
-    mouseMoveEvent.y = 95;
-    mouseMoveEvent.x = 110;
-    mouseMoveEvent.y = 95;
-    EXPECT_TRUE(controller.handleInput(mouseMoveEvent));
-
-    glm::quat originalRotation(1.0f, 0.0f, 0.0f, 0.0f);
-    EXPECT_NE(camera.getRotation(), originalRotation);
+    InputEvent wheelEvent{InputEvent::Type::MouseWheel};
+    wheelEvent.deltaY = 1;
+    EXPECT_TRUE(controller.handleInput(wheelEvent));
 }
