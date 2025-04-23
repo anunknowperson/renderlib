@@ -33,6 +33,17 @@ jobs:
       - name: Install Dependencies using Composite Action
         uses: ./.github/composite-actions/install-dependencies
 
+      - name: Cache CMake build directory for linting
+        uses: actions/cache@v4
+        with:
+          path: |
+            out/build/lx64-debug
+            ~/.cache/clangd
+            ~/.cache/clang-tidy
+          key: ${{ runner.os }}-linter-cache-${{ hashFiles('CMakePresets.json', '**/CMakeLists.txt', '.clang-tidy', '.clang-format', 'vcpkg.json') }}
+          restore-keys: |
+            ${{ runner.os }}-linter-cache-
+
       - name: Configure
         uses: lukka/run-cmake@v10
         with:
@@ -47,7 +58,7 @@ jobs:
           version: '19'
           style: 'file'
           database: 'out/build/lx64-debug'
-          ignore: 'out|.github|vcpkg|assets|cmake|scripts|shaders'
+          ignore: 'out|.github|vcpkg|assets|cmake|scripts|shaders|docs|README.md|.gitignore'
           extra-args: '-std=c++23'
           files-changed-only: 'false'
           thread-comments: ${{ github.event_name == 'pull_request' && 'update' }}
