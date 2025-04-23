@@ -1,16 +1,13 @@
-name: Codestyle
+name: Code Analysis & Formatting
 
 on:
-  workflow_run:
-    workflows: ["CMake on multiple platforms"]
-    types:
-      - completed
   pull_request:
+    branches:
+      - main
     paths-ignore:
       - docs/**
       - README.md
       - .gitignore
-      - build/**
       - out/**
       - vcpkg/**
       - assets/**
@@ -18,72 +15,48 @@ on:
       - scripts/**
       - shaders/**
 
-concurrency:
-  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
-  cancel-in-progress: true
-
 jobs:
-  clang-format-check:
-    continue-on-error: true
+  cpp-linter:
+    name: Code Analysis & Formatting (Ubuntu)
     runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+      contents: read
+
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
         with:
-          fetch-depth: 0
-      - name: Pull clang-format
-        run: |
-          sudo add-apt-repository 'deb http://apt.llvm.org/jammy/ llvm-toolchain-jammy-18 main'
-          wget https://apt.llvm.org/llvm-snapshot.gpg.key
-          sudo apt-key add llvm-snapshot.gpg.key
-          sudo apt-get update
-          sudo apt-get install -y clang-format-18
-      - name: Check formatting
-        run: |
-          set +e
-          formatterOutput=$( git diff -U0 origin/$GITHUB_BASE_REF...HEAD | clang-format-diff-18 -p 1)
-
-          if [ "$formatterOutput" != "" ]
-          then
-            echo ":x: :x: :x:" >> $GITHUB_STEP_SUMMARY
-            echo "\`\`\`c++" >> $GITHUB_STEP_SUMMARY
-            echo "$formatterOutput" >> $GITHUB_STEP_SUMMARY
-            echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
-            echo "$formatterOutput"
-            exit 1
-          fi
-
-          echo "$formatterOutput"
-          echo "### $formatterOutput :heavy_check_mark:" >> $GITHUB_STEP_SUMMARY
-
-  clang-tidy-check:
-    runs-on: ubuntu-latest
-    needs: clang-format-check
-    strategy:
-      matrix:
-        preset:
-          - lx64-debug
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
           submodules: true
-      - name: Install dependencies
+          fetch-depth: 0
+
+      - name: Install Dependencies using Composite Action
         uses: ./.github/composite-actions/install-dependencies
-      - name: Configure CMake with Preset
-        run: |
-          cmake --preset=${{ matrix.preset }} -DCMAKE_EXPORT_COMPILE_COMMANDS=ON .
 
-      - uses: ZedThree/clang-tidy-review@v0.19.0
-        id: review
+      - name: Configure
+        uses: lukka/run-cmake@v10
         with:
-          apt_packages: libboost-dev
-          build_dir: out/build/${{ matrix.preset }}
-          config_file: '.clang-tidy'
-          split_workflow: true
-          pr: ${{ github.event.pull_request.number }}
+          configurePreset: lx64-debug
 
-      - uses: ZedThree/clang-tidy-review/upload@v0.19.0
+      - name: Run C++ Linter
+        uses: cpp-linter/cpp-linter-action@v2
+        id: linter
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          version: '19'
+          style: 'file'
+          database: 'out/build/lx64-debug'
+          ignore: 'out|.github|vcpkg|assets|cmake|scripts|shaders'
+          extra-args: '-std=c++23'
+          files-changed-only: ${{ github.event_name == 'pull_request' }}
+          thread-comments: ${{ github.event_name == 'pull_request' && 'update' }}
+          format-review: 'true'
+          tidy-review: 'true'
+          step-summary: 'true'
 
-      - name: Fail the check if clang-tidy reported issues
-        if: steps.review.outputs.total_comments > 0
-        run: exit 1
+      - name: Check Linter Results
+        if: steps.linter.outputs.checks-failed > 0
+        run: |
+          echo "cpp-linter found issues."
+          exit 1
