@@ -49,7 +49,7 @@ jobs:
           database: 'out/build/lx64-debug'
           ignore: 'out|.github|vcpkg|assets|cmake|scripts|shaders'
           extra-args: '-std=c++23'
-          files-changed-only: ${{ github.event_name == 'pull_request' }}
+          files-changed-only: 'false'
           thread-comments: ${{ github.event_name == 'pull_request' && 'update' }}
           format-review: 'true'
           tidy-review: 'true'
