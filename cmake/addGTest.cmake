@@ -11,9 +11,12 @@ mark_as_advanced(
 macro(add_gtest TESTNAME)
     # create an executable in which the tests will be stored
     add_executable(${TESTNAME} ${ARGN})
+    target_link_libraries(${TESTNAME} ${PROJECT_NAME} GTest::gtest GTest::gtest_main GTest::gmock GTest::gmock_main)
     # link the Google test infrastructure, mocking library, and a default main function to
     # the test executable.  Remove gtest_main if writing your own main function.
-    target_link_libraries(${TESTNAME} ${PROJECT_NAME} GTest::gtest GTest::gtest_main GTest::gmock GTest::gmock_main)
+    if(WIN32)
+        add_test(NAME ${TESTNAME} COMMAND ${TESTNAME})
+    endif()
     # gtest_discover_tests replaces gtest_add_tests,
     # see https://cmake.org/cmake/help/v3.10/module/GoogleTest.html for more options to pass to it
     gtest_discover_tests(${TESTNAME}
