@@ -36,7 +36,9 @@ public:
     VkPipelineLayout getLayout() const override { return _pipelineLayout; }
 
     // Graphics pipeline specific methods
-    void bindDescriptorSets(VkCommandBuffer cmd, VkDescriptorSet* descriptorSets, uint32_t setCount, uint32_t firstSet = 0);
+    void bindDescriptorSets(VkCommandBuffer cmd,
+                            const VkDescriptorSet* descriptorSets,
+                            uint32_t setCount, uint32_t firstSet = 0);
     void pushConstants(VkCommandBuffer cmd, VkShaderStageFlags stageFlags, uint32_t offset, uint32_t size, const void* data);
 
 private:

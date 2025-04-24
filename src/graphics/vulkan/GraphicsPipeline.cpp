@@ -71,7 +71,10 @@ void GraphicsPipeline::bind(VkCommandBuffer cmd) {
     vkCmdBindPipeline(cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, _pipeline);
 }
 
-void GraphicsPipeline::bindDescriptorSets(VkCommandBuffer cmd, VkDescriptorSet* descriptorSets, uint32_t setCount, uint32_t firstSet) {
+void GraphicsPipeline::bindDescriptorSets(VkCommandBuffer cmd,
+                                          const VkDescriptorSet* descriptorSets,
+                                          uint32_t setCount,
+                                          uint32_t firstSet) {
     vkCmdBindDescriptorSets(cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, _pipelineLayout, 
                            firstSet, setCount, descriptorSets, 0, nullptr);
 }

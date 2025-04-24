@@ -50,7 +50,7 @@ void ComputePipeline::bind(VkCommandBuffer cmd) {
     vkCmdBindPipeline(cmd, VK_PIPELINE_BIND_POINT_COMPUTE, _pipeline);
 }
 
-void ComputePipeline::bindDescriptorSets(VkCommandBuffer cmd, VkDescriptorSet* descriptorSets, uint32_t setCount) {
+void ComputePipeline::bindDescriptorSets(VkCommandBuffer cmd, const VkDescriptorSet* descriptorSets, uint32_t setCount) {
     vkCmdBindDescriptorSets(cmd, VK_PIPELINE_BIND_POINT_COMPUTE, _pipelineLayout, 
                            0, setCount, descriptorSets, 0, nullptr);
 }

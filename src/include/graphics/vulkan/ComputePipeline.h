@@ -26,7 +26,7 @@ public:
 
     // Specific to compute pipelines
     void dispatch(VkCommandBuffer cmd, uint32_t x, uint32_t y, uint32_t z = 1);
-    void bindDescriptorSets(VkCommandBuffer cmd, VkDescriptorSet* descriptorSets, uint32_t setCount);
+    void bindDescriptorSets(VkCommandBuffer cmd, const VkDescriptorSet* descriptorSets, uint32_t setCount);
 
 private:
     VkDevice _device = VK_NULL_HANDLE;

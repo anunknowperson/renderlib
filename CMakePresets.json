@@ -12,7 +12,6 @@
       },
       "toolchainFile": "${sourceDir}/vcpkg/scripts/buildsystems/vcpkg.cmake"
     },
-
     {
       "name": "windows-base",
       "hidden": true,
@@ -29,7 +28,6 @@
         "rhs": "Windows"
       }
     },
-
     {
       "name": "wx64-debug",
       "displayName": "x64 Debug",
@@ -46,26 +44,6 @@
       "name": "wx64-release",
       "displayName": "x64 Release",
       "inherits": "wx64-debug",
-      "cacheVariables": {
-        "CMAKE_BUILD_TYPE": "Release"
-      }
-    },
-    {
-      "name": "wx86-debug",
-      "displayName": "x86 Debug",
-      "inherits": "windows-base",
-      "architecture": {
-        "value": "x86",
-        "strategy": "external"
-      },
-      "cacheVariables": {
-        "CMAKE_BUILD_TYPE": "Debug"
-      }
-    },
-    {
-      "name": "wx86-release",
-      "displayName": "x86 Release",
-      "inherits": "wx86-debug",
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "Release"
       }
@@ -105,26 +83,53 @@
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "Release"
       }
+    }
+  ],
+  "buildPresets": [
+    {
+      "name": "wx64-debug",
+      "configurePreset": "wx64-debug"
     },
     {
-      "name": "lx86-debug",
-      "displayName": "x86 Debug",
-      "inherits": "linux-base",
-      "architecture": {
-        "value": "x86",
-        "strategy": "external"
+      "name": "wx64-release",
+      "configurePreset": "wx64-release"
+    },
+    {
+      "name": "lx64-debug",
+      "configurePreset": "lx64-debug"
+    },
+    {
+      "name": "lx64-release",
+      "configurePreset": "lx64-release"
+    }
+  ],
+  "testPresets": [
+    {
+      "name": "base",
+      "output": {
+        "outputOnFailure": true
       },
-      "cacheVariables": {
-        "CMAKE_BUILD_TYPE": "Debug"
-      }
+      "hidden": true
     },
     {
-      "name": "lx86-release",
-      "displayName": "x86 Release",
-      "inherits": "lx86-debug",
-      "cacheVariables": {
-        "CMAKE_BUILD_TYPE": "Release"
-      }
+      "name": "wx64-debug",
+      "inherits": "base",
+      "configurePreset": "wx64-debug"
+    },
+    {
+      "name": "wx64-release",
+      "inherits": "base",
+      "configurePreset": "wx64-release"
+    },
+    {
+      "name": "lx64-debug",
+      "inherits": "base",
+      "configurePreset": "lx64-debug"
+    },
+    {
+      "name": "lx64-release",
+      "inherits": "base",
+      "configurePreset": "lx64-release"
     }
   ]
 }
