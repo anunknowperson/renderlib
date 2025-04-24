@@ -16,9 +16,9 @@
 #include <vulkan/vk_platform.h>
 #include <vulkan/vulkan_core.h>
 
+#include "vk_command_buffers.h"
 #include "vk_descriptors.h"
 #include "vk_types.h"
-#include "vk_command_buffers.h" 
 
 class Camera;
 class VulkanEngine;
@@ -26,8 +26,13 @@ struct DrawContext;
 struct LoadedGLTF;
 struct MeshAsset;
 
+// Maximum number of frames that can be processed concurrently
 constexpr unsigned int FRAME_OVERLAP = 2;
 
+/**
+ * GLTFMetallic_Roughness - Structure for handling PBR materials from GLTF
+ * models
+ */
 struct GLTFMetallic_Roughness {
     MaterialPipeline opaquePipeline;
     MaterialPipeline transparentPipeline;
@@ -61,6 +66,9 @@ struct GLTFMetallic_Roughness {
             DescriptorAllocatorGrowable& descriptorAllocator);
 };
 
+/**
+ * DeletionQueue - Helper structure for managing resource cleanup
+ */
 struct DeletionQueue {
     std::deque<std::function<void()>> deletors;
 
@@ -121,34 +129,55 @@ struct DrawContext {
     std::vector<RenderObject> OpaqueSurfaces;
 };
 
+/**
+ * VulkanEngine - Main renderer class
+ */
 class VulkanEngine {
 public:
-    CommandBuffers command_buffers;
+    // PUBLIC METHODS
+    static VulkanEngine& Get();
+
+    void init(struct SDL_Window* window);
+    void cleanup();
+    void draw();
+    void update();
+    void update_scene();
 
     int64_t registerMesh(const std::string& filePath);
     void unregisterMesh(int64_t id);
-
     void setMeshTransform(int64_t id, glm::mat4 mat);
-
-    std::unordered_map<int64_t, std::shared_ptr<LoadedGLTF>> meshes;
-
-    std::unordered_map<int64_t, glm::mat4> transforms;
-
-    std::unordered_map<std::string, std::shared_ptr<LoadedGLTF>> loadedScenes;
-
-    Camera* mainCamera;
-
-    DrawContext mainDrawContext;
-    std::unordered_map<std::string, std::shared_ptr<ENode>> loadedNodes;
-
-    void update_scene();
-
-    FrameData _frames[FRAME_OVERLAP];
 
     FrameData& get_current_frame() {
         return _frames[_frameNumber % FRAME_OVERLAP];
     };
 
+    GPUMeshBuffers uploadMesh(std::span<uint32_t> indices,
+                              std::span<Vertex> vertices);
+
+    AllocatedImage create_image(VkExtent3D size, VkFormat format,
+                                VkImageUsageFlags usage,
+                                bool mipmapped = false) const;
+    AllocatedImage create_image(const void* data, VkExtent3D size,
+                                VkFormat format, VkImageUsageFlags usage,
+                                bool mipmapped = false) const;
+    void destroy_image(const AllocatedImage& img) const;
+
+    AllocatedBuffer create_buffer(size_t allocSize, VkBufferUsageFlags usage,
+                                  VmaMemoryUsage memoryUsage) const;
+
+    // PUBLIC FIELDS
+    CommandBuffers command_buffers;
+
+    // Asset management
+    std::unordered_map<int64_t, std::shared_ptr<LoadedGLTF>> meshes;
+    std::unordered_map<int64_t, glm::mat4> transforms;
+    std::unordered_map<std::string, std::shared_ptr<LoadedGLTF>> loadedScenes;
+    std::unordered_map<std::string, std::shared_ptr<ENode>> loadedNodes;
+
+    Camera* mainCamera;
+    DrawContext mainDrawContext;
+
+    FrameData _frames[FRAME_OVERLAP];
     VkQueue _graphicsQueue;
     uint32_t _graphicsQueueFamily;
 
@@ -156,38 +185,23 @@ public:
     unsigned int _frameNumber{0};
     bool stop_rendering{false};
     VkExtent2D _windowExtent{2560, 1440};
-
     struct SDL_Window* _window{nullptr};
 
-    static VulkanEngine& Get();
+    // Vulkan instance and device
+    VkInstance _instance;
+    VkDebugUtilsMessengerEXT _debug_messenger;
+    VkPhysicalDevice _chosenGPU;
+    VkDevice _device;
+    VkSurfaceKHR _surface;
 
-    // initializes everything in the engine
-    void init(struct SDL_Window* window);
-
-    // shuts down the engine
-    void cleanup();
-
-    // draw loop
-    void draw();
-
-    // run main loop
-    void update();
-
-    VkInstance _instance;                       // Vulkan library handle
-    VkDebugUtilsMessengerEXT _debug_messenger;  // Vulkan debug output handle
-    VkPhysicalDevice _chosenGPU;  // GPU chosen as the default device
-    VkDevice _device;             // Vulkan device for commands
-    VkSurfaceKHR _surface;        // Vulkan window surface
-
+    // Swapchain
     VkSwapchainKHR _swapchain;
     VkFormat _swapchainImageFormat;
-
     std::vector<VkImage> _swapchainImages;
     std::vector<VkImageView> _swapchainImageViews;
     VkExtent2D _swapchainExtent;
 
     DeletionQueue _mainDeletionQueue;
-
     VmaAllocator _allocator;
 
     AllocatedImage _drawImage;
@@ -196,14 +210,12 @@ public:
     float renderScale = 1.f;
 
     DescriptorAllocatorGrowable globalDescriptorAllocator;
-
     VkDescriptorSet _drawImageDescriptors;
     VkDescriptorSetLayout _drawImageDescriptorLayout;
 
     VkPipeline _gradientPipeline;
     VkPipelineLayout _gradientPipelineLayout;
 
-    // immediate submit structures
     VkFence _immFence;
     VkCommandBuffer _immCommandBuffer;
     VkCommandPool _immCommandPool;
@@ -215,26 +227,14 @@ public:
     VkPipeline _meshPipeline;
 
     GPUMeshBuffers rectangle;
-
-    GPUMeshBuffers uploadMesh(std::span<uint32_t> indices,
-                              std::span<Vertex> vertices);
-
     std::vector<std::shared_ptr<MeshAsset>> testMeshes;
 
     bool resize_requested;
 
     GPUSceneData sceneData;
-
     VkDescriptorSetLayout _gpuSceneDataDescriptorLayout;
 
-    AllocatedImage create_image(VkExtent3D size, VkFormat format,
-                                VkImageUsageFlags usage,
-                                bool mipmapped = false) const;
-    AllocatedImage create_image(const void* data, VkExtent3D size,
-                                VkFormat format, VkImageUsageFlags usage,
-                                bool mipmapped = false) const;
-    void destroy_image(const AllocatedImage& img) const;
-
+    // Default textures and resources
     AllocatedImage _whiteImage;
     AllocatedImage _blackImage;
     AllocatedImage _greyImage;
@@ -248,10 +248,8 @@ public:
     MaterialInstance defaultData;
     GLTFMetallic_Roughness metalRoughMaterial;
 
-    AllocatedBuffer create_buffer(size_t allocSize, VkBufferUsageFlags usage,
-                                  VmaMemoryUsage memoryUsage) const;
-
 private:
+    // Debug callback for validation layers
     static VKAPI_ATTR VkBool32 VKAPI_CALL
     debugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
                   VkDebugUtilsMessageTypeFlagsEXT messageType,
@@ -268,22 +266,16 @@ private:
     void draw_background(VkCommandBuffer cmd) const;
 
     void init_descriptors();
-
     void init_pipelines();
     void init_background_pipelines();
     void init_imgui();
-
     void init_triangle_pipeline();
 
     void draw_imgui(VkCommandBuffer cmd, VkImageView targetImageView) const;
-
     void draw_geometry(VkCommandBuffer cmd);
 
     void destroy_buffer(const AllocatedBuffer& buffer) const;
-
     void resize_swapchain();
-
     void init_mesh_pipeline();
-
     void init_default_data();
 };
