@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include <cstddef>
 #include <cstdint>
@@ -19,6 +19,8 @@
 #include "vk_command_buffers.h"
 #include "vk_descriptors.h"
 #include "vk_types.h"
+#include "pipelines.h"
+#include "ComputePipeline.h"
 
 class Camera;
 class VulkanEngine;
@@ -54,7 +56,7 @@ struct GLTFMetallic_Roughness {
         VkBuffer dataBuffer;
         uint32_t dataBufferOffset;
     };
-
+    
     DescriptorWriter writer;
 
     void build_pipelines(VulkanEngine* engine);
@@ -166,6 +168,7 @@ public:
                                   VmaMemoryUsage memoryUsage) const;
 
     // PUBLIC FIELDS
+    Pipelines pipelines;
     CommandBuffers command_buffers;
 
     // Asset management
@@ -213,18 +216,15 @@ public:
     VkDescriptorSet _drawImageDescriptors;
     VkDescriptorSetLayout _drawImageDescriptorLayout;
 
+    // Pipeline objects
     VkPipeline _gradientPipeline;
     VkPipelineLayout _gradientPipelineLayout;
 
+    // Immediate submit structures
     VkFence _immFence;
     VkCommandBuffer _immCommandBuffer;
     VkCommandPool _immCommandPool;
 
-    VkPipelineLayout _trianglePipelineLayout;
-    VkPipeline _trianglePipeline;
-
-    VkPipelineLayout _meshPipelineLayout;
-    VkPipeline _meshPipeline;
 
     GPUMeshBuffers rectangle;
     std::vector<std::shared_ptr<MeshAsset>> testMeshes;
@@ -267,7 +267,6 @@ private:
 
     void init_descriptors();
     void init_pipelines();
-    void init_background_pipelines();
     void init_imgui();
     void init_triangle_pipeline();
 
