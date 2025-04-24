@@ -38,7 +38,7 @@ High-performance rendering library using Vulkan API. RenderLib provides a conven
 ### 1. Clone the Repository
 
 ```bash
-git clone https://github.com/anunknowperson/renderlib.git
+git clone --recurse-submodules https://github.com/anunknowperson/renderlib.git
 cd renderlib
 ```
 
@@ -48,12 +48,6 @@ cd renderlib
 
 Download and install the [Vulkan SDK](https://vulkan.lunarg.com/sdk/home) according to your operating system.
 
-#### vcpkg Dependencies
-
-The project uses vcpkg for dependency management. You can install it via:
-```bash
-git submodule update --init
-```
 
 ### 3. Configure and Build Using CMake Presets
 
