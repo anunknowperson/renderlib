@@ -98,7 +98,6 @@ class VulkanEngine {
 public:
 
     Pipelines pipelines;
-    std::unique_ptr<ComputePipeline> gradientPipeline;
 
     CommandBuffers command_buffers;
 
@@ -240,7 +239,6 @@ private:
     void init_descriptors();
 
     void init_pipelines();
-    void init_background_pipelines();
     void init_imgui();
 
 

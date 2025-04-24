@@ -315,27 +315,8 @@ void VulkanEngine::init_descriptors() {
     }
 }
 
-void VulkanEngine::init_background_pipelines() {
-
-    ComputePipeline::ComputePipelineConfig config;
-    config.descriptorSetLayout = _drawImageDescriptorLayout;
-    config.shaderPath = "./shaders/gradient.comp.spv";
-    
-    gradientPipeline = std::make_unique<ComputePipeline>(config);
-    gradientPipeline->init(_device);
-    
-    _mainDeletionQueue.push_function([&]() {
-        if (gradientPipeline) {
-            gradientPipeline->destroy();
-        }
-
-    });
-}
-
 void VulkanEngine::init_pipelines() {
-    init_background_pipelines();
-
-    pipelines.init(_device, _singleImageDescriptorLayout, _drawImage);
+    pipelines.init(_device, _singleImageDescriptorLayout, _drawImageDescriptorLayout, _drawImage);
     _mainDeletionQueue.push_function([&]() { pipelines.destroy(); });
 
     metalRoughMaterial.build_pipelines(this);
@@ -725,13 +706,13 @@ GPUMeshBuffers VulkanEngine::uploadMesh(std::span<uint32_t> indices,
 void VulkanEngine::draw_background(VkCommandBuffer cmd) const {
     // bind the gradient drawing compute pipeline
 
-    gradientPipeline->bind(cmd);
+    pipelines.gradientPipeline->bind(cmd);
 
     // bind descriptor sets
-    gradientPipeline->bindDescriptorSets(cmd, &_drawImageDescriptors, 1);
+    pipelines.gradientPipeline->bindDescriptorSets(cmd, &_drawImageDescriptors, 1);
 
     // dispatch the compute shader
-    gradientPipeline->dispatch(cmd, 
+    pipelines.gradientPipeline->dispatch(cmd, 
         static_cast<uint32_t>(std::ceil(_drawExtent.width / 16.0)),
         static_cast<uint32_t>(std::ceil(_drawExtent.height / 16.0)), 
         1);

@@ -62,14 +62,17 @@ class Pipelines {
 public:
     std::unique_ptr<GraphicsPipeline> trianglePipeline;
     std::unique_ptr<GraphicsPipeline> meshPipeline;
+    std::unique_ptr<ComputePipeline> gradientPipeline;
 
     void init(VkDevice device,
               VkDescriptorSetLayout singleImageDescriptorLayout,
+              VkDescriptorSetLayout drawImageDescriptorLayout,
               AllocatedImage drawImage);
     void destroy();
 
 private:
     VkDevice _device;
     VkDescriptorSetLayout _singleImageDescriptorLayout;
+    VkDescriptorSetLayout _drawImageDescriptorLayout;
     AllocatedImage _drawImage;
 };

@@ -128,9 +128,11 @@ MaterialInstance GLTFMetallic_Roughness::write_material(
 
 void Pipelines::init(VkDevice device,
                      VkDescriptorSetLayout singleImageDescriptorLayout,
+                     VkDescriptorSetLayout drawImageDescriptorLayout,
                      AllocatedImage drawImage) {
     _device = device;
     _singleImageDescriptorLayout = singleImageDescriptorLayout;
+    _drawImageDescriptorLayout = drawImageDescriptorLayout;
     _drawImage = drawImage;
 
     GraphicsPipeline::GraphicsPipelineConfig triangleConfig;
@@ -165,6 +167,14 @@ void Pipelines::init(VkDevice device,
 
     meshPipeline = std::make_unique<GraphicsPipeline>(meshConfig);
     meshPipeline->init(device);
+    
+    // Initialize gradient pipeline
+    ComputePipeline::ComputePipelineConfig gradientConfig;
+    gradientConfig.descriptorSetLayout = _drawImageDescriptorLayout;
+    gradientConfig.shaderPath = "./shaders/gradient.comp.spv";
+    
+    gradientPipeline = std::make_unique<ComputePipeline>(gradientConfig);
+    gradientPipeline->init(device);
 
     fmt::println("Pipelines initialized successfully");
 }
@@ -176,5 +186,9 @@ void Pipelines::destroy() {
     
     if (meshPipeline) {
         meshPipeline->destroy();
+    }
+    
+    if (gradientPipeline) {
+        gradientPipeline->destroy();
     }
 }
