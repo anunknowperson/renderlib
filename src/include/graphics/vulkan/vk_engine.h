@@ -18,6 +18,10 @@
 
 #include "vk_descriptors.h"
 #include "vk_types.h"
+
+#include "pipelines.h"
+#include "ComputePipeline.h"
+
 #include "vk_command_buffers.h" 
 
 class Camera;
@@ -26,40 +30,9 @@ struct DrawContext;
 struct LoadedGLTF;
 struct MeshAsset;
 
+
 constexpr unsigned int FRAME_OVERLAP = 2;
 
-struct GLTFMetallic_Roughness {
-    MaterialPipeline opaquePipeline;
-    MaterialPipeline transparentPipeline;
-
-    VkDescriptorSetLayout materialLayout;
-
-    struct MaterialConstants {
-        glm::vec4 colorFactors;
-        glm::vec4 metal_rough_factors;
-        // padding, we need it anyway for uniform buffers
-        glm::vec4 extra[14];
-    };
-
-    struct MaterialResources {
-        AllocatedImage colorImage;
-        VkSampler colorSampler;
-        AllocatedImage metalRoughImage;
-        VkSampler metalRoughSampler;
-        VkBuffer dataBuffer;
-        uint32_t dataBufferOffset;
-    };
-
-    DescriptorWriter writer;
-
-    void build_pipelines(VulkanEngine* engine);
-    void clear_resources(VkDevice device);
-
-    MaterialInstance write_material(
-            VkDevice device, MaterialPass pass,
-            const MaterialResources& resources,
-            DescriptorAllocatorGrowable& descriptorAllocator);
-};
 
 struct DeletionQueue {
     std::deque<std::function<void()>> deletors;
@@ -123,9 +96,13 @@ struct DrawContext {
 
 class VulkanEngine {
 public:
+
+    Pipelines pipelines;
+
     CommandBuffers command_buffers;
 
     int64_t registerMesh(const std::string& filePath);
+
     void unregisterMesh(int64_t id);
 
     void setMeshTransform(int64_t id, glm::mat4 mat);
@@ -200,19 +177,11 @@ public:
     VkDescriptorSet _drawImageDescriptors;
     VkDescriptorSetLayout _drawImageDescriptorLayout;
 
-    VkPipeline _gradientPipeline;
-    VkPipelineLayout _gradientPipelineLayout;
-
     // immediate submit structures
     VkFence _immFence;
     VkCommandBuffer _immCommandBuffer;
     VkCommandPool _immCommandPool;
 
-    VkPipelineLayout _trianglePipelineLayout;
-    VkPipeline _trianglePipeline;
-
-    VkPipelineLayout _meshPipelineLayout;
-    VkPipeline _meshPipeline;
 
     GPUMeshBuffers rectangle;
 
@@ -270,10 +239,8 @@ private:
     void init_descriptors();
 
     void init_pipelines();
-    void init_background_pipelines();
     void init_imgui();
 
-    void init_triangle_pipeline();
 
     void draw_imgui(VkCommandBuffer cmd, VkImageView targetImageView) const;
 
