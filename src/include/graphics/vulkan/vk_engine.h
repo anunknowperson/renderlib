@@ -23,6 +23,7 @@
 #include "ComputePipeline.h"
 
 #include "vk_command_buffers.h" 
+#include "vk_renderer.h"
 
 class Camera;
 class VulkanEngine;
@@ -220,6 +221,12 @@ public:
     AllocatedBuffer create_buffer(size_t allocSize, VkBufferUsageFlags usage,
                                   VmaMemoryUsage memoryUsage) const;
 
+    // Make VulkanRenderer a friend class to access private members
+    friend class VulkanRenderer;
+    
+    // Add the renderer as a member
+    VulkanRenderer renderer;
+
 private:
     static VKAPI_ATTR VkBool32 VKAPI_CALL
     debugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
@@ -234,17 +241,10 @@ private:
     void create_swapchain(uint32_t width, uint32_t height);
     void destroy_swapchain();
 
-    void draw_background(VkCommandBuffer cmd) const;
-
     void init_descriptors();
 
     void init_pipelines();
     void init_imgui();
-
-
-    void draw_imgui(VkCommandBuffer cmd, VkImageView targetImageView) const;
-
-    void draw_geometry(VkCommandBuffer cmd);
 
     void destroy_buffer(const AllocatedBuffer& buffer) const;
 
