@@ -99,97 +99,6 @@ VKAPI_ATTR VkBool32 VKAPI_CALL VulkanEngine::debugCallback(
     return VK_FALSE;
 }
 
-void VulkanEngine::init_default_data() {
-    std::array<Vertex, 4> rect_vertices{};
-
-    rect_vertices[0].position = {0.5, -0.5, 0};
-    rect_vertices[1].position = {0.5, 0.5, 0};
-    rect_vertices[2].position = {-0.5, -0.5, 0};
-    rect_vertices[3].position = {-0.5, 0.5, 0};
-
-    rect_vertices[0].color = {0, 0, 0, 1};
-    rect_vertices[1].color = {0.5, 0.5, 0.5, 1};
-    rect_vertices[2].color = {1, 0, 0, 1};
-    rect_vertices[3].color = {0, 1, 0, 1};
-
-    std::array<uint32_t, 6> rect_indices{};
-
-    rect_indices[0] = 0;
-    rect_indices[1] = 1;
-    rect_indices[2] = 2;
-
-    const auto path_to_assets = std::string(ASSETS_DIR) + "/basicmesh.glb";
-    testMeshes = loadGltfMeshes(this, path_to_assets).value();
-
-    // 3 default textures, white, grey, black. 1 pixel each
-    const uint32_t white = glm::packUnorm4x8(glm::vec4(1, 1, 1, 1));
-    _whiteImage =
-            create_image(&white, VkExtent3D{1, 1, 1}, VK_FORMAT_R8G8B8A8_UNORM,
-                         VK_IMAGE_USAGE_SAMPLED_BIT);
-
-    const uint32_t grey = glm::packUnorm4x8(glm::vec4(0.66f, 0.66f, 0.66f, 1));
-    _greyImage =
-            create_image(&grey, VkExtent3D{1, 1, 1}, VK_FORMAT_R8G8B8A8_UNORM,
-                         VK_IMAGE_USAGE_SAMPLED_BIT);
-
-    const uint32_t black = glm::packUnorm4x8(glm::vec4(0, 0, 0, 0));
-    _blackImage =
-            create_image(&black, VkExtent3D{1, 1, 1}, VK_FORMAT_R8G8B8A8_UNORM,
-                         VK_IMAGE_USAGE_SAMPLED_BIT);
-
-    // checkerboard image
-    const uint32_t magenta = glm::packUnorm4x8(glm::vec4(1, 0, 1, 1));
-    std::array<uint32_t, 16 * 16> pixels{};  // for 16x16 checkerboard texture
-    for (size_t x = 0; x < 16; x++) {
-        for (size_t y = 0; y < 16; y++) {
-            pixels[y * 16 + x] = ((x % 2) ^ (y % 2)) ? magenta : black;
-        }
-    }
-    _errorCheckerboardImage =
-            create_image(pixels.data(), VkExtent3D{16, 16, 1},
-                         VK_FORMAT_R8G8B8A8_UNORM, VK_IMAGE_USAGE_SAMPLED_BIT);
-
-    VkSamplerCreateInfo sampl = {.sType =
-                                         VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO};
-
-    sampl.magFilter = VK_FILTER_NEAREST;
-    sampl.minFilter = VK_FILTER_NEAREST;
-
-    vkCreateSampler(_device, &sampl, nullptr, &_defaultSamplerNearest);
-
-    sampl.magFilter = VK_FILTER_LINEAR;
-    sampl.minFilter = VK_FILTER_LINEAR;
-    vkCreateSampler(_device, &sampl, nullptr, &_defaultSamplerLinear);
-
-    GLTFMetallic_Roughness::MaterialResources materialResources{};
-    // default the material textures
-    materialResources.colorImage = _whiteImage;
-    materialResources.colorSampler = _defaultSamplerLinear;
-    materialResources.metalRoughImage = _whiteImage;
-    materialResources.metalRoughSampler = _defaultSamplerLinear;
-
-    // set the uniform buffer for the material data
-    const AllocatedBuffer materialConstants = create_buffer(
-            sizeof(GLTFMetallic_Roughness::MaterialConstants),
-            VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VMA_MEMORY_USAGE_CPU_TO_GPU);
-
-    // write the buffer
-    auto* sceneUniformData =
-            (GLTFMetallic_Roughness::MaterialConstants*)
-                    materialConstants.allocation->GetMappedData();
-    sceneUniformData->colorFactors = glm::vec4{1, 1, 1, 1};
-    sceneUniformData->metal_rough_factors = glm::vec4{1, 0.5, 0, 0};
-
-    _mainDeletionQueue.push_function(
-            [=, this] { destroy_buffer(materialConstants); });
-
-    materialResources.dataBuffer = materialConstants.buffer;
-    materialResources.dataBufferOffset = 0;
-
-    defaultData = metalRoughMaterial.write_material(
-            _device, MaterialPass::MainColor, materialResources,
-            globalDescriptorAllocator);
-}
 
 void VulkanEngine::init_imgui() {
     // 1: create descriptor pool for IMGUI
@@ -338,7 +247,8 @@ void VulkanEngine::init(SDL_Window* window) {
     init_descriptors();
     init_pipelines();
     init_imgui();
-    init_default_data();
+    
+    defaultDataManager.init_default_data();
     
     // Initialize the renderer
     renderer.init(this);

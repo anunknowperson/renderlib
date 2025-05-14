@@ -15,6 +15,11 @@ if (POLICY CMP0141)
   set(CMAKE_MSVC_DEBUG_INFORMATION_FORMAT "$<IF:$<AND:$<C_COMPILER_ID:MSVC>,$<CXX_COMPILER_ID:MSVC>>,$<$<CONFIG:Debug,RelWithDebInfo>:EditAndContinue>,$<$<CONFIG:Debug,RelWithDebInfo>:ProgramDatabase>>")
 endif()
 
+# Add to your CMakeLists.txt
+if(MSVC)
+    add_compile_options(/Zm200 /d2FastFail)
+endif()
+
 add_library(${PROJECT_NAME})
 
 add_subdirectory(src)

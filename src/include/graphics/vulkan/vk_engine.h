@@ -24,6 +24,7 @@
 
 #include "vk_command_buffers.h" 
 #include "vk_renderer.h"
+#include "vk_default_data.h"
 
 class Camera;
 class VulkanEngine;
@@ -227,6 +228,8 @@ public:
     // Add the renderer as a member
     VulkanRenderer renderer;
 
+    friend class DefaultDataManager;
+
 private:
     static VKAPI_ATTR VkBool32 VKAPI_CALL
     debugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
@@ -252,5 +255,5 @@ private:
 
     void init_mesh_pipeline();
 
-    void init_default_data();
+    DefaultDataManager defaultDataManager{this};
 };
