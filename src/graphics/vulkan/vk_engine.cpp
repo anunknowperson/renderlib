@@ -710,9 +710,8 @@ GPUMeshBuffers VulkanEngine::uploadMesh(std::span<uint32_t> indices,
 void VulkanEngine::draw() {
     update_scene();
 
-    // wait until the gpu has finished rendering the last frame. Timeout of 1
-    // sec
-    //ond
+    // wait until the gpu has finished rendering the last frame. Timeout of 1 second
+    
     VK_CHECK(vkWaitForFences(_device, 1, &get_current_frame()._renderFence,
                              true, 1000000000));
 
