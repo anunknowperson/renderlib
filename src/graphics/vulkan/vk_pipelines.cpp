@@ -172,7 +172,8 @@ void PipelineBuilder::set_input_topology(VkPrimitiveTopology topology) {
 
 void PipelineBuilder::set_polygon_mode(VkPolygonMode mode) {
     _rasterizer.polygonMode = mode;
-    _rasterizer.lineWidth = 1.f;
+    // Always set lineWidth to 1.0f to ensure compatibility
+    _rasterizer.lineWidth = 1.0f;
 }
 
 void PipelineBuilder::set_cull_mode(VkCullModeFlags cullMode,
@@ -183,11 +184,10 @@ void PipelineBuilder::set_cull_mode(VkCullModeFlags cullMode,
 
 void PipelineBuilder::set_multisampling_none() {
     _multisampling.sampleShadingEnable = VK_FALSE;
-    // multisampling defaulted to no multisampling (1 sample per pixel)
+    // Ensure this is explicitly set to avoid zero value issues
     _multisampling.rasterizationSamples = VK_SAMPLE_COUNT_1_BIT;
     _multisampling.minSampleShading = 1.0f;
     _multisampling.pSampleMask = nullptr;
-    // no alpha to coverage either
     _multisampling.alphaToCoverageEnable = VK_FALSE;
     _multisampling.alphaToOneEnable = VK_FALSE;
 }
