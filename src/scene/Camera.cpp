@@ -116,7 +116,8 @@ void OrthographicCamera::updateProjectionMatrix() const {
     _projectionMatrix[1][1] *= -1;
 }
 
-Camera::Camera() : PerspectiveCamera() {}
+Camera::Camera()
+    : PerspectiveCamera(glm::vec3(0.0f, 0.0f, 5.0f), 70.0f, 16.0f/9.0f, 0.1f, 1000.0f) {}
 
 Camera::Camera(const glm::vec3& position, float fov,
                float screenWidth, float screenHeight,
