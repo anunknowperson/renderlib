@@ -87,6 +87,24 @@ void PipelineBuilder::clear() {
 }
 
 VkPipeline PipelineBuilder::build_pipeline(VkDevice device) const {
+    // Create local copies of struct members that we need to modify
+    VkPipelineRenderingCreateInfo renderInfo = _renderInfo;
+    VkPipelineRasterizationStateCreateInfo rasterizer = _rasterizer;
+    VkPipelineMultisampleStateCreateInfo multisampling = _multisampling;
+    
+    // Fix any uninitialized values
+    if (renderInfo.depthAttachmentFormat == 0) {
+        renderInfo.depthAttachmentFormat = VK_FORMAT_UNDEFINED;
+    }
+    
+    if (rasterizer.lineWidth <= 0.0f) {
+        rasterizer.lineWidth = 1.0f;
+    }
+    
+    if (multisampling.rasterizationSamples == 0) {
+        multisampling.rasterizationSamples = VK_SAMPLE_COUNT_1_BIT;
+    }
+
     // make viewport state from our stored viewport and scissor.
     VkPipelineViewportStateCreateInfo viewportState = {};
     viewportState.sType = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO;
@@ -111,37 +129,21 @@ VkPipeline PipelineBuilder::build_pipeline(VkDevice device) const {
     colorBlending.pAttachments = &_colorBlendAttachment;
 
     // completely clear VertexInputStateCreateInfo
-    const VkPipelineVertexInputStateCreateInfo _vertexInputInfo = {
+    const VkPipelineVertexInputStateCreateInfo vertexInputInfo = {
             .sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO
     };
-
-    // Ensure depth format is properly set in rendering info
-    if (_renderInfo.depthAttachmentFormat == 0) {
-        // Reset to undefined if not explicitly set
-        _renderInfo.depthAttachmentFormat = VK_FORMAT_UNDEFINED;
-    }
-    
-    // Ensure rasterizer is properly initialized
-    if (_rasterizer.lineWidth <= 0.0f) {
-        _rasterizer.lineWidth = 1.0f;
-    }
-    
-    // Ensure multisampling is properly initialized
-    if (_multisampling.rasterizationSamples == 0) {
-        _multisampling.rasterizationSamples = VK_SAMPLE_COUNT_1_BIT;
-    }
 
     // build the actual pipeline
     VkGraphicsPipelineCreateInfo pipelineInfo = {};
     pipelineInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
-    pipelineInfo.pNext = &_renderInfo;
+    pipelineInfo.pNext = &renderInfo;  // Use our local copy
     pipelineInfo.stageCount = static_cast<uint32_t>(_shaderStages.size());
     pipelineInfo.pStages = _shaderStages.data();
-    pipelineInfo.pVertexInputState = &_vertexInputInfo;
+    pipelineInfo.pVertexInputState = &vertexInputInfo;
     pipelineInfo.pInputAssemblyState = &_inputAssembly;
     pipelineInfo.pViewportState = &viewportState;
-    pipelineInfo.pRasterizationState = &_rasterizer;
-    pipelineInfo.pMultisampleState = &_multisampling;
+    pipelineInfo.pRasterizationState = &rasterizer;  // Use our local copy
+    pipelineInfo.pMultisampleState = &multisampling;  // Use our local copy
     pipelineInfo.pDepthStencilState = &_depthStencil;
     pipelineInfo.pColorBlendState = &colorBlending;
     pipelineInfo.pDynamicState = &dynamicState;
@@ -198,7 +200,7 @@ void PipelineBuilder::set_multisampling_none() {
     _multisampling.sType = VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO;
     _multisampling.pNext = nullptr;
     _multisampling.sampleShadingEnable = VK_FALSE;
-    _multisampling.rasterizationSamples = VK_SAMPLE_COUNT_1_BIT;  // Explicitly set
+    _multisampling.rasterizationSamples = VK_SAMPLE_COUNT_1_BIT;
     _multisampling.minSampleShading = 1.0f;
     _multisampling.pSampleMask = nullptr;
     _multisampling.alphaToCoverageEnable = VK_FALSE;
