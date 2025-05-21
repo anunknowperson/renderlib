@@ -7,6 +7,8 @@ target_sources(${PROJECT_NAME}
         vulkan/vk_initializers.cpp
         vulkan/vk_loader.cpp
         vulkan/vk_pipelines.cpp
+        vulkan/vk_renderer.cpp
+        vulkan/vk_default_data.cpp
         vulkan/pipelines.cpp
         vulkan/ComputePipeline.cpp
         vulkan/GraphicsPipeline.cpp
