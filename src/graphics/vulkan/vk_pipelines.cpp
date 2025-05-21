@@ -4,7 +4,7 @@
 #include <fmt/base.h>
 #include <fstream>
 #include <spdlog/spdlog.h>
-
+#include "core/Logging.h"
 #include "graphics/vulkan/vk_initializers.h"
 
 bool vkutil::load_shader_module(const char* filePath, VkDevice device,
@@ -200,7 +200,8 @@ VkPipeline PipelineBuilder::build_pipeline(VkDevice device) const {
     VkPipeline newPipeline;
     if (vkCreateGraphicsPipelines(device, VK_NULL_HANDLE, 1, &pipelineInfo,
                                   nullptr, &newPipeline) != VK_SUCCESS) {
-        // Error handling
+        
+        LOGE("Failed to create graphics pipeline in build_pipeline.");
         return VK_NULL_HANDLE;
     }
     
