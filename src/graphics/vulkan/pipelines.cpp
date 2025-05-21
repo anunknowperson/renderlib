@@ -136,33 +136,44 @@ void Pipelines::init(VkDevice device,
     _drawImageDescriptorLayout = drawImageDescriptorLayout;
     _drawImage = drawImage;
 
-    // Fix triangle pipeline configuration
+    // Triangle pipeline config
     GraphicsPipeline::GraphicsPipelineConfig triangleConfig;
     triangleConfig.vertexShaderPath = "./shaders/colored_triangle.vert.spv";
     triangleConfig.fragmentShaderPath = "./shaders/colored_triangle.frag.spv";
     triangleConfig.colorFormat = _drawImage.imageFormat;
-    triangleConfig.depthFormat = VK_FORMAT_UNDEFINED;  // Explicitly undefined since we don't use depth
+    triangleConfig.depthFormat = VK_FORMAT_UNDEFINED;  // No depth testing
     triangleConfig.depthTest = false;
     triangleConfig.cullMode = VK_CULL_MODE_NONE;
     triangleConfig.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
 
+    // Ensure blending and depth testing setup is consistent
+    triangleConfig.customPipelineSetup = [](PipelineBuilder& builder) {
+        builder.disable_blending();
+        builder.disable_depthtest();
+        builder.set_multisampling_none();
+        builder.set_polygon_mode(VK_POLYGON_MODE_FILL);
+    };
+
     trianglePipeline = std::make_unique<GraphicsPipeline>(triangleConfig);
     trianglePipeline->init(device);
     
-    // Fix mesh pipeline configuration
+    // Mesh pipeline config
     GraphicsPipeline::GraphicsPipelineConfig meshConfig;
     meshConfig.vertexShaderPath = "./shaders/colored_triangle_mesh.vert.spv";
     meshConfig.fragmentShaderPath = "./shaders/tex_image.frag.spv";
     meshConfig.colorFormat = _drawImage.imageFormat;
-    
-    // Must use a valid depth format when depth testing is enabled
-    // Use engine's depth format instead of VK_FORMAT_UNDEFINED
-    VkFormat depthFormat = VK_FORMAT_D32_SFLOAT;  // Use the standard depth format
-    meshConfig.depthFormat = depthFormat;
+    meshConfig.depthFormat = VK_FORMAT_D32_SFLOAT;
     meshConfig.depthTest = true;
     meshConfig.depthCompareOp = VK_COMPARE_OP_GREATER;
     meshConfig.cullMode = VK_CULL_MODE_NONE;
     meshConfig.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
+    
+    // Explicitly setup pipeline details via callback 
+    meshConfig.customPipelineSetup = [](PipelineBuilder& builder) {
+        builder.enable_depthtest(true, VK_COMPARE_OP_GREATER);
+        builder.set_multisampling_none();
+        builder.set_polygon_mode(VK_POLYGON_MODE_FILL);
+    };
     
     VkPushConstantRange bufferRange{};
     bufferRange.offset = 0;
@@ -175,7 +186,7 @@ void Pipelines::init(VkDevice device,
     meshPipeline = std::make_unique<GraphicsPipeline>(meshConfig);
     meshPipeline->init(device);
     
-    // Initialize gradient pipeline
+    // Compute pipeline
     ComputePipeline::ComputePipelineConfig gradientConfig;
     gradientConfig.descriptorSetLayout = _drawImageDescriptorLayout;
     gradientConfig.shaderPath = "./shaders/gradient.comp.spv";
