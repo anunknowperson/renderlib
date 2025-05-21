@@ -60,49 +60,94 @@ bool vkutil::load_shader_module(const char* filePath, VkDevice device,
 }
 
 void PipelineBuilder::clear() {
-    // clear all of the structs we need back to 0 with their correct stype
-
+    // Initialize input assembly with proper defaults
     _inputAssembly = {
-            .sType =
-                    VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO};
+        .sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO,
+        .topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST,
+        .primitiveRestartEnable = VK_FALSE
+    };
 
+    // Initialize rasterizer with proper defaults
     _rasterizer = {
-            .sType =
-                    VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO};
+        .sType = VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO,
+        .depthClampEnable = VK_FALSE,
+        .rasterizerDiscardEnable = VK_FALSE,
+        .polygonMode = VK_POLYGON_MODE_FILL,
+        .cullMode = VK_CULL_MODE_NONE,
+        .frontFace = VK_FRONT_FACE_CLOCKWISE,
+        .depthBiasEnable = VK_FALSE,
+        .depthBiasConstantFactor = 0.0f,
+        .depthBiasClamp = 0.0f,
+        .depthBiasSlopeFactor = 0.0f,
+        .lineWidth = 1.0f  // CRITICAL: Must be 1.0f, not 0.0f
+    };
 
-    _colorBlendAttachment = {};
+    // Initialize color blend attachment with defaults
+    _colorBlendAttachment = {
+        .blendEnable = VK_FALSE,
+        .colorWriteMask = VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT | 
+                          VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT
+    };
 
+    // Initialize multisampling with proper defaults
     _multisampling = {
-            .sType = VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO};
+        .sType = VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO,
+        .rasterizationSamples = VK_SAMPLE_COUNT_1_BIT,  // CRITICAL: Must be valid sample count
+        .sampleShadingEnable = VK_FALSE,
+        .minSampleShading = 1.0f,
+        .pSampleMask = nullptr,
+        .alphaToCoverageEnable = VK_FALSE,
+        .alphaToOneEnable = VK_FALSE
+    };
 
     _pipelineLayout = {};
 
+    // Initialize depth-stencil with proper defaults
     _depthStencil = {
-            .sType =
-                    VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO};
+        .sType = VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO,
+        .depthTestEnable = VK_FALSE,
+        .depthWriteEnable = VK_FALSE,
+        .depthCompareOp = VK_COMPARE_OP_LESS,
+        .depthBoundsTestEnable = VK_FALSE,
+        .stencilTestEnable = VK_FALSE,
+        .minDepthBounds = 0.0f,
+        .maxDepthBounds = 1.0f
+    };
 
-    _renderInfo = {.sType = VK_STRUCTURE_TYPE_PIPELINE_RENDERING_CREATE_INFO};
+    // Initialize rendering info with proper defaults
+    _renderInfo = {
+        .sType = VK_STRUCTURE_TYPE_PIPELINE_RENDERING_CREATE_INFO,
+        .depthAttachmentFormat = VK_FORMAT_UNDEFINED
+    };
 
     _shaderStages.clear();
 }
 
 VkPipeline PipelineBuilder::build_pipeline(VkDevice device) const {
-    // Create local copies of struct members that we need to modify
+    // Make local copies of struct members that we need to modify
     VkPipelineRenderingCreateInfo renderInfo = _renderInfo;
     VkPipelineRasterizationStateCreateInfo rasterizer = _rasterizer;
     VkPipelineMultisampleStateCreateInfo multisampling = _multisampling;
+    VkPipelineInputAssemblyStateCreateInfo inputAssembly = _inputAssembly;
     
     // Fix any uninitialized values
     if (renderInfo.depthAttachmentFormat == 0) {
         renderInfo.depthAttachmentFormat = VK_FORMAT_UNDEFINED;
     }
     
+    // Ensure rasterizer line width is valid
     if (rasterizer.lineWidth <= 0.0f) {
         rasterizer.lineWidth = 1.0f;
     }
     
+    // Ensure multisampling uses a valid sample count
     if (multisampling.rasterizationSamples == 0) {
         multisampling.rasterizationSamples = VK_SAMPLE_COUNT_1_BIT;
+    }
+    
+    // Avoid POINT_LIST topology without PointSize in shader
+    if (inputAssembly.topology == VK_PRIMITIVE_TOPOLOGY_POINT_LIST) {
+        inputAssembly.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
     }
 
     // make viewport state from our stored viewport and scissor.
@@ -140,7 +185,7 @@ VkPipeline PipelineBuilder::build_pipeline(VkDevice device) const {
     pipelineInfo.stageCount = static_cast<uint32_t>(_shaderStages.size());
     pipelineInfo.pStages = _shaderStages.data();
     pipelineInfo.pVertexInputState = &vertexInputInfo;
-    pipelineInfo.pInputAssemblyState = &_inputAssembly;
+    pipelineInfo.pInputAssemblyState = &inputAssembly; // Use our local copy
     pipelineInfo.pViewportState = &viewportState;
     pipelineInfo.pRasterizationState = &rasterizer;  // Use our local copy
     pipelineInfo.pMultisampleState = &multisampling;  // Use our local copy
