@@ -153,12 +153,10 @@ bool FPSCameraController::handleInput(const InputEvent& event) {
         case InputEvent::Type::MouseDown:
             if (event.key == SDL_BUTTON_RIGHT) {
                 _rotating = true;
-                _lastMouseX = static_cast<float>(event.x);
-                _lastMouseY = static_cast<float>(event.y);
                 SDL_SetRelativeMouseMode(SDL_TRUE);
                 return true;
             }
-        return false;
+            return false;
 
         case InputEvent::Type::MouseUp:
             if (event.key == SDL_BUTTON_RIGHT) {
@@ -166,15 +164,13 @@ bool FPSCameraController::handleInput(const InputEvent& event) {
                 SDL_SetRelativeMouseMode(SDL_FALSE);
                 return true;
             }
-        return false;
+            return false;
 
         case InputEvent::Type::MouseMove:
             if (_rotating) {
-                float deltaX = static_cast<float>(event.x) - _lastMouseX;
-                float deltaY = static_cast<float>(event.y) - _lastMouseY;
-
-                _lastMouseX = static_cast<float>(event.x);
-                _lastMouseY = static_cast<float>(event.y);
+                // Use delta values directly when in relative mode
+                float deltaX = static_cast<float>(event.deltaX);
+                float deltaY = static_cast<float>(event.deltaY);
 
                 _yaw -= deltaX * _rotationSpeed;
                 _pitch -= deltaY * _rotationSpeed;
@@ -268,7 +264,8 @@ bool OrbitCameraController::handleInput(const InputEvent& event) {
                 _lastMouseX = static_cast<float>(event.x);
                 _lastMouseY = static_cast<float>(event.y);
 
-                _yaw += deltaX * _rotationSpeed;
+                // Make consistent with FPS controller direction
+                _yaw -= deltaX * _rotationSpeed;
                 _pitch -= deltaY * _rotationSpeed;
 
                 _pitch = std::max(-89.0f, std::min(89.0f, _pitch));
@@ -285,8 +282,8 @@ bool OrbitCameraController::handleInput(const InputEvent& event) {
                 glm::vec3 right = _camera->getRotation() * glm::vec3(1, 0, 0);
                 glm::vec3 up = _camera->getRotation() * glm::vec3(0, 1, 0);
 
-                _target -= right * (deltaX * 0.01f * _distance);
-                _target += up * (deltaY * 0.01f * _distance);
+                _target -= right * (deltaX * _panSpeed * _distance);
+                _target += up * (deltaY * _panSpeed * _distance);
 
                 return true;
             }
@@ -294,8 +291,9 @@ bool OrbitCameraController::handleInput(const InputEvent& event) {
 
         case InputEvent::Type::MouseWheel:
             // Zoom in/out
-            _distance -= event.deltaY * (_distance * 0.1f);
+            _distance -= event.deltaY * (_distance * _zoomFactor);
             _distance = std::max(0.1f, _distance);
+            _distance = std::min(_distance, 1000.0f); // Add max distance limit
             return true;
 
         case InputEvent::Type::WindowResize:
@@ -309,6 +307,7 @@ bool OrbitCameraController::handleInput(const InputEvent& event) {
 
 void OrbitCameraController::setTarget(const glm::vec3& target) {
     _target = target;
+    update(0.0f);
 }
 
 CameraController::CameraController(Camera& camera)
