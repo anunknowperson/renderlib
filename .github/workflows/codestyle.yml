@@ -1,0 +1,73 @@
+name: Code Analysis & Formatting
+
+on:
+  pull_request:
+    branches:
+      - main
+    paths-ignore:
+      - docs/**
+      - README.md
+      - .gitignore
+      - out/**
+      - vcpkg/**
+      - assets/**
+      - cmake/**
+      - scripts/**
+      - shaders/**
+
+jobs:
+  cpp-linter:
+    name: Code Analysis & Formatting (Ubuntu)
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+      contents: read
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          submodules: true
+          fetch-depth: 0
+
+      - name: Install Dependencies using Composite Action
+        uses: ./.github/composite-actions/install-dependencies
+
+      - name: Cache CMake build directory for linting
+        uses: actions/cache@v4
+        with:
+          path: |
+            out/build/lx64-debug
+            ~/.cache/clangd
+            ~/.cache/clang-tidy
+          key: ${{ runner.os }}-linter-cache-${{ hashFiles('CMakePresets.json', '**/CMakeLists.txt', '.clang-tidy', '.clang-format', 'vcpkg.json') }}
+          restore-keys: |
+            ${{ runner.os }}-linter-cache-
+
+      - name: Configure
+        uses: lukka/run-cmake@v10
+        with:
+          configurePreset: lx64-debug
+
+      - name: Run C++ Linter
+        uses: cpp-linter/cpp-linter-action@v2
+        id: linter
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          version: '19'
+          style: 'file'
+          database: 'out/build/lx64-debug'
+          ignore: 'out|.github|vcpkg|assets|cmake|scripts|shaders|docs|README.md|.gitignore'
+          extra-args: '-std=c++23'
+          files-changed-only: 'false'
+          thread-comments: ${{ github.event_name == 'pull_request' && 'update' }}
+          format-review: 'true'
+          tidy-review: 'true'
+          step-summary: 'true'
+
+      - name: Check Linter Results
+        if: steps.linter.outputs.checks-failed > 0
+        run: |
+          echo "cpp-linter found issues."
+          exit 1
