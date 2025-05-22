@@ -16,13 +16,14 @@
 #include <vulkan/vk_platform.h>
 #include <vulkan/vulkan_core.h>
 
+#include "vk_command_buffers.h"
 #include "vk_descriptors.h"
 #include "vk_types.h"
 
 #include "pipelines.h"
 #include "ComputePipeline.h"
 
-#include "vk_command_buffers.h" 
+class CommandBuffers;
 
 class Camera;
 class VulkanEngine;
@@ -179,8 +180,6 @@ public:
 
     // immediate submit structures
     VkFence _immFence;
-    VkCommandBuffer _immCommandBuffer;
-    VkCommandPool _immCommandPool;
 
 
     GPUMeshBuffers rectangle;
@@ -221,6 +220,8 @@ public:
                                   VmaMemoryUsage memoryUsage) const;
 
 private:
+    std::unique_ptr<CommandBuffers> m_command_buffers = nullptr;
+
     static VKAPI_ATTR VkBool32 VKAPI_CALL
     debugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
                   VkDebugUtilsMessageTypeFlagsEXT messageType,
@@ -230,6 +231,7 @@ private:
     void init_vulkan();
     void init_swapchain();
     void init_sync_structures();
+    void init_command_buffer();
 
     void create_swapchain(uint32_t width, uint32_t height);
     void destroy_swapchain();
