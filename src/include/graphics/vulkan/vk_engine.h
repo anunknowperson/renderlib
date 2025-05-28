@@ -12,17 +12,17 @@
 #include <string>
 #include <unordered_map>
 #include <vector>
+#include <core/CameraController.h>
 #include <vk_mem_alloc.h>
 #include <vulkan/vk_platform.h>
 #include <vulkan/vulkan_core.h>
 
 #include "vk_descriptors.h"
 #include "vk_types.h"
+#include "vk_command_buffers.h"
 
 #include "pipelines.h"
 #include "ComputePipeline.h"
-
-#include "vk_command_buffers.h" 
 
 class Camera;
 class VulkanEngine;
@@ -114,11 +114,14 @@ public:
     std::unordered_map<std::string, std::shared_ptr<LoadedGLTF>> loadedScenes;
 
     Camera* mainCamera;
+    CameraController* cameraController;
+    float frameTime = 0.016f;
 
     DrawContext mainDrawContext;
     std::unordered_map<std::string, std::shared_ptr<ENode>> loadedNodes;
 
     void update_scene();
+    void process_events();
 
     FrameData _frames[FRAME_OVERLAP];
 
@@ -249,8 +252,6 @@ private:
     void destroy_buffer(const AllocatedBuffer& buffer) const;
 
     void resize_swapchain();
-
-    void init_mesh_pipeline();
 
     void init_default_data();
 };

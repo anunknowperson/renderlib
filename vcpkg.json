@@ -23,7 +23,8 @@
     "spdlog",
     "stb",
     "vk-bootstrap",
-    "vulkan-memory-allocator"
+    "vulkan-memory-allocator",
+    "gtest"
   ],
   "overrides": [
     {
