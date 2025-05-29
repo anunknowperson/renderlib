@@ -2,10 +2,6 @@
 #include "graphics/vulkan/vk_engine.h"
 #include "graphics/vulkan/vk_initializers.h"
 
-
-
-
-
 void CommandBuffers::init_commands(VulkanEngine* vk_engine) {
     // create a command pool for commands submitted to the graphics queue.
     // we also want the pool to allow for resetting of individual command
@@ -16,38 +12,41 @@ void CommandBuffers::init_commands(VulkanEngine* vk_engine) {
                     VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT);
 
     for (auto& _frame : vk_engine->_frames) {
+        VkCommandPool commandPool;
         VK_CHECK(vkCreateCommandPool(vk_engine->_device, &commandPoolInfo,
                                      nullptr,
-                                     &_frame._commandPool));
+                                     &commandPool));
+        
+        _frame._commandPool = std::make_unique<VulkanCommandPool>(vk_engine->_device, commandPool);
 
         // allocate the default command buffer that we will use for rendering
         VkCommandBufferAllocateInfo cmdAllocInfo =
-                vkinit::command_buffer_allocate_info(_frame._commandPool, 1);
+                vkinit::command_buffer_allocate_info(_frame._commandPool->get(), 1);
 
         VK_CHECK(vkAllocateCommandBuffers(vk_engine->_device, &cmdAllocInfo,
                                           &_frame._mainCommandBuffer));
     }
 
+    VkCommandPool immCommandPool;
     VK_CHECK(vkCreateCommandPool(vk_engine->_device, &commandPoolInfo, nullptr,
-                                 &(vk_engine->_immCommandPool)));
+                                 &immCommandPool));
+    
+    vk_engine->_immCommandPool = std::make_unique<VulkanCommandPool>(vk_engine->_device, immCommandPool);
 
     // allocate the command buffer for immediate submits
     const VkCommandBufferAllocateInfo cmdAllocInfo =
-            vkinit::command_buffer_allocate_info(vk_engine->_immCommandPool, 1);
+            vkinit::command_buffer_allocate_info(vk_engine->_immCommandPool->get(), 1);
 
     VK_CHECK(vkAllocateCommandBuffers(vk_engine->_device, &cmdAllocInfo,
                                       &(vk_engine->_immCommandBuffer)));
 
-    vk_engine->_mainDeletionQueue.push_function([=] {
-    vkDestroyCommandPool(vk_engine->_device, vk_engine->_immCommandPool,
-                         nullptr);
-    });
+    // Smart pointer will automatically handle cleanup - no need for deletion queue
 }
 
 void CommandBuffers::immediate_submit(
         std::function<void(VkCommandBuffer cmd)>&& function,
         VulkanEngine* vk_engine) const {
-    VK_CHECK(vkResetFences(vk_engine->_device, 1, &(vk_engine->_immFence)));
+    VK_CHECK(vkResetFences(vk_engine->_device, 1, vk_engine->_immFence->getPtr()));
     VK_CHECK(vkResetCommandBuffer(vk_engine->_immCommandBuffer, 0));
 
     const VkCommandBuffer cmd = vk_engine->_immCommandBuffer;
@@ -70,8 +69,8 @@ void CommandBuffers::immediate_submit(
     // submit command buffer to the queue and execute it.
     //  _renderFence will now block until the graphic commands finish execution
     VK_CHECK(vkQueueSubmit2(vk_engine->_graphicsQueue, 1, &submit,
-                            vk_engine->_immFence));
+                            vk_engine->_immFence->get()));
 
-    VK_CHECK(vkWaitForFences(vk_engine->_device, 1, &(vk_engine->_immFence), true,
+    VK_CHECK(vkWaitForFences(vk_engine->_device, 1, vk_engine->_immFence->getPtr(), true,
                              9999999999));
 }
