@@ -313,7 +313,7 @@ std::optional<std::shared_ptr<LoadedGLTF>> loadGltf(VulkanEngine* engine,
 
         GLTFMetallic_Roughness::MaterialResources materialResources;
 
-        materialResources.colorImage = engine->_whiteImage->get();
+        materialResources.colorImage = engine->_whiteImage;
 
         materialResources.colorSampler = engine->_defaultSamplerLinear;
         materialResources.metalRoughImage = engine->_whiteImage->get();
