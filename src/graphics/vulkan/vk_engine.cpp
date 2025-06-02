@@ -1157,8 +1157,10 @@ int64_t VulkanEngine::registerMesh(const std::string& filePath) {
 }
 
 void VulkanEngine::unregisterMesh(int64_t id) {
-    meshes.erase(id);
-    transforms.erase(id);
+    if (meshes.find(id) != meshes.end()) {
+        meshes.erase(id);
+        transforms.erase(id);
+    }
 }
 
 void VulkanEngine::setMeshTransform(int64_t id, glm::mat4 mat) {
