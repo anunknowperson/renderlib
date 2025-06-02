@@ -295,7 +295,7 @@ std::optional<std::shared_ptr<LoadedGLTF>> loadGltf(VulkanEngine* engine,
     // load all textures
     images.reserve(gltf.images.size());
     for (size_t i = 0; i < gltf.images.size(); i++) {
-        images.push_back(engine->_errorCheckerboardImage);
+        images.push_back(engine->_errorCheckerboardImage->get());
     }
 
     // create buffer to hold the material data
@@ -331,9 +331,9 @@ std::optional<std::shared_ptr<LoadedGLTF>> loadGltf(VulkanEngine* engine,
 
         GLTFMetallic_Roughness::MaterialResources materialResources;
         // default the material textures
-        materialResources.colorImage = engine->_whiteImage;
+        materialResources.colorImage = engine->_whiteImage->get();
         materialResources.colorSampler = engine->_defaultSamplerLinear;
-        materialResources.metalRoughImage = engine->_whiteImage;
+        materialResources.metalRoughImage = engine->_whiteImage->get();
         materialResources.metalRoughSampler = engine->_defaultSamplerLinear;
 
         // set the uniform buffer for the material data
