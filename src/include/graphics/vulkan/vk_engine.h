@@ -2,12 +2,9 @@
 
 #include <cstddef>
 #include <cstdint>
-#include <deque>
-#include <functional>
 #include <glm/ext/matrix_float4x4.hpp>
 #include <glm/ext/vector_float4.hpp>
 #include <memory>
-#include <ranges>
 #include <span>
 #include <string>
 #include <unordered_map>
@@ -18,11 +15,12 @@
 
 #include "vk_descriptors.h"
 #include "vk_types.h"
+#include "vk_smart_wrappers.h"
 
 #include "pipelines.h"
 #include "ComputePipeline.h"
 
-#include "vk_command_buffers.h" 
+#include "vk_command_buffers.h"
 
 class Camera;
 class VulkanEngine;
@@ -30,36 +28,17 @@ struct DrawContext;
 struct LoadedGLTF;
 struct MeshAsset;
 
-
 constexpr unsigned int FRAME_OVERLAP = 2;
 
-
-struct DeletionQueue {
-    std::deque<std::function<void()>> deletors;
-
-    void push_function(std::function<void()>&& function) {
-        deletors.push_back(function);
-    }
-
-    void flush() {
-        // reverse iterate the deletion queue to execute all the functions
-        for (auto& deletor : std::ranges::reverse_view(deletors)) {
-            deletor();  // call functors
-        }
-
-        deletors.clear();
-    }
-};
-
 struct FrameData {
-    VkCommandPool _commandPool;
+    std::unique_ptr<VulkanCommandPool> _commandPool;
     VkCommandBuffer _mainCommandBuffer;
 
-    VkSemaphore _swapchainSemaphore, _renderSemaphore;
-    VkFence _renderFence;
+    std::unique_ptr<VulkanSemaphore> _swapchainSemaphore, _renderSemaphore;
+    std::unique_ptr<VulkanFence> _renderFence;
 
-    DeletionQueue _deletionQueue;
     DescriptorAllocatorGrowable _frameDescriptors;
+    std::vector<std::unique_ptr<VulkanBuffer>> _frameBuffers; // For per-frame temporary buffers
 };
 
 struct GPUSceneData {
@@ -163,12 +142,10 @@ public:
     std::vector<VkImageView> _swapchainImageViews;
     VkExtent2D _swapchainExtent;
 
-    DeletionQueue _mainDeletionQueue;
-
     VmaAllocator _allocator;
 
-    AllocatedImage _drawImage;
-    AllocatedImage _depthImage;
+    std::unique_ptr<VulkanImage> _drawImage;
+    std::unique_ptr<VulkanImage> _depthImage;
     VkExtent2D _drawExtent;
     float renderScale = 1.f;
 
@@ -178,10 +155,9 @@ public:
     VkDescriptorSetLayout _drawImageDescriptorLayout;
 
     // immediate submit structures
-    VkFence _immFence;
+    std::unique_ptr<VulkanFence> _immFence;
     VkCommandBuffer _immCommandBuffer;
-    VkCommandPool _immCommandPool;
-
+    std::unique_ptr<VulkanCommandPool> _immCommandPool;
 
     GPUMeshBuffers rectangle;
 
@@ -204,10 +180,10 @@ public:
                                 bool mipmapped = false) const;
     void destroy_image(const AllocatedImage& img) const;
 
-    AllocatedImage _whiteImage;
-    AllocatedImage _blackImage;
-    AllocatedImage _greyImage;
-    AllocatedImage _errorCheckerboardImage;
+    std::unique_ptr<VulkanImage> _whiteImage;
+    std::unique_ptr<VulkanImage> _blackImage;
+    std::unique_ptr<VulkanImage> _greyImage;
+    std::unique_ptr<VulkanImage> _errorCheckerboardImage;
 
     VkSampler _defaultSamplerLinear;
     VkSampler _defaultSamplerNearest;
@@ -221,6 +197,10 @@ public:
                                   VmaMemoryUsage memoryUsage) const;
 
 private:
+    // Smart pointer collections for automatic cleanup
+    std::vector<std::unique_ptr<VulkanBuffer>> _managedBuffers;
+    std::vector<std::unique_ptr<VulkanImage>> _managedImages;
+
     static VKAPI_ATTR VkBool32 VKAPI_CALL
     debugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
                   VkDebugUtilsMessageTypeFlagsEXT messageType,
@@ -240,7 +220,6 @@ private:
 
     void init_pipelines();
     void init_imgui();
-
 
     void draw_imgui(VkCommandBuffer cmd, VkImageView targetImageView) const;
 
