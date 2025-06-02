@@ -1,4 +1,4 @@
-﻿#include "graphics/vulkan/vk_engine.h"
+#include "graphics/vulkan/vk_engine.h"
 
 #include <SDL_error.h>
 #include <SDL_stdinc.h>
@@ -480,7 +480,7 @@ void VulkanEngine::init_sync_structures() {
         VkSemaphore swapchainSemaphore, renderSemaphore;
         VK_CHECK(vkCreateSemaphore(_device, &semaphoreCreateInfo, nullptr, &swapchainSemaphore));
         VK_CHECK(vkCreateSemaphore(_device, &semaphoreCreateInfo, nullptr, &renderSemaphore));
-        
+
         _frame._swapchainSemaphore = std::make_unique<VulkanSemaphore>(_device, swapchainSemaphore);
         _frame._renderSemaphore = std::make_unique<VulkanSemaphore>(_device, renderSemaphore);
     }
@@ -575,8 +575,8 @@ void VulkanEngine::init_swapchain() {
     VkFormat depthFormat = VK_FORMAT_D32_SFLOAT;
 
     VkImageCreateInfo dimg_info = vkinit::image_create_info(
-        depthFormat, 
-        VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT, 
+        depthFormat,
+        VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT,
         depthImageExtent);
 
     VmaAllocationCreateInfo dimg_allocinfo = {};
@@ -627,7 +627,7 @@ void VulkanEngine::cleanup() {
             if (_frame._commandPool) {
                 vkDestroyCommandPool(_device, _frame._commandPool->get(), nullptr);
             }
-            
+
             // Destroy frame descriptors manually
             _frame._frameDescriptors.destroy_pools(_device);
         }
@@ -751,11 +751,10 @@ void VulkanEngine::draw_background(VkCommandBuffer cmd) const {
     pipelines.gradientPipeline->bindDescriptorSets(cmd, &_drawImageDescriptors, 1);
 
     // dispatch the compute shader
-    pipelines.gradientPipeline->dispatch(cmd, 
+    pipelines.gradientPipeline->dispatch(cmd,
         static_cast<uint32_t>(std::ceil(_drawExtent.width / 16.0)),
-        static_cast<uint32_t>(std::ceil(_drawExtent.height / 16.0)), 
+        static_cast<uint32_t>(std::ceil(_drawExtent.height / 16.0)),
         1);
-
 }
 
 void VulkanEngine::draw_imgui(VkCommandBuffer cmd,

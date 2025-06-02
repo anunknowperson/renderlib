@@ -34,8 +34,3 @@ void ModelImpl::createMesh(std::string name) {
 void ModelImpl::setMeshTransform(std::string name, glm::mat4x4 transform) {
     _meshes[name]->set_transform(transform);
 }
-
-/*        : _dev { openDevice() }
-        , _brightness { collectBrightness(_dev) }
-        , _rgb { collectRGB(_dev) }
-{*/

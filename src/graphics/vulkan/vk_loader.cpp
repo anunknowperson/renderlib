@@ -1,4 +1,4 @@
-﻿#include "graphics/vulkan/vk_loader.h"
+#include "graphics/vulkan/vk_loader.h"
 
 #include <array>
 #include <cstdint>
@@ -23,6 +23,7 @@
 #include <utility>
 #include <variant>
 
+#include "core/Logging.h"
 #include "graphics/vulkan/vk_descriptors.h"
 #include "graphics/vulkan/vk_engine.h"
 #include "graphics/vulkan/vk_types.h"
@@ -30,11 +31,10 @@
 std::optional<std::vector<std::shared_ptr<MeshAsset>>> loadGltfMeshes(
         VulkanEngine* engine, const std::filesystem::path& filePath) {
     if (!std::filesystem::exists(filePath)) {
-        std::cout << "Failed to find " << filePath << '\n';
+        LOGW("Failed to find file: {}", filePath.string());
         return {};
     }
-
-    std::cout << "Loading " << filePath << '\n';
+    LOGI("Loading: {}", filePath.string());
 
     fastgltf::Asset gltf;
 
@@ -56,6 +56,11 @@ std::optional<std::vector<std::shared_ptr<MeshAsset>>> loadGltfMeshes(
             fastgltf::Options::LoadExternalImages |
             fastgltf::Options::GenerateMeshIndices;
 
+    if (!std::filesystem::exists(path)) {
+        LOGW("Failed to find file: {}", path.string());
+        return {};
+    }
+
     fastgltf::GltfDataBuffer data;
     data.loadFromFile(path);
 
@@ -64,8 +69,8 @@ std::optional<std::vector<std::shared_ptr<MeshAsset>>> loadGltfMeshes(
     if (asset) {
         gltf = std::move(asset.get());
     } else {
-        fmt::print("Failed to load glTF: {} \n",
-                   fastgltf::to_underlying(asset.error()));
+        LOGE("Failed to load glTF: {}",
+                      fastgltf::to_underlying(asset.error()));
         return {};
     }
 
@@ -202,7 +207,11 @@ VkSamplerMipmapMode extract_mipmap_mode(fastgltf::Filter filter) {
 
 std::optional<std::shared_ptr<LoadedGLTF>> loadGltf(VulkanEngine* engine,
                                                     std::string_view filePath) {
-    fmt::print("Loading GLTF: {}", filePath);
+    LOGI("Loading GLTF: {}", filePath);
+
+    if (!std::filesystem::exists(filePath)) {
+        LOGW("File does not exist: {}", filePath);
+    }
     auto scene = std::make_shared<LoadedGLTF>();
     scene->creator = engine;
     LoadedGLTF& file = *scene;
@@ -221,8 +230,7 @@ std::optional<std::shared_ptr<LoadedGLTF>> loadGltf(VulkanEngine* engine,
         if (load) {
             gltf = std::move(load.get());
         } else {
-            std::cerr << "Failed to load glTF: "
-                      << fastgltf::to_underlying(load.error()) << std::endl;
+            LOGE("Failed to load glTF: {} ", fastgltf::to_underlying(load.error()));
             return {};
         }
     } else if (type == fastgltf::GltfType::GLB) {
@@ -231,12 +239,11 @@ std::optional<std::shared_ptr<LoadedGLTF>> loadGltf(VulkanEngine* engine,
         if (load) {
             gltf = std::move(load.get());
         } else {
-            std::cerr << "Failed to load glTF: "
-                      << fastgltf::to_underlying(load.error()) << std::endl;
+            LOGE("Failed to load glTF: {} ", fastgltf::to_underlying(load.error()));
             return {};
         }
     } else {
-        std::cerr << "Failed to determine glTF container" << std::endl;
+        LOGE("Failed to determine glTF container");
         return {};
     }
 
@@ -314,7 +321,6 @@ std::optional<std::shared_ptr<LoadedGLTF>> loadGltf(VulkanEngine* engine,
         GLTFMetallic_Roughness::MaterialResources materialResources;
 
         materialResources.colorImage = engine->_whiteImage->get();
-
         materialResources.colorSampler = engine->_defaultSamplerLinear;
         materialResources.metalRoughImage = engine->_whiteImage->get();
         materialResources.metalRoughSampler = engine->_defaultSamplerLinear;
