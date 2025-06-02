@@ -276,7 +276,7 @@ std::optional<std::shared_ptr<LoadedGLTF>> loadGltf(VulkanEngine* engine,
     // Load all textures
     images.reserve(gltf.images.size());
     for (size_t i = 0; i < gltf.images.size(); i++) {
-        images.push_back(engine->_errorCheckerboardImage);
+        images.push_back(engine->_errorCheckerboardImage->get());
     }
 
     // Create buffer to hold the material data
@@ -312,9 +312,11 @@ std::optional<std::shared_ptr<LoadedGLTF>> loadGltf(VulkanEngine* engine,
         }
 
         GLTFMetallic_Roughness::MaterialResources materialResources;
-        materialResources.colorImage = engine->_whiteImage;
+
+        materialResources.colorImage = engine->_whiteImage->get();
+
         materialResources.colorSampler = engine->_defaultSamplerLinear;
-        materialResources.metalRoughImage = engine->_whiteImage;
+        materialResources.metalRoughImage = engine->_whiteImage->get();
         materialResources.metalRoughSampler = engine->_defaultSamplerLinear;
         materialResources.dataBuffer = file.materialDataBuffer.buffer;
         materialResources.dataBufferOffset =
@@ -438,7 +440,7 @@ std::optional<std::shared_ptr<LoadedGLTF>> loadGltf(VulkanEngine* engine,
                         });
             }
 
-            // ✅ Assign material safely
+            // Assign material safely
             if (p.materialIndex.has_value()) {
                 newSurface.material = materials[p.materialIndex.value()];
             } else {
