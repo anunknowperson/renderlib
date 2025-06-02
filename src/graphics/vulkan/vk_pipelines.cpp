@@ -1,4 +1,4 @@
-﻿#include "graphics/vulkan/vk_pipelines.h"
+#include "graphics/vulkan/vk_pipelines.h"
 
 #include <cstdint>
 #include <fmt/base.h>
@@ -169,7 +169,6 @@ VkPipeline PipelineBuilder::build_pipeline(VkDevice device) const {
     viewportState.pNext = nullptr;
     viewportState.viewportCount = 1;
     viewportState.scissorCount = 1;
-
     // Use dynamic viewport and scissor
     VkDynamicState dynamicStates[] = { VK_DYNAMIC_STATE_VIEWPORT, VK_DYNAMIC_STATE_SCISSOR };
     VkPipelineDynamicStateCreateInfo dynamicState = {};
