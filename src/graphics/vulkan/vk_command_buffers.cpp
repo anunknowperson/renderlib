@@ -16,7 +16,7 @@ void CommandBuffers::init_commands(VulkanEngine* vk_engine) {
         VK_CHECK(vkCreateCommandPool(vk_engine->_device, &commandPoolInfo,
                                      nullptr,
                                      &commandPool));
-        
+
         _frame._commandPool = std::make_unique<VulkanCommandPool>(vk_engine->_device, commandPool);
 
         // allocate the default command buffer that we will use for rendering
@@ -30,7 +30,7 @@ void CommandBuffers::init_commands(VulkanEngine* vk_engine) {
     VkCommandPool immCommandPool;
     VK_CHECK(vkCreateCommandPool(vk_engine->_device, &commandPoolInfo, nullptr,
                                  &immCommandPool));
-    
+
     vk_engine->command_buffers_container._immCommandPool = std::make_unique<VulkanCommandPool>(vk_engine->_device, immCommandPool);
 
     // allocate the command buffer for immediate submits

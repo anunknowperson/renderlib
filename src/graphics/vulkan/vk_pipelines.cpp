@@ -1,18 +1,27 @@
-﻿#include "graphics/vulkan/vk_pipelines.h"
+#include "graphics/vulkan/vk_pipelines.h"
 
 #include <cstdint>
 #include <fmt/base.h>
 #include <fstream>
 #include <spdlog/spdlog.h>
 #include "core/Logging.h"
+#include <filesystem>
+
 #include "graphics/vulkan/vk_initializers.h"
 
 bool vkutil::load_shader_module(const char* filePath, VkDevice device,
                                 VkShaderModule* outShaderModule) {
     // open the file. With cursor at the end
+    if (!std::filesystem::exists(filePath)) {
+        LOGE("Shader file does not exist: {}", filePath);
+        return false;
+    }
+
+    // Open the file in binary mode, with the cursor at the end
     std::ifstream file(filePath, std::ios::ate | std::ios::binary);
 
     if (!file.is_open()) {
+        LOGE("Failed to open shader file: {}", filePath);
         return false;
     }
 
@@ -22,9 +31,10 @@ bool vkutil::load_shader_module(const char* filePath, VkDevice device,
     const auto fileSize = file.tellg();
 
     if (fileSize == -1) {
-        spdlog::error("Failed to open file {}", filePath);
+        LOGE("Failed to open file {}", filePath);
         return false;
     }
+
     // spirv expects the buffer to be on uint32, so make sure to reserve a int
     // vector big enough for the entire file
     std::vector<uint32_t> buffer(static_cast<uint32_t>(fileSize) /
@@ -51,11 +61,14 @@ bool vkutil::load_shader_module(const char* filePath, VkDevice device,
 
     // check that the creation goes well.
     VkShaderModule shaderModule;
-    if (vkCreateShaderModule(device, &createInfo, nullptr, &shaderModule) !=
-        VK_SUCCESS) {
+    VkResult result =
+            vkCreateShaderModule(device, &createInfo, nullptr, &shaderModule);
+    if (result != VK_SUCCESS) {
+        LOGE("Error: Failed to create shader module.");
         return false;
     }
     *outShaderModule = shaderModule;
+    LOGI("Shader module created successfully.");
     return true;
 }
 
@@ -85,7 +98,7 @@ void PipelineBuilder::clear() {
     // Initialize color blend attachment with defaults
     _colorBlendAttachment = {
         .blendEnable = VK_FALSE,
-        .colorWriteMask = VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT | 
+        .colorWriteMask = VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT |
                           VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT
     };
 
@@ -129,22 +142,22 @@ VkPipeline PipelineBuilder::build_pipeline(VkDevice device) const {
     VkPipelineRasterizationStateCreateInfo rasterizer = _rasterizer;
     VkPipelineMultisampleStateCreateInfo multisampling = _multisampling;
     VkPipelineInputAssemblyStateCreateInfo inputAssembly = _inputAssembly;
-    
+
     // Fix any uninitialized values
     if (renderInfo.depthAttachmentFormat == 0) {
         renderInfo.depthAttachmentFormat = VK_FORMAT_UNDEFINED;
     }
-    
+
     // Ensure rasterizer line width is valid
     if (rasterizer.lineWidth <= 0.0f) {
         rasterizer.lineWidth = 1.0f;
     }
-    
+
     // Ensure multisampling uses a valid sample count
     if (multisampling.rasterizationSamples == 0) {
         multisampling.rasterizationSamples = VK_SAMPLE_COUNT_1_BIT;
     }
-    
+
     // Avoid POINT_LIST topology without PointSize in shader
     if (inputAssembly.topology == VK_PRIMITIVE_TOPOLOGY_POINT_LIST) {
         inputAssembly.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
@@ -156,7 +169,6 @@ VkPipeline PipelineBuilder::build_pipeline(VkDevice device) const {
     viewportState.pNext = nullptr;
     viewportState.viewportCount = 1;
     viewportState.scissorCount = 1;
-    
     // Use dynamic viewport and scissor
     VkDynamicState dynamicStates[] = { VK_DYNAMIC_STATE_VIEWPORT, VK_DYNAMIC_STATE_SCISSOR };
     VkPipelineDynamicStateCreateInfo dynamicState = {};
@@ -200,11 +212,11 @@ VkPipeline PipelineBuilder::build_pipeline(VkDevice device) const {
     VkPipeline newPipeline;
     if (vkCreateGraphicsPipelines(device, VK_NULL_HANDLE, 1, &pipelineInfo,
                                   nullptr, &newPipeline) != VK_SUCCESS) {
-        
+
         LOGE("Failed to create graphics pipeline in build_pipeline.");
         return VK_NULL_HANDLE;
     }
-    
+
     return newPipeline;
 }
 
@@ -221,13 +233,13 @@ void PipelineBuilder::set_shaders(VkShaderModule vertexShader,
 
 void PipelineBuilder::set_input_topology(VkPrimitiveTopology topology) {
     _inputAssembly.topology = topology;
-    
+
     // Avoid POINT_LIST topology which requires special shader setup
     if (topology == VK_PRIMITIVE_TOPOLOGY_POINT_LIST) {
         // Fall back to triangle list if point list is requested
         _inputAssembly.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
     }
-    
+
     _inputAssembly.primitiveRestartEnable = VK_FALSE;
 }
 
@@ -271,15 +283,15 @@ void PipelineBuilder::set_color_attachment_format(VkFormat format) {
 
 void PipelineBuilder::set_depth_format(VkFormat format) {
     // Ensure format is valid or undefined
-    if (format != VK_FORMAT_D16_UNORM && 
-        format != VK_FORMAT_D32_SFLOAT && 
-        format != VK_FORMAT_D16_UNORM_S8_UINT && 
-        format != VK_FORMAT_D24_UNORM_S8_UINT && 
-        format != VK_FORMAT_D32_SFLOAT_S8_UINT && 
+    if (format != VK_FORMAT_D16_UNORM &&
+        format != VK_FORMAT_D32_SFLOAT &&
+        format != VK_FORMAT_D16_UNORM_S8_UINT &&
+        format != VK_FORMAT_D24_UNORM_S8_UINT &&
+        format != VK_FORMAT_D32_SFLOAT_S8_UINT &&
         format != VK_FORMAT_UNDEFINED) {
         format = VK_FORMAT_UNDEFINED;
     }
-    
+
     _renderInfo.depthAttachmentFormat = format;
 }
 
