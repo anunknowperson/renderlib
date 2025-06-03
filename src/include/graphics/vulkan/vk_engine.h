@@ -21,6 +21,7 @@
 #include "ComputePipeline.h"
 
 #include "vk_command_buffers.h"
+#include "vk_command_buffers_container.h"
 
 class Camera;
 class VulkanEngine;
@@ -28,18 +29,6 @@ struct DrawContext;
 struct LoadedGLTF;
 struct MeshAsset;
 
-constexpr unsigned int FRAME_OVERLAP = 2;
-
-struct FrameData {
-    std::unique_ptr<VulkanCommandPool> _commandPool;
-    VkCommandBuffer _mainCommandBuffer;
-
-    std::unique_ptr<VulkanSemaphore> _swapchainSemaphore, _renderSemaphore;
-    std::unique_ptr<VulkanFence> _renderFence;
-
-    DescriptorAllocatorGrowable _frameDescriptors;
-    std::vector<std::unique_ptr<VulkanBuffer>> _frameBuffers; // For per-frame temporary buffers
-};
 
 struct GPUSceneData {
     glm::mat4 view;
@@ -79,6 +68,7 @@ public:
     Pipelines pipelines;
 
     CommandBuffers command_buffers;
+    CommandBuffersContainer command_buffers_container;
 
     int64_t registerMesh(const std::string& filePath);
 
@@ -99,10 +89,8 @@ public:
 
     void update_scene();
 
-    FrameData _frames[FRAME_OVERLAP];
-
     FrameData& get_current_frame() {
-        return _frames[_frameNumber % FRAME_OVERLAP];
+        return command_buffers_container.get_current_frame(_frameNumber);
     };
 
     VkQueue _graphicsQueue;
@@ -154,10 +142,6 @@ public:
     VkDescriptorSet _drawImageDescriptors;
     VkDescriptorSetLayout _drawImageDescriptorLayout;
 
-    // immediate submit structures
-    std::unique_ptr<VulkanFence> _immFence;
-    VkCommandBuffer _immCommandBuffer;
-    std::unique_ptr<VulkanCommandPool> _immCommandPool;
 
     GPUMeshBuffers rectangle;
 
@@ -209,7 +193,6 @@ private:
 
     void init_vulkan();
     void init_swapchain();
-    void init_sync_structures();
 
     void create_swapchain(uint32_t width, uint32_t height);
     void destroy_swapchain();

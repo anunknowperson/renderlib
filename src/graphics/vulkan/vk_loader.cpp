@@ -207,9 +207,7 @@ VkSamplerMipmapMode extract_mipmap_mode(fastgltf::Filter filter) {
 
 std::optional<std::shared_ptr<LoadedGLTF>> loadGltf(VulkanEngine* engine,
                                                     std::string_view filePath) {
-    LOGI("Loading GLTF: {}", filePath);
-
-    if (!std::filesystem::exists(filePath)) {
+    LOGI("Loading GLTF: {}", filePath);if (!std::filesystem::exists(filePath)) {
         LOGW("File does not exist: {}", filePath);
     }
     auto scene = std::make_shared<LoadedGLTF>();
