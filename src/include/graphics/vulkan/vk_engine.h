@@ -1,5 +1,7 @@
 ﻿#pragma once
 
+#define GLM_FORCE_DEPTH_ZERO_TO_ONE
+
 #include <cstddef>
 #include <cstdint>
 #include <glm/ext/matrix_float4x4.hpp>

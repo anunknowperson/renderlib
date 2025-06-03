@@ -15,12 +15,13 @@ public:
         std::string fragmentShaderPath;
         std::vector<VkDescriptorSetLayout> descriptorSetLayouts;
         VkFormat colorFormat;
-        VkFormat depthFormat;
+        VkFormat depthFormat = VK_FORMAT_D32_SFLOAT;
+        
         VkCullModeFlags cullMode = VK_CULL_MODE_NONE;
         VkPrimitiveTopology topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
         bool depthTest = true;
         bool blending = false;
-        VkCompareOp depthCompareOp = VK_COMPARE_OP_GREATER_OR_EQUAL;
+        VkCompareOp depthCompareOp = VK_COMPARE_OP_LESS;
         std::function<void(PipelineBuilder&)> customPipelineSetup = nullptr;
         std::vector<VkPushConstantRange> pushConstants;
     };

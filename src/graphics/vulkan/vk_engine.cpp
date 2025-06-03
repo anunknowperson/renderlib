@@ -1,4 +1,9 @@
+
+#define GLM_FORCE_DEPTH_ZERO_TO_ONE
+
 #include "graphics/vulkan/vk_engine.h"
+
+
 
 #include <SDL_error.h>
 #include <SDL_stdinc.h>

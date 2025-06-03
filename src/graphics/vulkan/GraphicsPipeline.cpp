@@ -38,7 +38,8 @@ void GraphicsPipeline::init(VkDevice device) {
     pipelineBuilder.set_shaders(vertexShader, fragmentShader);
     pipelineBuilder.set_input_topology(_config.topology);
     pipelineBuilder.set_polygon_mode(VK_POLYGON_MODE_FILL);
-    pipelineBuilder.set_cull_mode(_config.cullMode, VK_FRONT_FACE_CLOCKWISE);
+    pipelineBuilder.set_cull_mode(_config.cullMode,
+                                  VK_FRONT_FACE_COUNTER_CLOCKWISE);
     pipelineBuilder.set_multisampling_none();
     
     if (_config.blending) {
