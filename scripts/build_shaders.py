@@ -1,25 +1,32 @@
 import os
 import subprocess
+import sys
 
-project_dir = os.environ.get('PROJECTDIR')
+project_dir = os.environ.get('PROJECTDIR') # Get project directory from environment variable
 
-if os.name == 'nt':
-    glslc_executable = "glslc.exe"
+if len(sys.argv) > 1:
+    build_dir = sys.argv[1]  # Use command-line argument as build directory
 else:
-    glslc_executable = "glslc"
+    print("Error: Build directory not specified")
+    sys.exit(1)
 
-print("Shader builder working directory: " + project_dir)
+os.makedirs(build_dir, exist_ok=True) # Create build directory
 
-for filename in os.listdir(project_dir + "/shaders/"):
-    if filename.endswith(".vert") or filename.endswith(".frag") or filename.endswith(".comp"):
-        shader_file_path = os.path.join(project_dir + "/shaders/", filename)
+glslc_executable = "glslc.exe" if os.name == 'nt' else "glslc" # Determine glslc executable name
 
-        output_file = os.path.splitext(shader_file_path)[0] + os.path.splitext(shader_file_path)[1] + ".spv"
+print("Project dir: " + project_dir)
+print("Build dir: " + build_dir)
 
-        command = [glslc_executable, shader_file_path, "-o", output_file]
+shaders_dir = os.path.join(project_dir, "shaders") # Path to shaders directory
+
+for filename in os.listdir(shaders_dir): # Iterate through files in shaders directory
+    if filename.endswith((".vert", ".frag", ".comp")): # Check for shader file extensions
+        shader_path = os.path.join(shaders_dir, filename) # Full path to input shader
+        output_path = os.path.join(build_dir, filename + ".spv") # Full path to output SPIR-V file
 
         try:
-            subprocess.run(command, check=True)
-            print(f"Compiled {filename} to {output_file}")
+            subprocess.run([glslc_executable, shader_path, "-o", output_path], check=True) # Run glslc compiler
+            print(f"Compiled {filename} to {output_path}") # Success message
         except subprocess.CalledProcessError as e:
-            print(f"Failed to compile {filename}: {e}")
+            print(f"Failed to compile {filename}: {e}") # Error message on compilation failure
+
