@@ -296,7 +296,7 @@ void VulkanEngine::init_descriptors() {
 
     writer.update_set(_device, _drawImageDescriptors);
 
-    for (auto& _frame : _frames) {
+    for (auto& _frame : command_buffers_container._frames) {
         // create a descriptor pool
         std::vector<DescriptorAllocatorGrowable::PoolSizeRatio> frame_sizes = {
                 {VK_DESCRIPTOR_TYPE_STORAGE_IMAGE, 3},
@@ -329,7 +329,7 @@ void VulkanEngine::init(SDL_Window* window) {
     
     command_buffers.init_commands(this);
     
-    init_sync_structures();
+    command_buffers_container.init_sync_structures(this);
     init_descriptors();
     init_pipelines();
     init_imgui();
@@ -466,29 +466,6 @@ void VulkanEngine::init_vulkan() {
     // VMA allocator will be destroyed in cleanup() - no need for deletion queue
 }
 
-void VulkanEngine::init_sync_structures() {
-    const VkFenceCreateInfo fenceCreateInfo =
-            vkinit::fence_create_info(VK_FENCE_CREATE_SIGNALED_BIT);
-    const VkSemaphoreCreateInfo semaphoreCreateInfo =
-            vkinit::semaphore_create_info();
-
-    for (auto& _frame : _frames) {
-        VkFence renderFence;
-        VK_CHECK(vkCreateFence(_device, &fenceCreateInfo, nullptr, &renderFence));
-        _frame._renderFence = std::make_unique<VulkanFence>(_device, renderFence);
-
-        VkSemaphore swapchainSemaphore, renderSemaphore;
-        VK_CHECK(vkCreateSemaphore(_device, &semaphoreCreateInfo, nullptr, &swapchainSemaphore));
-        VK_CHECK(vkCreateSemaphore(_device, &semaphoreCreateInfo, nullptr, &renderSemaphore));
-        
-        _frame._swapchainSemaphore = std::make_unique<VulkanSemaphore>(_device, swapchainSemaphore);
-        _frame._renderSemaphore = std::make_unique<VulkanSemaphore>(_device, renderSemaphore);
-    }
-
-    VkFence immFence;
-    VK_CHECK(vkCreateFence(_device, &fenceCreateInfo, nullptr, &immFence));
-    _immFence = std::make_unique<VulkanFence>(_device, immFence);
-}
 
 void VulkanEngine::create_swapchain(uint32_t width, uint32_t height) {
     vkb::SwapchainBuilder swapchainBuilder{_chosenGPU, _device, _surface};
@@ -621,7 +598,7 @@ void VulkanEngine::cleanup() {
 
         // Smart pointers will automatically clean up resources
 
-        for (auto& _frame : _frames) {
+        for (auto& _frame : command_buffers_container._frames) {
             // Smart pointers automatically clean up sync objects
             // Manual cleanup only for command pools and command buffers
             if (_frame._commandPool) {
