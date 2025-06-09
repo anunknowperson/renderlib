@@ -1,0 +1,11 @@
+#!/bin/sh
+
+files=$(git diff --cached --name-only --diff-filter=ACM | grep '\.[ch]pp$')
+if [ "$files" != "" ]; then
+    clang-format -i $files
+    git add $files
+    echo "Pre-commit hook: formatted and re-staged the following files:"
+    echo "$files"
+fi
+
+exit 0
