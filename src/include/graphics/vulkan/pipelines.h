@@ -37,9 +37,14 @@ struct GLTFMetallic_Roughness {
     DescriptorWriter writer;
 
     void build_pipelines(VulkanEngine* engine);
-    void clear_resources(VkDevice device);
+    VkDevice device{VK_NULL_HANDLE};
+    ~GLTFMetallic_Roughness() {
+            vkDestroyPipelineLayout(device, opaquePipeline.layout, nullptr);
+            vkDestroyPipeline(device, opaquePipeline.pipeline, nullptr);
+            vkDestroyPipeline(device, transparentPipeline.pipeline, nullptr);
+    }
     MaterialInstance write_material(
-            VkDevice device, MaterialPass pass,
+            MaterialPass pass,
             const MaterialResources& resources,
             DescriptorAllocatorGrowable& descriptorAllocator);
 
