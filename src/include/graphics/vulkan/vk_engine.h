@@ -180,19 +180,15 @@ public:
     std::unique_ptr<VulkanImage> _errorCheckerboardImage;
 
     struct Sampler {
-        VkSampler sampler{VK_NULL_HANDLE};
-        VkDevice device{VK_NULL_HANDLE};
-        const VkAllocationCallbacks* allocator{VK_NULL_HANDLE};
+        explicit operator VkSampler() const;
         void create(const VkDevice& pDevice,
             const VkSamplerCreateInfo* pCreateInfo,
-            const VkAllocationCallbacks* pAllocator) {
-            device = pDevice;
-            allocator = pAllocator;
-            vkCreateSampler(device, pCreateInfo, pAllocator, &sampler);
-        }
-        ~Sampler() {
-            vkDestroySampler(device, sampler, allocator);
-        }
+            const VkAllocationCallbacks* pAllocator);
+        ~Sampler();
+    private:
+        VkSampler _sampler{VK_NULL_HANDLE};
+        VkDevice _device{VK_NULL_HANDLE};
+        const VkAllocationCallbacks* _allocator{VK_NULL_HANDLE};
     };
     Sampler _defaultSamplerLinear;
     Sampler _defaultSamplerNearest;

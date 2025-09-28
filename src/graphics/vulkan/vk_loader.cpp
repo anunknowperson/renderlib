@@ -319,9 +319,9 @@ std::optional<std::shared_ptr<LoadedGLTF>> loadGltf(VulkanEngine* engine,
         GLTFMetallic_Roughness::MaterialResources materialResources;
 
         materialResources.colorImage = engine->_whiteImage->get();
-        materialResources.colorSampler = engine->_defaultSamplerLinear.sampler;
+        materialResources.colorSampler = static_cast<VkSampler>(engine->_defaultSamplerLinear);
         materialResources.metalRoughImage = engine->_whiteImage->get();
-        materialResources.metalRoughSampler = engine->_defaultSamplerLinear.sampler;
+        materialResources.metalRoughSampler = static_cast<VkSampler>(engine->_defaultSamplerLinear);
         materialResources.dataBuffer = file.materialDataBuffer.buffer;
         materialResources.dataBufferOffset =
                 data_index * sizeof(GLTFMetallic_Roughness::MaterialConstants);
@@ -356,9 +356,9 @@ std::optional<std::shared_ptr<LoadedGLTF>> loadGltf(VulkanEngine* engine,
 
         GLTFMetallic_Roughness::MaterialResources resources;
         resources.colorImage = engine->_whiteImage->get();
-        resources.colorSampler = engine->_defaultSamplerLinear.sampler;
+        resources.colorSampler = static_cast<VkSampler>(engine->_defaultSamplerLinear);
         resources.metalRoughImage = engine->_whiteImage->get();
-        resources.metalRoughSampler = engine->_defaultSamplerLinear.sampler;
+        resources.metalRoughSampler = static_cast<VkSampler>(engine->_defaultSamplerLinear);
         resources.dataBuffer = file.materialDataBuffer.buffer;
         resources.dataBufferOffset = 0;
 

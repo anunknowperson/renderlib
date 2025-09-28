@@ -90,6 +90,20 @@ VulkanEngine::Allocator::~Allocator() {
 
 VulkanEngine::Allocator::operator VmaAllocator() const { return _allocator; }
 
+void VulkanEngine::Sampler::create(const VkDevice& pDevice,
+            const VkSamplerCreateInfo* pCreateInfo,
+            const VkAllocationCallbacks* pAllocator) {
+    _device = pDevice;
+    _allocator = pAllocator;
+    vkCreateSampler(_device, pCreateInfo, pAllocator, &_sampler);
+}
+
+VulkanEngine::Sampler::~Sampler() {
+    vkDestroySampler(_device, _sampler, _allocator);
+}
+
+VulkanEngine::Sampler::operator VkSampler() const { return _sampler; }
+
 VKAPI_ATTR VkBool32 VKAPI_CALL VulkanEngine::debugCallback(
         VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
         VkDebugUtilsMessageTypeFlagsEXT messageType,
@@ -208,9 +222,9 @@ void VulkanEngine::init_default_data() {
     GLTFMetallic_Roughness::MaterialResources materialResources{};
     // default the material textures
     materialResources.colorImage = _whiteImage->get();
-    materialResources.colorSampler = _defaultSamplerLinear.sampler;
+    materialResources.colorSampler = static_cast<VkSampler>(_defaultSamplerLinear);
     materialResources.metalRoughImage = _whiteImage->get();
-    materialResources.metalRoughSampler = _defaultSamplerLinear.sampler;
+    materialResources.metalRoughSampler = static_cast<VkSampler>(_defaultSamplerLinear);
 
     // set the uniform buffer for the material data
     const AllocatedBuffer materialConstants = create_buffer(
@@ -784,7 +798,7 @@ void VulkanEngine::draw_geometry(VkCommandBuffer cmd) {
             static_cast<VkDevice>(device), _singleImageDescriptorLayout.set);
     DescriptorWriter single_image_writer;
     single_image_writer.write_image(0, _errorCheckerboardImage->imageView(),
-                                    _defaultSamplerNearest.sampler,
+                                    static_cast<VkSampler>(_defaultSamplerNearest),
                                     VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
                                     VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER);
     single_image_writer.update_set(static_cast<VkDevice>(device), imageSet);
