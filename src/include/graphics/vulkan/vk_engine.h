@@ -181,6 +181,15 @@ public:
                                   VmaMemoryUsage memoryUsage) const;
 
 private:
+    struct Imgui {
+        explicit Imgui(const VulkanEngine& engine);
+        ~Imgui();
+    private:
+        VkDescriptorPool _imguiPool;
+        void initImguiPool(const VkDevice& device);
+        const VkDevice _device;
+    };
+    std::unique_ptr<Imgui> _imgui;
     // Smart pointer collections for automatic cleanup
     std::vector<std::unique_ptr<VulkanBuffer>> _managedBuffers;
     std::vector<std::unique_ptr<VulkanImage>> _managedImages;
