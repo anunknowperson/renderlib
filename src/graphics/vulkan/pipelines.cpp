@@ -22,7 +22,7 @@ void GLTFMetallic_Roughness::build_pipelines(VulkanEngine* engine) {
 }
 
 VkShaderModule GLTFMetallic_Roughness::load_shader(VulkanEngine* engine,
-                                                   const char* relative_path,
+                                                   const std::filesystem::path& relative_path,
                                                    const char* type) {
     VkShaderModule shaderModule;
     if (!vkutil::load_shader_module(relative_path, engine->_device,

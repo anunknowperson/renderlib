@@ -1,12 +1,13 @@
 ﻿#pragma once
 
+#include <filesystem>
 #include <vector>
 #include <vulkan/vulkan_core.h>
 
 namespace vkutil {
 
-bool load_shader_module(const char* filePath, VkDevice device,
-                        VkShaderModule* outShaderModule);
+bool load_shader_module(const std::filesystem::path& filePath,
+                        VkDevice device, VkShaderModule* outShaderModule);
 
 };
 

@@ -22,13 +22,15 @@ void GraphicsPipeline::init(VkDevice device) {
     VK_CHECK(vkCreatePipelineLayout(device, &layoutInfo, nullptr, &_pipelineLayout));
     
     VkShaderModule vertexShader;
-    if (!vkutil::load_shader_module(_config.vertexShaderPath.c_str(), _device, &vertexShader)) {
+    if (!vkutil::load_shader_module(_config.vertexShaderPath, _device,
+                                    &vertexShader)) {
         fmt::println("Error when building the vertex shader");
         return;
     }
     
     VkShaderModule fragmentShader;
-    if (!vkutil::load_shader_module(_config.fragmentShaderPath.c_str(), _device, &fragmentShader)) {
+    if (!vkutil::load_shader_module(_config.fragmentShaderPath, _device,
+                                    &fragmentShader)) {
         fmt::println("Error when building the fragment shader");
         vkDestroyShaderModule(_device, vertexShader, nullptr);
         return;

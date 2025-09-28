@@ -11,8 +11,8 @@
 class GraphicsPipeline : public IPipeline {
 public:
     struct GraphicsPipelineConfig {
-        std::string vertexShaderPath;
-        std::string fragmentShaderPath;
+        std::filesystem::path vertexShaderPath;
+        std::filesystem::path fragmentShaderPath;
         std::vector<VkDescriptorSetLayout> descriptorSetLayouts;
         VkFormat colorFormat;
         VkFormat depthFormat;

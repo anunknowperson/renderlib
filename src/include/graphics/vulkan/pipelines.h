@@ -44,7 +44,8 @@ struct GLTFMetallic_Roughness {
             DescriptorAllocatorGrowable& descriptorAllocator);
 
 private:
-    VkShaderModule load_shader(VulkanEngine* engine, const char* path,
+    VkShaderModule load_shader(VulkanEngine* engine,
+                               const std::filesystem::path& relative_path,
                                const char* type);
     void create_material_layout(VulkanEngine* engine);
     VkPipelineLayout create_pipeline_layout(VulkanEngine* engine);

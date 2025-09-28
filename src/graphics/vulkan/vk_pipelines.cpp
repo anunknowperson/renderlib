@@ -9,11 +9,11 @@
 
 #include "graphics/vulkan/vk_initializers.h"
 
-bool vkutil::load_shader_module(const char* filePath, VkDevice device,
+bool vkutil::load_shader_module(const std::filesystem::path& filePath, VkDevice device,
                                 VkShaderModule* outShaderModule) {
     // open the file. With cursor at the end
     if (!std::filesystem::exists(filePath)) {
-        LOGE("Shader file does not exist: {}", filePath);
+        LOGE("Shader file does not exist: {}", filePath.c_str());
         return false;
     }
 
@@ -21,7 +21,7 @@ bool vkutil::load_shader_module(const char* filePath, VkDevice device,
     std::ifstream file(filePath, std::ios::ate | std::ios::binary);
 
     if (!file.is_open()) {
-        LOGE("Failed to open shader file: {}", filePath);
+        LOGE("Failed to open shader file: {}", filePath.c_str());
         return false;
     }
 
@@ -31,7 +31,7 @@ bool vkutil::load_shader_module(const char* filePath, VkDevice device,
     const auto fileSize = file.tellg();
 
     if (fileSize == -1) {
-        LOGE("Failed to open file {}", filePath);
+        LOGE("Failed to open file {}", filePath.c_str());
         return false;
     }
 

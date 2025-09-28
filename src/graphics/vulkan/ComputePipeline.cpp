@@ -17,7 +17,8 @@ void ComputePipeline::init(VkDevice device) {
     VK_CHECK(vkCreatePipelineLayout(_device, &computeLayout, nullptr, &_pipelineLayout));
     
     VkShaderModule computeShader;
-    if (!vkutil::load_shader_module(_config.shaderPath.c_str(), _device, &computeShader)) {
+    if (!vkutil::load_shader_module(_config.shaderPath, _device,
+                                    &computeShader)) {
         fmt::println("Error when building the compute shader \n");
         return;
     }

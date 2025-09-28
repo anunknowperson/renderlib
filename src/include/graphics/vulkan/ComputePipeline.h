@@ -10,7 +10,7 @@ class ComputePipeline : public IPipeline {
 public:
     struct ComputePipelineConfig {
         VkDescriptorSetLayout descriptorSetLayout;
-        std::string shaderPath;
+        std::filesystem::path shaderPath;
         std::function<void(VkDevice, VkPipeline, VkPipelineLayout)> customSetupCallback = nullptr;
     };
 
