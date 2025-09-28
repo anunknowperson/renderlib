@@ -83,6 +83,7 @@ void GLTFMetallic_Roughness::build_opaque_pipeline(VulkanEngine* engine,
     pipelineBuilder._pipelineLayout = layout;
 
     opaquePipeline.pipeline = pipelineBuilder.build_pipeline(engine->getRawDevice());
+    opaquePipeline._device = engine->getRawDevice();
 }
 
 void GLTFMetallic_Roughness::build_transparent_pipeline(
