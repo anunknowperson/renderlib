@@ -50,7 +50,7 @@ VkPipelineLayout GLTFMetallic_Roughness::create_pipeline_layout(
     matrixRange.size = sizeof(GPUDrawPushConstants);
     matrixRange.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
 
-    VkDescriptorSetLayout layouts[] = {engine->_gpuSceneDataDescriptorLayout,
+    VkDescriptorSetLayout layouts[] = {engine->_gpuSceneDataDescriptorLayout.set,
                                        materialLayout};
     VkPipelineLayoutCreateInfo mesh_layout_info =
             vkinit::pipeline_layout_create_info();

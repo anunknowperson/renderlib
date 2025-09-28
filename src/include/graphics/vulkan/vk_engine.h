@@ -140,7 +140,22 @@ public:
     DescriptorAllocatorGrowable globalDescriptorAllocator;
 
     VkDescriptorSet _drawImageDescriptors;
-    VkDescriptorSetLayout _drawImageDescriptorLayout;
+    struct DescriptorSetLayout {
+        VkDescriptorSetLayout set{VK_NULL_HANDLE};
+        VkDevice device{VK_NULL_HANDLE};
+        void create(const VkDevice pDevice,
+                    const VkShaderStageFlags pShaderStages,
+                    const VkDescriptorType pType) {
+            device = pDevice;
+            DescriptorLayoutBuilder builder;
+            builder.add_binding(0, pType);
+            set = builder.build(pDevice, pShaderStages);
+        }
+        ~DescriptorSetLayout() {
+            vkDestroyDescriptorSetLayout(device, set, nullptr);
+        }
+    };
+    DescriptorSetLayout _drawImageDescriptorLayout;
 
 
     GPUMeshBuffers rectangle;
@@ -154,7 +169,7 @@ public:
 
     GPUSceneData sceneData;
 
-    VkDescriptorSetLayout _gpuSceneDataDescriptorLayout;
+    DescriptorSetLayout _gpuSceneDataDescriptorLayout;
 
     AllocatedImage create_image(VkExtent3D size, VkFormat format,
                                 VkImageUsageFlags usage,
@@ -172,7 +187,7 @@ public:
     VkSampler _defaultSamplerLinear;
     VkSampler _defaultSamplerNearest;
 
-    VkDescriptorSetLayout _singleImageDescriptorLayout;
+    DescriptorSetLayout _singleImageDescriptorLayout;
 
     MaterialInstance defaultData;
     GLTFMetallic_Roughness metalRoughMaterial;
