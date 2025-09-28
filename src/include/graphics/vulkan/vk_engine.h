@@ -64,6 +64,34 @@ struct DrawContext {
 
 class VulkanEngine {
 public:
+    struct Instance {
+        vkb::Instance instance;
+        void init();
+        ~Instance();
+    };
+    Instance _instance;
+
+    struct Device {
+        vkb::Device device;
+        void init(const vkb::PhysicalDevice& physical_device) {
+            const vkb::DeviceBuilder device_builder{physical_device};
+            auto dev_ret = device_builder.build();
+            if (!dev_ret) {
+                LOGE("Failed to create logical device. Error: {}",
+                     dev_ret.error().message());
+            }
+            device = dev_ret.value();
+        }
+        ~Device() {vkb::destroy_device(device);}
+    };
+    Device _device;
+    VkDevice getRawDevice() const { return _device.device; }
+    struct Allocator {
+        VmaAllocator _allocator{nullptr};
+        void init(VmaAllocatorCreateInfo info) {vmaCreateAllocator(&info, &_allocator);} // move info inside
+        ~Allocator() {vmaDestroyAllocator(_allocator);}
+    };
+    Allocator _a; // todo: rename
 
     Pipelines pipelines;
 
