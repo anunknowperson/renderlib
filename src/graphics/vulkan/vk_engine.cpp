@@ -267,31 +267,13 @@ void VulkanEngine::init_descriptors() {
     globalDescriptorAllocator.init(getRawDevice(), 10, sizes);
 
     // make the descriptor set layout for our compute draw
-    {
-        DescriptorLayoutBuilder builder;
-        builder.add_binding(0, VK_DESCRIPTOR_TYPE_STORAGE_IMAGE);
-        _drawImageDescriptorLayout =
-                builder.build(getRawDevice(), VK_SHADER_STAGE_COMPUTE_BIT);
-    }
-
-    {
-        DescriptorLayoutBuilder builder;
-        builder.add_binding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER);
-        _gpuSceneDataDescriptorLayout =
-                builder.build(getRawDevice(), VK_SHADER_STAGE_VERTEX_BIT |
-                                               VK_SHADER_STAGE_FRAGMENT_BIT);
-    }
-
-    {
-        DescriptorLayoutBuilder builder;
-        builder.add_binding(0, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER);
-        _singleImageDescriptorLayout =
-                builder.build(getRawDevice(), VK_SHADER_STAGE_FRAGMENT_BIT);
-    }
+    _drawImageDescriptorLayout.create(getRawDevice(), VK_SHADER_STAGE_COMPUTE_BIT, VK_DESCRIPTOR_TYPE_STORAGE_IMAGE);
+    _gpuSceneDataDescriptorLayout.create(getRawDevice(), VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER);
+    _singleImageDescriptorLayout.create(getRawDevice(), VK_SHADER_STAGE_FRAGMENT_BIT, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER);
 
     // allocate a descriptor set for our draw image
     _drawImageDescriptors = globalDescriptorAllocator.allocate(
-            getRawDevice(), _drawImageDescriptorLayout);
+            getRawDevice(), _drawImageDescriptorLayout.set);
 
     DescriptorWriter writer;
     writer.write_image(0, _drawImage->imageView(), VK_NULL_HANDLE,
@@ -317,7 +299,7 @@ void VulkanEngine::init_descriptors() {
 }
 
 void VulkanEngine::init_pipelines() {
-    pipelines.init(getRawDevice(), _singleImageDescriptorLayout, _drawImageDescriptorLayout, _drawImage->get());
+    pipelines.init(getRawDevice(), _singleImageDescriptorLayout.set, _drawImageDescriptorLayout.set, _drawImage->get());
     // Pipeline cleanup is handled automatically by the Pipelines object
     metalRoughMaterial.build_pipelines(this);
 }
@@ -763,7 +745,7 @@ void VulkanEngine::draw_geometry(VkCommandBuffer cmd) {
     // create a descriptor set that binds that buffer and update it
     VkDescriptorSet globalDescriptor =
             get_current_frame()._frameDescriptors.allocate(
-                    getRawDevice(), _gpuSceneDataDescriptorLayout);
+                    getRawDevice(), _gpuSceneDataDescriptorLayout.set);
 
     DescriptorWriter writer;
     writer.write_buffer(0, gpuSceneDataBuffer.buffer, sizeof(GPUSceneData), 0,
@@ -800,7 +782,7 @@ void VulkanEngine::draw_geometry(VkCommandBuffer cmd) {
 
     // bind a texture
     VkDescriptorSet imageSet = get_current_frame()._frameDescriptors.allocate(
-            getRawDevice(), _singleImageDescriptorLayout);
+            getRawDevice(), _singleImageDescriptorLayout.set);
     DescriptorWriter single_image_writer;
     single_image_writer.write_image(0, _errorCheckerboardImage->imageView(),
                                     _defaultSamplerNearest.sampler,
