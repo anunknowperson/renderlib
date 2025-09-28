@@ -8,6 +8,7 @@
 #include <glm/ext/matrix_float4x4.hpp>
 #include <glm/ext/vector_float4.hpp>
 #include <memory>
+#include <queue>
 #include <span>
 #include <string>
 #include <unordered_map>
@@ -19,6 +20,7 @@
 #include "ComputePipeline.h"
 #include "DescriptorSetLayout.h"
 #include "Device.h"
+#include "VulkanInit.h"
 #include "core/ModelImpl.h"
 #include "pipelines.h"
 #include "vk_command_buffers.h"
@@ -66,26 +68,11 @@ struct DrawContext {
 };
 
 class VulkanEngine {
+    VulkanInit info;
 public:
-    struct Instance {
-        explicit operator VkInstance() const;
-        explicit operator vkb::Instance() const;
-        void init();
-        ~Instance();
-    private:
-        vkb::Instance _instance;
-    };
-    Instance instance;
-    Device device;
-
-    struct Allocator {
-        explicit operator VmaAllocator() const;
-        void init(const VkPhysicalDevice& gpu, const VkDevice& device, const VkInstance& instance);
-        ~Allocator();
-    private:
-        VmaAllocator _allocator{VK_NULL_HANDLE};
-    };
-    Allocator allocator;
+    VkDevice getLogicalDevice() const { return info.getLogicalDevice(); }
+    VkQueue getQueue() const { return info.getQueue(); }
+    uint32_t getQueueIndex() const { return info.getQueueIndex(); }
 
     Pipelines pipelines;
 
@@ -113,9 +100,6 @@ public:
         return command_buffers_container.get_current_frame(_frameNumber);
     };
 
-    VkQueue _graphicsQueue;
-    uint32_t _graphicsQueueFamily;
-
     bool _isInitialized{false};
     unsigned int _frameNumber{0};
     bool stop_rendering{false};
@@ -131,8 +115,6 @@ public:
     // run main loop
     void update();
 
-    VkPhysicalDevice _chosenGPU;  // GPU chosen as the default device
-    VkSurfaceKHR _surface;        // Vulkan window surface
 
     VkSwapchainKHR _swapchain;
     VkFormat _swapchainImageFormat;
@@ -203,13 +185,6 @@ public:
 
     // initializes everything in the engine
     VulkanEngine(Camera& camera);
-    struct Window {
-        SDL_Window* ptr;
-        Window() : ptr{SDL_CreateWindow("engine", SDL_WINDOWPOS_UNDEFINED,
-                              SDL_WINDOWPOS_UNDEFINED, 1700, 900, SDL_WINDOW_VULKAN | SDL_WINDOW_RESIZABLE)} {}
-        ~Window() { SDL_DestroyWindow(ptr); }
-    };
-    Window _window;
     ~VulkanEngine();
     void destroy_buffer(const AllocatedBuffer& buffer) const;
 private:
@@ -228,13 +203,6 @@ private:
     std::vector<std::unique_ptr<VulkanBuffer>> _managedBuffers;
     std::vector<std::unique_ptr<VulkanImage>> _managedImages;
 
-    static VKAPI_ATTR VkBool32 VKAPI_CALL
-    debugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
-                  VkDebugUtilsMessageTypeFlagsEXT messageType,
-                  const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData,
-                  void* pUserData);
-
-    void init_vulkan();
     void init_swapchain();
 
     void create_swapchain(uint32_t width, uint32_t height);

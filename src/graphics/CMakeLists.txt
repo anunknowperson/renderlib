@@ -13,5 +13,6 @@ target_sources(${PROJECT_NAME}
         vulkan/DescriptorSetLayout.cpp
         vulkan/Device.cpp
         vulkan/GraphicsPipeline.cpp
+        vulkan/VulkanInit.cpp
         Graphics.cpp
 )
