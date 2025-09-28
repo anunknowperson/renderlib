@@ -29,6 +29,38 @@
     {
       "name": "fastgltf",
       "version": "0.7.1"
+    },
+    {
+      "name": "flecs",
+      "version": "4.0.2"
+    },
+    {
+      "name": "gtest",
+      "version": "1.15.2"
+    },
+    {
+      "name": "imgui",
+      "version": "1.91.0"
+    },
+    {
+      "name": "sdl2",
+      "version": "2.30.8"
+    },
+    {
+      "name": "simdjson",
+      "version": "3.10.1"
+    },
+    {
+      "name": "spdlog",
+      "version": "1.14.1"
+    },
+    {
+      "name": "vulkan-headers",
+      "version": "1.3.290.0#1"
+    },
+    {
+      "name": "vulkan-loader",
+      "version": "1.3.290.0"
     }
   ]
 }
