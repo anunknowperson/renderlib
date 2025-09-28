@@ -4,10 +4,6 @@
 
 #include "core/Mesh.h"
 
-ModelImpl::~ModelImpl() {
-    _engine.cleanup();
-}
-
 ModelImpl::ModelImpl() = default;
 
 void ModelImpl::registerWindow(SDL_Window *window) {
