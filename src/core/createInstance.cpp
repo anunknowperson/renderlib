@@ -3,7 +3,7 @@
 #include "core/Model.h"
 
 IController::Ptr createInstance() {
-    const auto model = createModel();
-    const auto controller = createController(model);
+
+    const auto controller = createController();
     return controller;
 }

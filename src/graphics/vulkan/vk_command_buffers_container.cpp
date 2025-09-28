@@ -15,18 +15,18 @@ void CommandBuffersContainer::init_sync_structures(VulkanEngine* vk_engine) {
 
     for (auto& _frame : _frames) {
         VkFence renderFence;
-        VK_CHECK(vkCreateFence(vk_engine->_device, &fenceCreateInfo, nullptr, &renderFence));
-        _frame._renderFence = std::make_unique<VulkanFence>(vk_engine->_device, renderFence);
+        VK_CHECK(vkCreateFence(vk_engine->getRawDevice(), &fenceCreateInfo, nullptr, &renderFence));
+        _frame._renderFence = std::make_unique<VulkanFence>(vk_engine->getRawDevice(), renderFence);
 
         VkSemaphore swapchainSemaphore, renderSemaphore;
-        VK_CHECK(vkCreateSemaphore(vk_engine->_device, &semaphoreCreateInfo, nullptr, &swapchainSemaphore));
-        VK_CHECK(vkCreateSemaphore(vk_engine->_device, &semaphoreCreateInfo, nullptr, &renderSemaphore));
-        
-        _frame._swapchainSemaphore = std::make_unique<VulkanSemaphore>(vk_engine->_device, swapchainSemaphore);
-        _frame._renderSemaphore = std::make_unique<VulkanSemaphore>(vk_engine->_device, renderSemaphore);
+        VK_CHECK(vkCreateSemaphore(vk_engine->getRawDevice(), &semaphoreCreateInfo, nullptr, &swapchainSemaphore));
+        VK_CHECK(vkCreateSemaphore(vk_engine->getRawDevice(), &semaphoreCreateInfo, nullptr, &renderSemaphore));
+
+        _frame._swapchainSemaphore = std::make_unique<VulkanSemaphore>(vk_engine->getRawDevice(), swapchainSemaphore);
+        _frame._renderSemaphore = std::make_unique<VulkanSemaphore>(vk_engine->getRawDevice(), renderSemaphore);
     }
 
     VkFence immFence;
-    VK_CHECK(vkCreateFence(vk_engine->_device, &fenceCreateInfo, nullptr, &immFence));
-    _immFence = std::make_unique<VulkanFence>(vk_engine->_device, immFence);
+    VK_CHECK(vkCreateFence(vk_engine->getRawDevice(), &fenceCreateInfo, nullptr, &immFence));
+    _immFence = std::make_unique<VulkanFence>(vk_engine->getRawDevice(), immFence);
 }

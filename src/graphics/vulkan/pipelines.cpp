@@ -17,15 +17,15 @@ void GLTFMetallic_Roughness::build_pipelines(VulkanEngine* engine) {
     build_transparent_pipeline(engine, meshVertexShader, meshFragShader,
                                newLayout);
 
-    vkDestroyShaderModule(engine->_device, meshFragShader, nullptr);
-    vkDestroyShaderModule(engine->_device, meshVertexShader, nullptr);
+    vkDestroyShaderModule(engine->getRawDevice(), meshFragShader, nullptr);
+    vkDestroyShaderModule(engine->getRawDevice(), meshVertexShader, nullptr);
 }
 
 VkShaderModule GLTFMetallic_Roughness::load_shader(VulkanEngine* engine,
                                                    const char* relative_path,
                                                    const char* type) {
     VkShaderModule shaderModule;
-    if (!vkutil::load_shader_module(relative_path, engine->_device,
+    if (!vkutil::load_shader_module(relative_path, engine->getRawDevice(),
                                     &shaderModule)) {
         fmt::println("Error when building the {} shader module", type);
     }
@@ -39,7 +39,7 @@ void GLTFMetallic_Roughness::create_material_layout(VulkanEngine* engine) {
     layoutBuilder.add_binding(2, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER);
 
     materialLayout = layoutBuilder.build(
-            engine->_device,
+            engine->getRawDevice(),
             VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT);
 }
 
@@ -60,7 +60,7 @@ VkPipelineLayout GLTFMetallic_Roughness::create_pipeline_layout(
     mesh_layout_info.pushConstantRangeCount = 1;
 
     VkPipelineLayout newLayout;
-    VK_CHECK(vkCreatePipelineLayout(engine->_device, &mesh_layout_info, nullptr,
+    VK_CHECK(vkCreatePipelineLayout(engine->getRawDevice(), &mesh_layout_info, nullptr,
                                     &newLayout));
 
     return newLayout;
@@ -82,7 +82,7 @@ void GLTFMetallic_Roughness::build_opaque_pipeline(VulkanEngine* engine,
     pipelineBuilder.set_depth_format(engine->_depthImage->get().imageFormat);
     pipelineBuilder._pipelineLayout = layout;
 
-    opaquePipeline.pipeline = pipelineBuilder.build_pipeline(engine->_device);
+    opaquePipeline.pipeline = pipelineBuilder.build_pipeline(engine->getRawDevice());
 }
 
 void GLTFMetallic_Roughness::build_transparent_pipeline(
@@ -95,7 +95,7 @@ void GLTFMetallic_Roughness::build_transparent_pipeline(
     pipelineBuilder._pipelineLayout = layout;
 
     transparentPipeline.pipeline =
-            pipelineBuilder.build_pipeline(engine->_device);
+            pipelineBuilder.build_pipeline(engine->getRawDevice());
 }
 
 MaterialInstance GLTFMetallic_Roughness::write_material(

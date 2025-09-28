@@ -1,5 +1,11 @@
 #pragma once
 
+#include <memory>
+
+struct Event {
+    virtual ~Event() = default;
+};
+
 /*! \brief
  *
  * Interface to show user their interaction abilities
@@ -9,18 +15,6 @@ class IView {
 public:
     virtual ~IView() = default;
 
-    virtual void run() const = 0;
-
-    /*! \brief
-     * Prints in console current settings
-     * (level of brightness and RGB)
-     */
-    // virtual void showCurrentSettings() const = 0;
-
-    /*! \brief
-     * Runs user interface that helps user interact with backlight
-     */
-    // virtual void runMenu() const = 0;
-
+    virtual void render() = 0;
     using Ptr = std::unique_ptr<IView>;
 };

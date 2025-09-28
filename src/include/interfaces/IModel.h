@@ -1,13 +1,8 @@
 #pragma once
 
-#include <array>
-#include <cstdint>
 #include <memory>
 #include <string>
-#include <string_view>
 
-#include "SDL2/SDL.h"
-#include "SDL2/SDL_vulkan.h"
 #include "scene/Camera.h"
 
 /*!
@@ -37,7 +32,7 @@ public:
      * It is essential to call this method before performing any Vulkan
      * rendering operations.
      */
-    virtual void registerWindow(struct SDL_Window* window) = 0;
+    // virtual void registerWindow(struct SDL_Window* window) = 0;
 
     /*!
      * \brief Updates Vulkan-related states.
@@ -77,28 +72,6 @@ public:
      * model. Can be used to access and modify camera properties.
      */
     [[nodiscard]] virtual Camera* getCamera() = 0;
-
-    /*! \brief
-     * Gets the chip handler from HIDAPI required to change the settings by the
-     * Controller
-     * @return
-     * Returns the device handler in case, can't be nullptr
-     */
-    //[[nodiscard]] virtual hid_device* getChipHandler() const = 0;
-
-    /*! \brief
-     * Requests from chip the level of brightness
-     * @return
-     * Returns the level of brightness [0; 100]
-     */
-    // virtual uint8_t getBrightness() = 0;
-
-    /*! \brief
-     * Requests RGB values from the chip
-     * @return
-     * Returns the struct with .R, .G, .B fields
-     */
-    // virtual Color getRGB() = 0;
 
     using Ptr = std::shared_ptr<IModel>;
 };

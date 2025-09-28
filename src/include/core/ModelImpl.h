@@ -5,10 +5,10 @@
 #include <string>
 #include <unordered_map>
 
-#include "graphics/vulkan/vk_engine.h"
 #include "interfaces/IModel.h"
 #include "scene/Camera.h"
 
+class VulkanEngine;
 class Mesh;
 
 class ModelImpl : public IModel {
@@ -16,12 +16,11 @@ public:
     /*! \brief
      * throws std::runtime_error()
      */
-    ModelImpl();
+    explicit ModelImpl();
 
     ModelImpl(const ModelImpl &) = delete;
     ModelImpl &operator=(const ModelImpl &) = delete;
 
-    void registerWindow(struct SDL_Window *window) override;
     void updateVulkan() override;
 
     void createMesh(std::string name) override;
@@ -31,8 +30,6 @@ public:
 
 private:
     std::unordered_map<std::string, std::shared_ptr<Mesh>> _meshes;
-
-    VulkanEngine _engine;
-
     Camera _camera;
+    std::shared_ptr<VulkanEngine> _engine;
 };

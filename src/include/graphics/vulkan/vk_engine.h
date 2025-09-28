@@ -1,5 +1,7 @@
 ﻿#pragma once
 
+#include <SDL_video.h>
+#include <VkBootstrap.h>
 #include <cstddef>
 #include <cstdint>
 #include <glm/ext/matrix_float4x4.hpp>
@@ -9,22 +11,21 @@
 #include <string>
 #include <unordered_map>
 #include <vector>
+#include <cstdio>
 #include <vk_mem_alloc.h>
 #include <vulkan/vk_platform.h>
 #include <vulkan/vulkan_core.h>
 
-#include "vk_descriptors.h"
-#include "vk_types.h"
-#include "vk_smart_wrappers.h"
-
-#include "pipelines.h"
 #include "ComputePipeline.h"
-
+#include "core/ModelImpl.h"
+#include "pipelines.h"
 #include "vk_command_buffers.h"
 #include "vk_command_buffers_container.h"
+#include "vk_descriptors.h"
+#include "vk_smart_wrappers.h"
+#include "vk_types.h"
 
 class Camera;
-class VulkanEngine;
 struct DrawContext;
 struct LoadedGLTF;
 struct MeshAsset;
@@ -65,6 +66,39 @@ struct DrawContext {
 class VulkanEngine {
 public:
 
+
+    struct Instance {
+        VkInstance _instance{nullptr};                       // Vulkan library handle //todo: get
+        VkDebugUtilsMessengerEXT _debug_messenger{nullptr};  // Vulkan debug output handle
+        void init(const vkb::Instance& vkb_inst) {
+            _instance = vkb_inst.instance;
+            _debug_messenger = vkb_inst.debug_messenger;
+        }
+        ~Instance() {
+            if (_debug_messenger) {
+                vkb::destroy_debug_utils_messenger(_instance, _debug_messenger);
+            }
+            if (_instance) {
+                vkDestroyInstance(_instance, nullptr);
+            }
+        }
+    };
+    Instance _instance;
+
+    struct Device {
+        VkDevice _device{nullptr};             // Vulkan device for commands
+        void init(const vkb::Device& dev) { _device = dev.device; }
+        ~Device() {vkDestroyDevice(_device, nullptr);}
+    };
+    Device _device;
+    struct Allocator {
+        VmaAllocator _allocator{nullptr};
+        void init(VmaAllocatorCreateInfo info) {vmaCreateAllocator(&info, &_allocator);} // move info inside
+        ~Allocator() {vmaDestroyAllocator(_allocator);}
+    };
+    Allocator _a; // todo: rename
+    VkDevice getRawDevice() const { return _device._device; }
+
     Pipelines pipelines;
 
     CommandBuffers command_buffers;
@@ -81,8 +115,6 @@ public:
     std::unordered_map<int64_t, glm::mat4> transforms;
 
     std::unordered_map<std::string, std::shared_ptr<LoadedGLTF>> loadedScenes;
-
-    Camera* mainCamera;
 
     DrawContext mainDrawContext;
     std::unordered_map<std::string, std::shared_ptr<ENode>> loadedNodes;
@@ -101,12 +133,9 @@ public:
     bool stop_rendering{false};
     VkExtent2D _windowExtent{2560, 1440};
 
-    struct SDL_Window* _window{nullptr};
+    Camera* mainCamera;
 
     static VulkanEngine& Get();
-
-    // initializes everything in the engine
-    void init(struct SDL_Window* window);
 
     // draw loop
     void draw();
@@ -114,10 +143,7 @@ public:
     // run main loop
     void update();
 
-    VkInstance _instance;                       // Vulkan library handle
-    VkDebugUtilsMessengerEXT _debug_messenger;  // Vulkan debug output handle
     VkPhysicalDevice _chosenGPU;  // GPU chosen as the default device
-    VkDevice _device;             // Vulkan device for commands
     VkSurfaceKHR _surface;        // Vulkan window surface
 
     VkSwapchainKHR _swapchain;
@@ -126,8 +152,6 @@ public:
     std::vector<VkImage> _swapchainImages;
     std::vector<VkImageView> _swapchainImageViews;
     VkExtent2D _swapchainExtent;
-
-    VmaAllocator _allocator;
 
     std::unique_ptr<VulkanImage> _drawImage;
     std::unique_ptr<VulkanImage> _depthImage;
@@ -176,17 +200,30 @@ public:
 
     AllocatedBuffer create_buffer(size_t allocSize, VkBufferUsageFlags usage,
                                   VmaMemoryUsage memoryUsage) const;
+
+    // initializes everything in the engine
+    VulkanEngine(Camera& camera);
+    struct Window {
+        SDL_Window* ptr;
+        Window() : ptr{SDL_CreateWindow("engine", SDL_WINDOWPOS_UNDEFINED,
+                              SDL_WINDOWPOS_UNDEFINED, 1700, 900, SDL_WINDOW_VULKAN | SDL_WINDOW_RESIZABLE)} {}
+        ~Window() { SDL_DestroyWindow(ptr); }
+    };
+    Window _window;
     ~VulkanEngine();
+    void destroy_buffer(const AllocatedBuffer& buffer) const;
 private:
     struct Imgui {
-        explicit Imgui(const VulkanEngine& engine);
+        void init(const VkDevice& dev, SDL_Window* w,
+     const VkInstance& instance, const VkPhysicalDevice& physicalDevice,
+     const VkQueue& queue, const VkFormat* format);
         ~Imgui();
     private:
-        VkDescriptorPool _imguiPool;
-        void initImguiPool(const VkDevice& device);
-        const VkDevice _device;
+        void initImguiPool();
+        VkDevice _device{nullptr};
+        VkDescriptorPool _imguiPool{nullptr};
     };
-    std::unique_ptr<Imgui> _imgui;
+    Imgui _imgui;
     // Smart pointer collections for automatic cleanup
     std::vector<std::unique_ptr<VulkanBuffer>> _managedBuffers;
     std::vector<std::unique_ptr<VulkanImage>> _managedImages;
@@ -213,8 +250,6 @@ private:
     void draw_imgui(VkCommandBuffer cmd, VkImageView targetImageView) const;
 
     void draw_geometry(VkCommandBuffer cmd);
-
-    void destroy_buffer(const AllocatedBuffer& buffer) const;
 
     void resize_swapchain();
 

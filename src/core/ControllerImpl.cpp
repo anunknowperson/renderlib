@@ -3,15 +3,19 @@
 #include <chrono>
 #include <cmath>
 #include <string>
+#include <thread>
 #include <utility>
 
+#include <SDL_events.h>
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/transform.hpp>
+#include <imgui_impl_sdl2.h>
 
+#include "core/Model.h"
 #include "core/View.h"
 #include "scene/Camera.h"
 
-ControllerImpl::ControllerImpl(IModel::Ptr model) : _model(std::move(model)) {}
+ControllerImpl::ControllerImpl() : _view(createView()), _model(createModel()) {}
 
 double getCurrentGlobalTime() {
     // Get the current time point
@@ -56,8 +60,47 @@ void ControllerImpl::processEvent(SDL_Event &e) const {
     _model->getCamera()->processSDLEvent(e);
 }
 
-void ControllerImpl::init() const {
-    const auto controller = shared_from_this();
-    const auto view = createView(controller, _model);
-    view->run();
+void ControllerImpl::createCubes() const {
+    for (int i = 0; i < 5; i++) {
+        _model->createMesh("cube" + std::to_string(i));
+    }
+}
+
+void ControllerImpl::run() const {
+    createCubes();
+
+    SDL_Event e;
+    bool bQuit = false;
+    bool stop_rendering = false;
+
+    // main loop
+    while (!bQuit) {
+        // Handle events on queue
+        while (SDL_PollEvent(&e) != 0) {
+            // close the window when user alt-f4s or clicks the X button
+            if (e.type == SDL_QUIT) bQuit = true;
+
+            if (e.type == SDL_WINDOWEVENT) {
+                if (e.window.event == SDL_WINDOWEVENT_MINIMIZED) {
+                    stop_rendering = true;
+                }
+                if (e.window.event == SDL_WINDOWEVENT_RESTORED) {
+                    stop_rendering = false;
+                }
+            }
+
+            processEvent(e);
+            ImGui_ImplSDL2_ProcessEvent(&e);
+        }
+
+        // do not draw if we are minimized
+        if (stop_rendering) {
+            // throttle the speed to avoid the endless spinning
+            std::this_thread::sleep_for(std::chrono::milliseconds(100));
+            continue;
+        }
+
+        _view->render();
+        update();
+    }
 }
