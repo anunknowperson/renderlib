@@ -91,13 +91,13 @@ public:
         ~Device() {vkDestroyDevice(_device, nullptr);}
     };
     Device _device;
+    VkDevice getRawDevice() const { return _device._device; }
     struct Allocator {
         VmaAllocator _allocator{nullptr};
         void init(VmaAllocatorCreateInfo info) {vmaCreateAllocator(&info, &_allocator);} // move info inside
         ~Allocator() {vmaDestroyAllocator(_allocator);}
     };
     Allocator _a; // todo: rename
-    VkDevice getRawDevice() const { return _device._device; }
 
     Pipelines pipelines;
 
@@ -190,8 +190,23 @@ public:
     std::unique_ptr<VulkanImage> _greyImage;
     std::unique_ptr<VulkanImage> _errorCheckerboardImage;
 
-    VkSampler _defaultSamplerLinear;
-    VkSampler _defaultSamplerNearest;
+    struct Sampler {
+        VkSampler sampler{VK_NULL_HANDLE};
+        VkDevice device{VK_NULL_HANDLE};
+        const VkAllocationCallbacks* allocator{VK_NULL_HANDLE};
+        void create(const VkDevice& pDevice,
+            const VkSamplerCreateInfo* pCreateInfo,
+            const VkAllocationCallbacks* pAllocator) {
+            device = pDevice;
+            allocator = pAllocator;
+            vkCreateSampler(device, pCreateInfo, pAllocator, &sampler);
+        }
+        ~Sampler() {
+            vkDestroySampler(device, sampler, allocator);
+        }
+    };
+    Sampler _defaultSamplerLinear;
+    Sampler _defaultSamplerNearest;
 
     VkDescriptorSetLayout _singleImageDescriptorLayout;
 
