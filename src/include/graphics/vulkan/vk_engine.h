@@ -69,9 +69,7 @@ public:
     struct Instance {
         vkb::Instance instance;
         void init();
-        ~Instance() {
-            vkb::destroy_instance(instance);
-        }
+        ~Instance();
     };
     Instance _instance;
 

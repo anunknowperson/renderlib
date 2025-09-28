@@ -66,6 +66,10 @@ void VulkanEngine::Instance::init() {
     instance = inst_ret.value();
 }
 
+VulkanEngine::Instance::~Instance() {
+    vkb::destroy_instance(instance);
+}
+
 VKAPI_ATTR VkBool32 VKAPI_CALL VulkanEngine::debugCallback(
         VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
         VkDebugUtilsMessageTypeFlagsEXT messageType,
