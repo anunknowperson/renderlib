@@ -150,7 +150,7 @@ public:
 
     std::vector<std::shared_ptr<MeshAsset>> testMeshes;
 
-    bool resize_requested;
+    bool resize_requested{true};
 
     GPUSceneData sceneData;
 
