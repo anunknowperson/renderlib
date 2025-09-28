@@ -33,14 +33,11 @@ VkShaderModule GLTFMetallic_Roughness::load_shader(VulkanEngine* engine,
 }
 
 void GLTFMetallic_Roughness::create_material_layout(VulkanEngine* engine) {
-    DescriptorLayoutBuilder layoutBuilder;
-    layoutBuilder.add_binding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER);
-    layoutBuilder.add_binding(1, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER);
-    layoutBuilder.add_binding(2, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER);
-
-    materialLayout = layoutBuilder.build(
-            engine->getRawDevice(),
-            VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT);
+    materialLayout.create(engine->getRawDevice(),
+        VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT,
+        {{0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER},
+            {1, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER},
+        {2, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER}});
 }
 
 VkPipelineLayout GLTFMetallic_Roughness::create_pipeline_layout(
@@ -51,7 +48,7 @@ VkPipelineLayout GLTFMetallic_Roughness::create_pipeline_layout(
     matrixRange.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
 
     VkDescriptorSetLayout layouts[] = {engine->_gpuSceneDataDescriptorLayout.set,
-                                       materialLayout};
+                                       materialLayout.set};
     VkPipelineLayoutCreateInfo mesh_layout_info =
             vkinit::pipeline_layout_create_info();
     mesh_layout_info.setLayoutCount = 2;
@@ -106,7 +103,7 @@ MaterialInstance GLTFMetallic_Roughness::write_material(
     matData.pipeline = (pass == MaterialPass::Transparent)
                                ? &transparentPipeline
                                : &opaquePipeline;
-    matData.materialSet = descriptorAllocator.allocate(device, materialLayout);
+    matData.materialSet = descriptorAllocator.allocate(device, materialLayout.set);
 
     writer.clear();
     writer.write_buffer(0, resources.dataBuffer, sizeof(MaterialConstants),

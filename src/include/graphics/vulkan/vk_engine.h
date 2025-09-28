@@ -17,6 +17,7 @@
 #include <vulkan/vulkan_core.h>
 
 #include "ComputePipeline.h"
+#include "DescriptorSetLayout.h"
 #include "core/ModelImpl.h"
 #include "pipelines.h"
 #include "vk_command_buffers.h"
@@ -158,21 +159,7 @@ public:
     DescriptorAllocatorGrowable globalDescriptorAllocator;
 
     VkDescriptorSet _drawImageDescriptors;
-    struct DescriptorSetLayout {
-        VkDescriptorSetLayout set{VK_NULL_HANDLE};
-        VkDevice device{VK_NULL_HANDLE};
-        void create(const VkDevice pDevice,
-                    const VkShaderStageFlags pShaderStages,
-                    const VkDescriptorType pType) {
-            device = pDevice;
-            DescriptorLayoutBuilder builder;
-            builder.add_binding(0, pType);
-            set = builder.build(pDevice, pShaderStages);
-        }
-        ~DescriptorSetLayout() {
-            vkDestroyDescriptorSetLayout(device, set, nullptr);
-        }
-    };
+
     DescriptorSetLayout _drawImageDescriptorLayout;
 
 

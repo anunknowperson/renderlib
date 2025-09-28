@@ -17,6 +17,7 @@
 #include "core/Logging.h"
 #include "core/config.h"
 #include "graphics/vulkan/vk_descriptors.h"
+#include "graphics/vulkan/DescriptorSetLayout.h"
 #include "scene/Camera.h"
 
 
@@ -282,9 +283,9 @@ void VulkanEngine::init_descriptors() {
     globalDescriptorAllocator.init(getRawDevice(), 10, sizes);
 
     // make the descriptor set layout for our compute draw
-    _drawImageDescriptorLayout.create(getRawDevice(), VK_SHADER_STAGE_COMPUTE_BIT, VK_DESCRIPTOR_TYPE_STORAGE_IMAGE);
-    _gpuSceneDataDescriptorLayout.create(getRawDevice(), VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER);
-    _singleImageDescriptorLayout.create(getRawDevice(), VK_SHADER_STAGE_FRAGMENT_BIT, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER);
+    _drawImageDescriptorLayout.create(getRawDevice(), VK_SHADER_STAGE_COMPUTE_BIT, {{0, VK_DESCRIPTOR_TYPE_STORAGE_IMAGE}});
+    _gpuSceneDataDescriptorLayout.create(getRawDevice(), VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, {{0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER}});
+    _singleImageDescriptorLayout.create(getRawDevice(), VK_SHADER_STAGE_FRAGMENT_BIT, {{0, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER}});
 
     // allocate a descriptor set for our draw image
     _drawImageDescriptors = globalDescriptorAllocator.allocate(
