@@ -1,10 +1,14 @@
 ﻿#pragma once
 
+#include <SDL_video.h>
+#include <VkBootstrap.h>
 #include <cstddef>
 #include <cstdint>
+#include <cstdio>
 #include <glm/ext/matrix_float4x4.hpp>
 #include <glm/ext/vector_float4.hpp>
 #include <memory>
+#include <queue>
 #include <span>
 #include <string>
 #include <unordered_map>
@@ -13,18 +17,19 @@
 #include <vulkan/vk_platform.h>
 #include <vulkan/vulkan_core.h>
 
-#include "vk_descriptors.h"
-#include "vk_types.h"
-#include "vk_smart_wrappers.h"
-
-#include "pipelines.h"
 #include "ComputePipeline.h"
-
+#include "DescriptorSetLayout.h"
+#include "Device.h"
+#include "VulkanInit.h"
+#include "core/ModelImpl.h"
+#include "pipelines.h"
 #include "vk_command_buffers.h"
 #include "vk_command_buffers_container.h"
+#include "vk_descriptors.h"
+#include "vk_smart_wrappers.h"
+#include "vk_types.h"
 
 class Camera;
-class VulkanEngine;
 struct DrawContext;
 struct LoadedGLTF;
 struct MeshAsset;
@@ -63,7 +68,11 @@ struct DrawContext {
 };
 
 class VulkanEngine {
+    VulkanInit info;
 public:
+    VkDevice getLogicalDevice() const { return info.getLogicalDevice(); }
+    VkQueue getQueue() const { return info.getQueue(); }
+    uint32_t getQueueIndex() const { return info.getQueueIndex(); }
 
     Pipelines pipelines;
 
@@ -82,8 +91,6 @@ public:
 
     std::unordered_map<std::string, std::shared_ptr<LoadedGLTF>> loadedScenes;
 
-    Camera* mainCamera;
-
     DrawContext mainDrawContext;
     std::unordered_map<std::string, std::shared_ptr<ENode>> loadedNodes;
 
@@ -93,23 +100,14 @@ public:
         return command_buffers_container.get_current_frame(_frameNumber);
     };
 
-    VkQueue _graphicsQueue;
-    uint32_t _graphicsQueueFamily;
-
     bool _isInitialized{false};
     unsigned int _frameNumber{0};
     bool stop_rendering{false};
     VkExtent2D _windowExtent{2560, 1440};
 
-    struct SDL_Window* _window{nullptr};
+    Camera* mainCamera;
 
     static VulkanEngine& Get();
-
-    // initializes everything in the engine
-    void init(struct SDL_Window* window);
-
-    // shuts down the engine
-    void cleanup();
 
     // draw loop
     void draw();
@@ -117,11 +115,6 @@ public:
     // run main loop
     void update();
 
-    VkInstance _instance;                       // Vulkan library handle
-    VkDebugUtilsMessengerEXT _debug_messenger;  // Vulkan debug output handle
-    VkPhysicalDevice _chosenGPU;  // GPU chosen as the default device
-    VkDevice _device;             // Vulkan device for commands
-    VkSurfaceKHR _surface;        // Vulkan window surface
 
     VkSwapchainKHR _swapchain;
     VkFormat _swapchainImageFormat;
@@ -129,8 +122,6 @@ public:
     std::vector<VkImage> _swapchainImages;
     std::vector<VkImageView> _swapchainImageViews;
     VkExtent2D _swapchainExtent;
-
-    VmaAllocator _allocator;
 
     std::unique_ptr<VulkanImage> _drawImage;
     std::unique_ptr<VulkanImage> _depthImage;
@@ -140,7 +131,8 @@ public:
     DescriptorAllocatorGrowable globalDescriptorAllocator;
 
     VkDescriptorSet _drawImageDescriptors;
-    VkDescriptorSetLayout _drawImageDescriptorLayout;
+
+    DescriptorSetLayout _drawImageDescriptorLayout;
 
 
     GPUMeshBuffers rectangle;
@@ -150,11 +142,11 @@ public:
 
     std::vector<std::shared_ptr<MeshAsset>> testMeshes;
 
-    bool resize_requested;
+    bool resize_requested{true};
 
     GPUSceneData sceneData;
 
-    VkDescriptorSetLayout _gpuSceneDataDescriptorLayout;
+    DescriptorSetLayout _gpuSceneDataDescriptorLayout;
 
     AllocatedImage create_image(VkExtent3D size, VkFormat format,
                                 VkImageUsageFlags usage,
@@ -169,10 +161,21 @@ public:
     std::unique_ptr<VulkanImage> _greyImage;
     std::unique_ptr<VulkanImage> _errorCheckerboardImage;
 
-    VkSampler _defaultSamplerLinear;
-    VkSampler _defaultSamplerNearest;
+    struct Sampler {
+        explicit operator VkSampler() const;
+        void create(const VkDevice& pDevice,
+            const VkSamplerCreateInfo* pCreateInfo,
+            const VkAllocationCallbacks* pAllocator);
+        ~Sampler();
+    private:
+        VkSampler _sampler{VK_NULL_HANDLE};
+        VkDevice _device{VK_NULL_HANDLE};
+        const VkAllocationCallbacks* _allocator{VK_NULL_HANDLE};
+    };
+    Sampler _defaultSamplerLinear;
+    Sampler _defaultSamplerNearest;
 
-    VkDescriptorSetLayout _singleImageDescriptorLayout;
+    DescriptorSetLayout _singleImageDescriptorLayout;
 
     MaterialInstance defaultData;
     GLTFMetallic_Roughness metalRoughMaterial;
@@ -180,18 +183,26 @@ public:
     AllocatedBuffer create_buffer(size_t allocSize, VkBufferUsageFlags usage,
                                   VmaMemoryUsage memoryUsage) const;
 
+    // initializes everything in the engine
+    VulkanEngine(Camera& camera);
+    ~VulkanEngine();
+    void destroy_buffer(const AllocatedBuffer& buffer) const;
 private:
+    struct Imgui {
+        void init(const VkDevice& dev, SDL_Window* w,
+     const VkInstance& pInstance, const VkPhysicalDevice& physicalDevice,
+     const VkQueue& queue, const VkFormat* format);
+        ~Imgui();
+    private:
+        void initImguiPool();
+        VkDevice _device{VK_NULL_HANDLE};
+        VkDescriptorPool _imguiPool{VK_NULL_HANDLE};
+    };
+    Imgui _imgui;
     // Smart pointer collections for automatic cleanup
     std::vector<std::unique_ptr<VulkanBuffer>> _managedBuffers;
     std::vector<std::unique_ptr<VulkanImage>> _managedImages;
 
-    static VKAPI_ATTR VkBool32 VKAPI_CALL
-    debugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
-                  VkDebugUtilsMessageTypeFlagsEXT messageType,
-                  const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData,
-                  void* pUserData);
-
-    void init_vulkan();
     void init_swapchain();
 
     void create_swapchain(uint32_t width, uint32_t height);
@@ -207,8 +218,6 @@ private:
     void draw_imgui(VkCommandBuffer cmd, VkImageView targetImageView) const;
 
     void draw_geometry(VkCommandBuffer cmd);
-
-    void destroy_buffer(const AllocatedBuffer& buffer) const;
 
     void resize_swapchain();
 

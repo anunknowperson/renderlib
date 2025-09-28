@@ -1,22 +1,12 @@
 #include "core/ModelImpl.h"
-
-#include <SDL_video.h>
-
 #include "core/Mesh.h"
+#include "graphics/vulkan/vk_engine.h"
 
-ModelImpl::~ModelImpl() {
-    _engine.cleanup();
-}
-
-ModelImpl::ModelImpl() = default;
-
-void ModelImpl::registerWindow(SDL_Window *window) {
-    _engine.mainCamera = &_camera;
-    _engine.init(window);
-}
+ModelImpl::ModelImpl()
+    : _camera(), _engine(std::make_shared<VulkanEngine>(_camera)) {};
 
 void ModelImpl::updateVulkan() {
-    _engine.update();
+    _engine->update();
 }
 
 Camera *ModelImpl::getCamera() {

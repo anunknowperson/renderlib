@@ -2,14 +2,11 @@
 
 #include <filesystem>
 
-#include "vk_descriptors.h"
-#include "vk_images.h"
-#include "vk_initializers.h"
-#include "vk_pipelines.h"
-#include "vk_types.h"
-#include "IPipeline.h"
-#include "GraphicsPipeline.h"
 #include "ComputePipeline.h"
+#include "DescriptorSetLayout.h"
+#include "GraphicsPipeline.h"
+#include "vk_descriptors.h"
+#include "vk_types.h"
 
 class VulkanEngine;
 
@@ -17,7 +14,7 @@ struct GLTFMetallic_Roughness {
     MaterialPipeline opaquePipeline;
     MaterialPipeline transparentPipeline;
 
-    VkDescriptorSetLayout materialLayout;
+    DescriptorSetLayout materialLayout;
 
     struct MaterialConstants {
         glm::vec4 colorFactors;
@@ -37,9 +34,14 @@ struct GLTFMetallic_Roughness {
     DescriptorWriter writer;
 
     void build_pipelines(VulkanEngine* engine);
-    void clear_resources(VkDevice device);
+    VkDevice device{VK_NULL_HANDLE};
+    ~GLTFMetallic_Roughness() {
+            vkDestroyPipelineLayout(device, opaquePipeline.layout, nullptr);
+            vkDestroyPipeline(device, opaquePipeline.pipeline, nullptr);
+            vkDestroyPipeline(device, transparentPipeline.pipeline, nullptr);
+    }
     MaterialInstance write_material(
-            VkDevice device, MaterialPass pass,
+            MaterialPass pass,
             const MaterialResources& resources,
             DescriptorAllocatorGrowable& descriptorAllocator);
 
@@ -69,7 +71,6 @@ public:
               VkDescriptorSetLayout drawImageDescriptorLayout,
               AllocatedImage drawImage);
     void destroy();
-
 private:
     VkDevice _device;
     VkDescriptorSetLayout _singleImageDescriptorLayout;

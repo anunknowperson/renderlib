@@ -1,13 +1,11 @@
 // Mesh.cpp
 #include "core/Mesh.h"
 
+#include "graphics/vulkan/vk_engine.h"
+
 Mesh::Mesh(const std::string &filePath) : _currentModelPath(filePath) {
     VulkanEngine &engine = VulkanEngine::Get();
     _rid = engine.registerMesh(filePath);
-}
-
-Mesh::~Mesh() {
-    remove_model();
 }
 
 void Mesh::set_model(const std::string &filePath) {
@@ -24,14 +22,6 @@ void Mesh::set_model(const std::string &filePath) {
 
     // Reapply transform to new model
     engine.setMeshTransform(_rid, _transform);
-}
-
-void Mesh::remove_model() {
-    if (!_currentModelPath.empty()) {
-        VulkanEngine &engine = VulkanEngine::Get();
-        engine.unregisterMesh(_rid);
-        _currentModelPath.clear();
-    }
 }
 
 

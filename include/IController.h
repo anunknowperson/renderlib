@@ -29,7 +29,7 @@ public:
      *
      * This method initializes the necessary components for the controller.
      */
-    virtual void init() const = 0;
+    virtual void run() const = 0;
 
     /*!
      * \brief Updates the controller status.
