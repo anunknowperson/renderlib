@@ -197,8 +197,19 @@ public:
     std::unique_ptr<VulkanImage> _greyImage;
     std::unique_ptr<VulkanImage> _errorCheckerboardImage;
 
-    VkSampler _defaultSamplerLinear;
-    VkSampler _defaultSamplerNearest;
+    struct Sampler {
+        explicit operator VkSampler() const;
+        void create(const VkDevice& pDevice,
+            const VkSamplerCreateInfo* pCreateInfo,
+            const VkAllocationCallbacks* pAllocator);
+        ~Sampler();
+    private:
+        VkSampler _sampler{VK_NULL_HANDLE};
+        VkDevice _device{VK_NULL_HANDLE};
+        const VkAllocationCallbacks* _allocator{VK_NULL_HANDLE};
+    };
+    Sampler _defaultSamplerLinear;
+    Sampler _defaultSamplerNearest;
 
     VkDescriptorSetLayout _singleImageDescriptorLayout;
 
