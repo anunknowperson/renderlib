@@ -29,6 +29,10 @@
     {
       "name": "fastgltf",
       "version": "0.7.1"
+    },
+    {
+      "name": "fmt",
+      "version": "11.2.0"
     }
   ]
 }
