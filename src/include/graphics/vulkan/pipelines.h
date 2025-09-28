@@ -69,7 +69,6 @@ public:
               VkDescriptorSetLayout drawImageDescriptorLayout,
               AllocatedImage drawImage);
     void destroy();
-
 private:
     VkDevice _device;
     VkDescriptorSetLayout _singleImageDescriptorLayout;

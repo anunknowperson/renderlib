@@ -40,7 +40,9 @@ public:
                             const VkDescriptorSet* descriptorSets,
                             uint32_t setCount, uint32_t firstSet = 0);
     void pushConstants(VkCommandBuffer cmd, VkShaderStageFlags stageFlags, uint32_t offset, uint32_t size, const void* data);
-
+    ~GraphicsPipeline() override {
+        GraphicsPipeline::destroy();
+    }
 private:
     VkDevice _device = VK_NULL_HANDLE;
     VkPipeline _pipeline = VK_NULL_HANDLE;
