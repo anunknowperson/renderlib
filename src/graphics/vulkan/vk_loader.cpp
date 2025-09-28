@@ -251,7 +251,7 @@ std::optional<std::shared_ptr<LoadedGLTF>> loadGltf(VulkanEngine* engine,
             {VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 3},
             {VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 1}};
     file.descriptorPool.init(
-            engine->_device,
+            static_cast<VkDevice>(engine->device),
             static_cast<uint32_t>(std::max(gltf.materials.size(), size_t(1))),
             sizes);
 
@@ -269,7 +269,7 @@ std::optional<std::shared_ptr<LoadedGLTF>> loadGltf(VulkanEngine* engine,
         sampl.mipmapMode = extract_mipmap_mode(
                 sampler.minFilter.value_or(fastgltf::Filter::Nearest));
         VkSampler newSampler;
-        vkCreateSampler(engine->_device, &sampl, nullptr, &newSampler);
+        vkCreateSampler(static_cast<VkDevice>(engine->device), &sampl, nullptr, &newSampler);
         file.samplers.push_back(newSampler);
     }
 
@@ -523,4 +523,24 @@ void LoadedGLTF::Draw(const glm::mat4& topMatrix, DrawContext& ctx) {
     }
 }
 
-void LoadedGLTF::clearAll() {}
+void LoadedGLTF::clearAll() {
+    VkDevice dv = static_cast<VkDevice>(creator->device);
+    descriptorPool.destroy_pools(dv);
+    creator->destroy_buffer(materialDataBuffer);
+    // for (auto& [k, v] : meshes) {
+    //     creator->destroy_buffer(v->meshBuffers.indexBuffer);
+    //     creator->destroy_buffer(v->meshBuffers.vertexBuffer);
+    // }
+    for (auto& [k, v] : images) {
+
+        if (v.image == creator->_errorCheckerboardImage.get()->image()) {
+            //dont destroy the default images
+            continue;
+        }
+        creator->destroy_image(v);
+    }
+
+    for (auto& sampler : samplers) {
+        vkDestroySampler(dv, sampler, nullptr);
+    }
+}
