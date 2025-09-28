@@ -65,33 +65,30 @@ struct DrawContext {
 
 class VulkanEngine {
 public:
-
-
     struct Instance {
-        VkInstance _instance{nullptr};                       // Vulkan library handle //todo: get
-        VkDebugUtilsMessengerEXT _debug_messenger{nullptr};  // Vulkan debug output handle
-        void init(const vkb::Instance& vkb_inst) {
-            _instance = vkb_inst.instance;
-            _debug_messenger = vkb_inst.debug_messenger;
-        }
+        vkb::Instance instance;
+        void init();
         ~Instance() {
-            if (_debug_messenger) {
-                vkb::destroy_debug_utils_messenger(_instance, _debug_messenger);
-            }
-            if (_instance) {
-                vkDestroyInstance(_instance, nullptr);
-            }
+            vkb::destroy_instance(instance);
         }
     };
     Instance _instance;
 
     struct Device {
-        VkDevice _device{nullptr};             // Vulkan device for commands
-        void init(const vkb::Device& dev) { _device = dev.device; }
-        ~Device() {vkDestroyDevice(_device, nullptr);}
+        vkb::Device device;
+        void init(const vkb::PhysicalDevice& physical_device) {
+            vkb::DeviceBuilder device_builder{physical_device};
+            auto dev_ret = device_builder.build();
+            if (!dev_ret) {
+                LOGE("Failed to create logical device. Error: {}",
+                     dev_ret.error().message());
+            }
+            device = dev_ret.value();
+        }
+        ~Device() {vkb::destroy_device(device);}
     };
     Device _device;
-    VkDevice getRawDevice() const { return _device._device; }
+    VkDevice getRawDevice() const { return _device.device; }
     struct Allocator {
         VmaAllocator _allocator{nullptr};
         void init(VmaAllocatorCreateInfo info) {vmaCreateAllocator(&info, &_allocator);} // move info inside

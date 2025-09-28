@@ -97,6 +97,7 @@ void GLTFMetallic_Roughness::build_transparent_pipeline(
 
     transparentPipeline.pipeline =
             pipelineBuilder.build_pipeline(engine->getRawDevice());
+    transparentPipeline._device = engine->getRawDevice();
 }
 
 MaterialInstance GLTFMetallic_Roughness::write_material(

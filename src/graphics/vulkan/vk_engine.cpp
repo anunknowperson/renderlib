@@ -50,6 +50,21 @@ constexpr bool bUseValidationLayers = false;
 constexpr bool bUseValidationLayers = true;
 #endif
 
+void VulkanEngine::Instance::init() {
+    vkb::InstanceBuilder builder;
+    auto inst_ret = builder.set_app_name("TODO: PUT APP NAME HERE")
+                            .set_engine_name("rainsystem")
+                            .request_validation_layers(bUseValidationLayers)
+                            .set_debug_callback(debugCallback)
+                            .require_api_version(1, 3, 0)
+                            .build();
+    if (!inst_ret) {
+        LOGE("Failed to create Vulkan instance. Error: {}",
+             inst_ret.error().message());
+    }
+    instance = inst_ret.value();
+}
+
 VKAPI_ATTR VkBool32 VKAPI_CALL VulkanEngine::debugCallback(
         VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
         VkDebugUtilsMessageTypeFlagsEXT messageType,
@@ -316,7 +331,7 @@ VulkanEngine::VulkanEngine(Camera& camera) : mainCamera(&camera) {
     command_buffers_container.init_sync_structures(this);
     init_descriptors();
     init_pipelines();
-    _imgui.init(getRawDevice(), _window.ptr, _instance._instance, _chosenGPU, _graphicsQueue, &_swapchainImageFormat);
+    _imgui.init(getRawDevice(), _window.ptr, _instance.instance, _chosenGPU, _graphicsQueue, &_swapchainImageFormat);
     init_default_data();
 
     mainCamera->velocity = glm::vec3(0.f);
@@ -355,27 +370,10 @@ void VulkanEngine::init_vulkan() {
     for (auto& [extensionName, _] : system_info.available_extensions) {
         LOGI(extensionName);
     }
-
-    vkb::InstanceBuilder builder;
-
-    auto inst_ret = builder.set_app_name("TODO: PUT APP NAME HERE")
-                            .set_engine_name("rainsystem")
-                            .request_validation_layers(bUseValidationLayers)
-                            .set_debug_callback(debugCallback)
-                            .require_api_version(1, 3, 0)
-                            .build();
-
-    if (!inst_ret) {
-        LOGE("Failed to create Vulkan instance. Error: {}",
-             inst_ret.error().message());
-    }
-
-    vkb::Instance vkb_inst = inst_ret.value();
-
     // grab the instance
-    _instance.init(vkb_inst);
+    _instance.init();
 
-    SDL_bool err = SDL_Vulkan_CreateSurface(_window.ptr, _instance._instance, &_surface);
+    SDL_bool err = SDL_Vulkan_CreateSurface(_window.ptr, _instance.instance, &_surface);
     if (!err) {
         LOGE("Failed to create Vulkan surface. Error: {}", SDL_GetError());
     }
@@ -393,7 +391,7 @@ void VulkanEngine::init_vulkan() {
     // use vkbootstrap to select a gpu.
     // We want a gpu that can write to the SDL surface and supports vulkan 1.3
     // with the correct features
-    vkb::PhysicalDeviceSelector selector{vkb_inst};
+    vkb::PhysicalDeviceSelector selector{_instance.instance};
 
     auto physical_device_ret = selector.set_minimum_version(1, 3)
                                        .set_required_features_13(features)
@@ -406,23 +404,13 @@ void VulkanEngine::init_vulkan() {
              physical_device_ret.error().message());
     }
 
-    const vkb::PhysicalDevice& physicalDevice = physical_device_ret.value();
-
-    vkb::DeviceBuilder deviceBuilder{physicalDevice};
-
-    auto dev_ret = deviceBuilder.build();
-    if (!dev_ret) {
-        LOGE("Failed to create logical device. Error: {}",
-             dev_ret.error().message());
-    }
-
-    const vkb::Device& vkbDevice = dev_ret.value();
+    const vkb::PhysicalDevice& physical_device = physical_device_ret.value();
 
     // Get the VkDevice handle used in the rest of a vulkan application
-    _device.init(vkbDevice);
-    _chosenGPU = physicalDevice.physical_device;
+    _device.init(physical_device);
+    _chosenGPU = physical_device.physical_device;
 
-    auto queue_ret = vkbDevice.get_queue(vkb::QueueType::graphics);
+    auto queue_ret = _device.device.get_queue(vkb::QueueType::graphics);
     if (!queue_ret) {
         LOGE("Failed to retrieve graphics queue. Error: {}",
              queue_ret.error().message());
@@ -430,7 +418,7 @@ void VulkanEngine::init_vulkan() {
 
     _graphicsQueue = queue_ret.value();
 
-    auto queue_family_ret = vkbDevice.get_queue_index(vkb::QueueType::graphics);
+    auto queue_family_ret = _device.device.get_queue_index(vkb::QueueType::graphics);
     if (!queue_family_ret) {
         LOGE("Failed to retrieve graphics queue family. Error: {}",
              queue_family_ret.error().message());
@@ -442,7 +430,7 @@ void VulkanEngine::init_vulkan() {
     VmaAllocatorCreateInfo allocatorInfo = {};
     allocatorInfo.physicalDevice = _chosenGPU;
     allocatorInfo.device = getRawDevice();
-    allocatorInfo.instance = _instance._instance;
+    allocatorInfo.instance = _instance.instance;
     allocatorInfo.flags = VMA_ALLOCATOR_CREATE_BUFFER_DEVICE_ADDRESS_BIT;
     // // vmaCreateAllocator(&allocatorInfo, &_a._allocator);
     _a.init(allocatorInfo);
@@ -597,7 +585,7 @@ void VulkanEngine::destroy_swapchain() {
 
         destroy_swapchain();
 
-        vkDestroySurfaceKHR(_instance._instance, _surface, nullptr);
+        vkDestroySurfaceKHR(_instance.instance, _surface, nullptr);
     }
 
     // clear engine pointer
