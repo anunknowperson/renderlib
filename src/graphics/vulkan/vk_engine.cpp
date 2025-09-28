@@ -37,7 +37,6 @@
 #include "graphics/vulkan/vk_loader.h"
 #include "graphics/vulkan/vk_pipelines.h"
 #include "graphics/vulkan/vk_types.h"
-#include "graphics/vulkan/vk_command_buffers.h"
 
 VulkanEngine* loadedEngine = nullptr;
 
@@ -63,12 +62,15 @@ void VulkanEngine::Instance::init() {
         LOGE("Failed to create Vulkan instance. Error: {}",
              inst_ret.error().message());
     }
-    instance = inst_ret.value();
+    _instance = inst_ret.value();
 }
 
 VulkanEngine::Instance::~Instance() {
-    vkb::destroy_instance(instance);
+    vkb::destroy_instance(_instance);
 }
+
+VulkanEngine::Instance::operator VkInstance() const { return _instance; }
+VulkanEngine::Instance::operator vkb::Instance() const { return _instance; }
 
 VKAPI_ATTR VkBool32 VKAPI_CALL VulkanEngine::debugCallback(
         VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
@@ -240,7 +242,7 @@ void VulkanEngine::init_default_data() {
 }
 
  void VulkanEngine::Imgui::init(const VkDevice& dev, SDL_Window* w,
-     const VkInstance& instance, const VkPhysicalDevice& physicalDevice,
+     const VkInstance& pInstance, const VkPhysicalDevice& physicalDevice,
      const VkQueue& queue, const VkFormat* format) {
     _device = dev;
     initImguiPool();
@@ -250,7 +252,7 @@ void VulkanEngine::init_default_data() {
     // this initializes imgui for SDL
     ImGui_ImplSDL2_InitForVulkan(w);
     // this initializes imgui for Vulkan
-    ImGui_ImplVulkan_InitInfo init_info = {.Instance = instance,
+    ImGui_ImplVulkan_InitInfo init_info = {.Instance = pInstance,
                                            .PhysicalDevice = physicalDevice,
                                            .Device = _device,
                                            .Queue = queue,
@@ -336,7 +338,7 @@ VulkanEngine::VulkanEngine(Camera& camera) : mainCamera(&camera) {
     command_buffers_container.init_sync_structures(this);
     init_descriptors();
     init_pipelines();
-    _imgui.init(getRawDevice(), _window.ptr, _instance.instance, _chosenGPU, _graphicsQueue, &_swapchainImageFormat);
+    _imgui.init(getRawDevice(), _window.ptr, static_cast<VkInstance>(instance), _chosenGPU, _graphicsQueue, &_swapchainImageFormat);
     init_default_data();
 
     mainCamera->velocity = glm::vec3(0.f);
@@ -376,9 +378,9 @@ void VulkanEngine::init_vulkan() {
         LOGI(extensionName);
     }
     // grab the instance
-    _instance.init();
+    instance.init();
 
-    SDL_bool err = SDL_Vulkan_CreateSurface(_window.ptr, _instance.instance, &_surface);
+    SDL_bool err = SDL_Vulkan_CreateSurface(_window.ptr, static_cast<VkInstance>(instance), &_surface);
     if (!err) {
         LOGE("Failed to create Vulkan surface. Error: {}", SDL_GetError());
     }
@@ -396,7 +398,7 @@ void VulkanEngine::init_vulkan() {
     // use vkbootstrap to select a gpu.
     // We want a gpu that can write to the SDL surface and supports vulkan 1.3
     // with the correct features
-    vkb::PhysicalDeviceSelector selector{_instance.instance};
+    vkb::PhysicalDeviceSelector selector{static_cast<vkb::Instance>(instance)};
 
     auto physical_device_ret = selector.set_minimum_version(1, 3)
                                        .set_required_features_13(features)
@@ -435,7 +437,7 @@ void VulkanEngine::init_vulkan() {
     VmaAllocatorCreateInfo allocatorInfo = {};
     allocatorInfo.physicalDevice = _chosenGPU;
     allocatorInfo.device = getRawDevice();
-    allocatorInfo.instance = _instance.instance;
+    allocatorInfo.instance = static_cast<VkInstance>(instance);
     allocatorInfo.flags = VMA_ALLOCATOR_CREATE_BUFFER_DEVICE_ADDRESS_BIT;
     // // vmaCreateAllocator(&allocatorInfo, &_a._allocator);
     _a.init(allocatorInfo);
@@ -584,7 +586,7 @@ void VulkanEngine::destroy_swapchain() {
 
         destroy_swapchain();
 
-        vkDestroySurfaceKHR(_instance.instance, _surface, nullptr);
+        vkDestroySurfaceKHR(static_cast<VkInstance>(instance), _surface, nullptr);
     }
 
     // clear engine pointer

@@ -67,11 +67,14 @@ struct DrawContext {
 class VulkanEngine {
 public:
     struct Instance {
-        vkb::Instance instance;
+        explicit operator VkInstance() const;
+        explicit operator vkb::Instance() const;
         void init();
         ~Instance();
+    private:
+        vkb::Instance _instance;
     };
-    Instance _instance;
+    Instance instance;
 
     struct Device {
         vkb::Device device;
@@ -227,7 +230,7 @@ public:
 private:
     struct Imgui {
         void init(const VkDevice& dev, SDL_Window* w,
-     const VkInstance& instance, const VkPhysicalDevice& physicalDevice,
+     const VkInstance& pInstance, const VkPhysicalDevice& physicalDevice,
      const VkQueue& queue, const VkFormat* format);
         ~Imgui();
     private:
