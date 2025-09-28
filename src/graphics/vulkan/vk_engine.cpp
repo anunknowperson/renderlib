@@ -268,10 +268,10 @@ void VulkanEngine::init_default_data() {
 
     ImGui_ImplVulkan_CreateFontsTexture();
 }
-#include <print>
+
 VulkanEngine::Imgui::~Imgui() {
-    vkDestroyDescriptorPool(_device, _imguiPool, nullptr);
     ImGui_ImplVulkan_Shutdown();
+    vkDestroyDescriptorPool(_device, _imguiPool, nullptr);
 }
 
 void VulkanEngine::init_descriptors() {
