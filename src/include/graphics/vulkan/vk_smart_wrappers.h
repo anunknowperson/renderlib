@@ -97,9 +97,9 @@ public:
     VulkanCommandPool(VkDevice device, VkCommandPool commandPool) : device_(device), commandPool_(commandPool) {}
     
     ~VulkanCommandPool() {
-        // if (commandPool_ != VK_NULL_HANDLE) {
-        //     vkDestroyCommandPool(device_, commandPool_, nullptr);
-        // }
+        if (commandPool_ != VK_NULL_HANDLE) {
+            vkDestroyCommandPool(device_, commandPool_, nullptr);
+        }
     }
 
     // Move constructor and assignment
