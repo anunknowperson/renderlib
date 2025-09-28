@@ -85,11 +85,13 @@ public:
     Device device;
 
     struct Allocator {
-        VmaAllocator _allocator{nullptr};
-        void init(VmaAllocatorCreateInfo info) {vmaCreateAllocator(&info, &_allocator);} // move info inside
-        ~Allocator() {vmaDestroyAllocator(_allocator);}
+        explicit operator VmaAllocator() const;
+        void init(const VkPhysicalDevice& gpu, const VkDevice& device, const VkInstance& instance);
+        ~Allocator();
+    private:
+        VmaAllocator _allocator{VK_NULL_HANDLE};
     };
-    Allocator _a; // todo: rename
+    Allocator allocator;
 
     Pipelines pipelines;
 
