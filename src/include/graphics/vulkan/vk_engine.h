@@ -220,8 +220,8 @@ private:
         ~Imgui();
     private:
         void initImguiPool();
-        VkDevice _device{nullptr};
-        VkDescriptorPool _imguiPool{nullptr};
+        VkDevice _device{VK_NULL_HANDLE};
+        VkDescriptorPool _imguiPool{VK_NULL_HANDLE};
     };
     Imgui _imgui;
     // Smart pointer collections for automatic cleanup
