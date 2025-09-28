@@ -64,6 +64,37 @@ struct DrawContext {
 
 class VulkanEngine {
 public:
+    struct Instance {
+        explicit operator VkInstance() const;
+        explicit operator vkb::Instance() const;
+        void init();
+        ~Instance();
+    private:
+        vkb::Instance _instance;
+    };
+    Instance instance;
+
+    struct Device {
+        vkb::Device device;
+        void init(const vkb::PhysicalDevice& physical_device) {
+            const vkb::DeviceBuilder device_builder{physical_device};
+            auto dev_ret = device_builder.build();
+            if (!dev_ret) {
+                LOGE("Failed to create logical device. Error: {}",
+                     dev_ret.error().message());
+            }
+            device = dev_ret.value();
+        }
+        ~Device() {vkb::destroy_device(device);}
+    };
+    Device _device;
+    VkDevice getRawDevice() const { return _device.device; }
+    struct Allocator {
+        VmaAllocator _allocator{nullptr};
+        void init(VmaAllocatorCreateInfo info) {vmaCreateAllocator(&info, &_allocator);} // move info inside
+        ~Allocator() {vmaDestroyAllocator(_allocator);}
+    };
+    Allocator _a; // todo: rename
 
     Pipelines pipelines;
 
@@ -181,6 +212,17 @@ public:
                                   VmaMemoryUsage memoryUsage) const;
 
 private:
+    struct Imgui {
+        void init(const VkDevice& dev, SDL_Window* w,
+     const VkInstance& pInstance, const VkPhysicalDevice& physicalDevice,
+     const VkQueue& queue, const VkFormat* format);
+        ~Imgui();
+    private:
+        void initImguiPool();
+        VkDevice _device{nullptr};
+        VkDescriptorPool _imguiPool{nullptr};
+    };
+    Imgui _imgui;
     // Smart pointer collections for automatic cleanup
     std::vector<std::unique_ptr<VulkanBuffer>> _managedBuffers;
     std::vector<std::unique_ptr<VulkanImage>> _managedImages;

@@ -35,7 +35,6 @@
 #include "graphics/vulkan/vk_loader.h"
 #include "graphics/vulkan/vk_pipelines.h"
 #include "graphics/vulkan/vk_types.h"
-#include "graphics/vulkan/vk_command_buffers.h"
 
 VulkanEngine* loadedEngine = nullptr;
 
@@ -48,6 +47,28 @@ constexpr bool bUseValidationLayers = false;
 #else
 constexpr bool bUseValidationLayers = true;
 #endif
+
+void VulkanEngine::Instance::init() {
+    vkb::InstanceBuilder builder;
+    auto inst_ret = builder.set_app_name("TODO: PUT APP NAME HERE")
+                            .set_engine_name("rainsystem")
+                            .request_validation_layers(bUseValidationLayers)
+                            .set_debug_callback(debugCallback)
+                            .require_api_version(1, 3, 0)
+                            .build();
+    if (!inst_ret) {
+        LOGE("Failed to create Vulkan instance. Error: {}",
+             inst_ret.error().message());
+    }
+    _instance = inst_ret.value();
+}
+
+VulkanEngine::Instance::~Instance() {
+    vkb::destroy_instance(_instance);
+}
+
+VulkanEngine::Instance::operator VkInstance() const { return _instance; }
+VulkanEngine::Instance::operator vkb::Instance() const { return _instance; }
 
 VKAPI_ATTR VkBool32 VKAPI_CALL VulkanEngine::debugCallback(
         VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
@@ -217,6 +238,11 @@ void VulkanEngine::init_imgui() {
     VkDescriptorPool imguiPool;
     VK_CHECK(vkCreateDescriptorPool(_device, &pool_info, nullptr, &imguiPool));
 
+ void VulkanEngine::Imgui::init(const VkDevice& dev, SDL_Window* w,
+     const VkInstance& pInstance, const VkPhysicalDevice& physicalDevice,
+     const VkQueue& queue, const VkFormat* format) {
+    _device = dev;
+    initImguiPool();
     // 2: initialize imgui library
 
     // this initializes the core structures of imgui
@@ -226,15 +252,14 @@ void VulkanEngine::init_imgui() {
     ImGui_ImplSDL2_InitForVulkan(_window);
 
     // this initializes imgui for Vulkan
-    ImGui_ImplVulkan_InitInfo init_info = {};
-    init_info.Instance = _instance;
-    init_info.PhysicalDevice = _chosenGPU;
-    init_info.Device = _device;
-    init_info.Queue = _graphicsQueue;
-    init_info.DescriptorPool = imguiPool;
-    init_info.MinImageCount = 3;
-    init_info.ImageCount = 3;
-    init_info.UseDynamicRendering = true;
+    ImGui_ImplVulkan_InitInfo init_info = {.Instance = pInstance,
+                                           .PhysicalDevice = physicalDevice,
+                                           .Device = _device,
+                                           .Queue = queue,
+                                           .DescriptorPool = _imguiPool,
+                                           .MinImageCount = 3,
+                                           .ImageCount = 3,
+                                           .UseDynamicRendering = true};
 
     // dynamic rendering parameters for imgui to use
     init_info.PipelineRenderingCreateInfo = {
@@ -332,7 +357,7 @@ void VulkanEngine::init(SDL_Window* window) {
     command_buffers_container.init_sync_structures(this);
     init_descriptors();
     init_pipelines();
-    init_imgui();
+    _imgui.init(getRawDevice(), _window.ptr, static_cast<VkInstance>(instance), _chosenGPU, _graphicsQueue, &_swapchainImageFormat);
     init_default_data();
 
     mainCamera->velocity = glm::vec3(0.f);
@@ -371,28 +396,10 @@ void VulkanEngine::init_vulkan() {
     for (auto& [extensionName, _] : system_info.available_extensions) {
         LOGI(extensionName);
     }
-
-    vkb::InstanceBuilder builder;
-
-    auto inst_ret = builder.set_app_name("TODO: PUT APP NAME HERE")
-                            .set_engine_name("rainsystem")
-                            .request_validation_layers(bUseValidationLayers)
-                            .set_debug_callback(debugCallback)
-                            .require_api_version(1, 3, 0)
-                            .build();
-
-    if (!inst_ret) {
-        LOGE("Failed to create Vulkan instance. Error: {}",
-             inst_ret.error().message());
-    }
-
-    vkb::Instance vkb_inst = inst_ret.value();
-
     // grab the instance
-    _instance = vkb_inst.instance;
-    _debug_messenger = vkb_inst.debug_messenger;
+    instance.init();
 
-    SDL_bool err = SDL_Vulkan_CreateSurface(_window, _instance, &_surface);
+    SDL_bool err = SDL_Vulkan_CreateSurface(_window.ptr, static_cast<VkInstance>(instance), &_surface);
     if (!err) {
         LOGE("Failed to create Vulkan surface. Error: {}", SDL_GetError());
     }
@@ -410,7 +417,7 @@ void VulkanEngine::init_vulkan() {
     // use vkbootstrap to select a gpu.
     // We want a gpu that can write to the SDL surface and supports vulkan 1.3
     // with the correct features
-    vkb::PhysicalDeviceSelector selector{vkb_inst};
+    vkb::PhysicalDeviceSelector selector{static_cast<vkb::Instance>(instance)};
 
     auto physical_device_ret = selector.set_minimum_version(1, 3)
                                        .set_required_features_13(features)
@@ -458,8 +465,8 @@ void VulkanEngine::init_vulkan() {
     // initialize the memory allocator
     VmaAllocatorCreateInfo allocatorInfo = {};
     allocatorInfo.physicalDevice = _chosenGPU;
-    allocatorInfo.device = _device;
-    allocatorInfo.instance = _instance;
+    allocatorInfo.device = getRawDevice();
+    allocatorInfo.instance = static_cast<VkInstance>(instance);
     allocatorInfo.flags = VMA_ALLOCATOR_CREATE_BUFFER_DEVICE_ADDRESS_BIT;
     vmaCreateAllocator(&allocatorInfo, &_allocator);
 
@@ -611,14 +618,7 @@ void VulkanEngine::cleanup() {
 
         destroy_swapchain();
 
-        vkDestroySurfaceKHR(_instance, _surface, nullptr);
-        vkDestroyDevice(_device, nullptr);
-
-        vkb::destroy_debug_utils_messenger(_instance, _debug_messenger);
-        vkDestroyInstance(_instance, nullptr);
-
-        // VMA allocator cleanup
-        vmaDestroyAllocator(_allocator);
+        vkDestroySurfaceKHR(static_cast<VkInstance>(instance), _surface, nullptr);
     }
 
     // clear engine pointer
