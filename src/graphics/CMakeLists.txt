@@ -10,6 +10,7 @@ target_sources(${PROJECT_NAME}
         vulkan/vk_pipelines.cpp
         vulkan/pipelines.cpp
         vulkan/ComputePipeline.cpp
+        vulkan/DescriptorSetLayout.cpp
         vulkan/GraphicsPipeline.cpp
         Graphics.cpp
 )
