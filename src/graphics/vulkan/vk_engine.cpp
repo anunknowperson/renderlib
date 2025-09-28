@@ -72,21 +72,6 @@ VulkanEngine::Instance::~Instance() {
 VulkanEngine::Instance::operator VkInstance() const { return _instance; }
 VulkanEngine::Instance::operator vkb::Instance() const { return _instance; }
 
-void VulkanEngine::Device::init(const vkb::PhysicalDevice& physical_device) {
-    const vkb::DeviceBuilder device_builder{physical_device};
-    auto dev_ret = device_builder.build();
-    if (!dev_ret) {
-        LOGE("Failed to create logical device. Error: {}",
-             dev_ret.error().message());
-    }
-    _device = dev_ret.value();
-}
-
-VulkanEngine::Device::~Device() {vkb::destroy_device(_device);}
-
-VulkanEngine::Device::operator VkDevice() const { return _device; }
-VulkanEngine::Device::operator vkb::Device() const { return _device; }
-
 void VulkanEngine::Allocator::init(const VkPhysicalDevice& pGpu,
                               const VkDevice& pDevice,
                               const VkInstance& pInstance) {

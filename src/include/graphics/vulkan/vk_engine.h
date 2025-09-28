@@ -4,6 +4,7 @@
 #include <VkBootstrap.h>
 #include <cstddef>
 #include <cstdint>
+#include <cstdio>
 #include <glm/ext/matrix_float4x4.hpp>
 #include <glm/ext/vector_float4.hpp>
 #include <memory>
@@ -11,13 +12,13 @@
 #include <string>
 #include <unordered_map>
 #include <vector>
-#include <cstdio>
 #include <vk_mem_alloc.h>
 #include <vulkan/vk_platform.h>
 #include <vulkan/vulkan_core.h>
 
 #include "ComputePipeline.h"
 #include "DescriptorSetLayout.h"
+#include "Device.h"
 #include "core/ModelImpl.h"
 #include "pipelines.h"
 #include "vk_command_buffers.h"
@@ -75,15 +76,6 @@ public:
         vkb::Instance _instance;
     };
     Instance instance;
-
-    struct Device {
-        explicit operator VkDevice() const;
-        explicit operator vkb::Device() const;
-        void init(const vkb::PhysicalDevice& physical_device);
-        ~Device();
-    private:
-        vkb::Device _device;
-    };
     Device device;
 
     struct Allocator {
