@@ -599,12 +599,6 @@ void VulkanEngine::cleanup() {
         // Smart pointers will automatically clean up resources
 
         for (auto& _frame : command_buffers_container._frames) {
-            // Smart pointers automatically clean up sync objects
-            // Manual cleanup only for command pools and command buffers
-            if (_frame._commandPool) {
-                vkDestroyCommandPool(_device, _frame._commandPool->get(), nullptr);
-            }
-
             // Destroy frame descriptors manually
             _frame._frameDescriptors.destroy_pools(_device);
         }
