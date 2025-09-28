@@ -72,6 +72,21 @@ VulkanEngine::Instance::~Instance() {
 VulkanEngine::Instance::operator VkInstance() const { return _instance; }
 VulkanEngine::Instance::operator vkb::Instance() const { return _instance; }
 
+void VulkanEngine::Device::init(const vkb::PhysicalDevice& physical_device) {
+    const vkb::DeviceBuilder device_builder{physical_device};
+    auto dev_ret = device_builder.build();
+    if (!dev_ret) {
+        LOGE("Failed to create logical device. Error: {}",
+             dev_ret.error().message());
+    }
+    _device = dev_ret.value();
+}
+
+VulkanEngine::Device::~Device() {vkb::destroy_device(_device);}
+
+VulkanEngine::Device::operator VkDevice() const { return _device; }
+VulkanEngine::Device::operator vkb::Device() const { return _device; }
+
 VKAPI_ATTR VkBool32 VKAPI_CALL VulkanEngine::debugCallback(
         VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
         VkDebugUtilsMessageTypeFlagsEXT messageType,
@@ -122,7 +137,7 @@ VKAPI_ATTR VkBool32 VKAPI_CALL VulkanEngine::debugCallback(
 }
 
 void VulkanEngine::destroy_image(const AllocatedImage& img) const {
-    vkDestroyImageView(getRawDevice(), img.imageView, nullptr);
+    vkDestroyImageView(static_cast<VkDevice>(device), img.imageView, nullptr);
     vmaDestroyImage(_a._allocator, img.image, img.allocation);
 }
 
@@ -152,17 +167,17 @@ void VulkanEngine::init_default_data() {
     const uint32_t white = glm::packUnorm4x8(glm::vec4(1, 1, 1, 1));
     AllocatedImage whiteImageData = create_image(&white, VkExtent3D{1, 1, 1}, VK_FORMAT_R8G8B8A8_UNORM,
                          VK_IMAGE_USAGE_SAMPLED_BIT);
-    _whiteImage = std::make_unique<VulkanImage>(_a._allocator, getRawDevice(), whiteImageData);
+    _whiteImage = std::make_unique<VulkanImage>(_a._allocator, static_cast<VkDevice>(device), whiteImageData);
 
     const uint32_t grey = glm::packUnorm4x8(glm::vec4(0.66f, 0.66f, 0.66f, 1));
     AllocatedImage greyImageData = create_image(&grey, VkExtent3D{1, 1, 1}, VK_FORMAT_R8G8B8A8_UNORM,
                          VK_IMAGE_USAGE_SAMPLED_BIT);
-    _greyImage = std::make_unique<VulkanImage>(_a._allocator, getRawDevice(), greyImageData);
+    _greyImage = std::make_unique<VulkanImage>(_a._allocator, static_cast<VkDevice>(device), greyImageData);
 
     const uint32_t black = glm::packUnorm4x8(glm::vec4(0, 0, 0, 0));
     AllocatedImage blackImageData = create_image(&black, VkExtent3D{1, 1, 1}, VK_FORMAT_R8G8B8A8_UNORM,
                          VK_IMAGE_USAGE_SAMPLED_BIT);
-    _blackImage = std::make_unique<VulkanImage>(_a._allocator, getRawDevice(), blackImageData);
+    _blackImage = std::make_unique<VulkanImage>(_a._allocator, static_cast<VkDevice>(device), blackImageData);
 
     // checkerboard image
     const uint32_t magenta = glm::packUnorm4x8(glm::vec4(1, 0, 1, 1));
@@ -174,18 +189,18 @@ void VulkanEngine::init_default_data() {
     }
     AllocatedImage errorImageData = create_image(pixels.data(), VkExtent3D{16, 16, 1},
                          VK_FORMAT_R8G8B8A8_UNORM, VK_IMAGE_USAGE_SAMPLED_BIT);
-    _errorCheckerboardImage = std::make_unique<VulkanImage>(_a._allocator, getRawDevice(), errorImageData);
+    _errorCheckerboardImage = std::make_unique<VulkanImage>(_a._allocator, static_cast<VkDevice>(device), errorImageData);
 
     VkSamplerCreateInfo sampl = {.sType =
                                          VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO};
 
     sampl.magFilter = VK_FILTER_NEAREST;
     sampl.minFilter = VK_FILTER_NEAREST;
-    _defaultSamplerNearest.create(getRawDevice(), &sampl, nullptr);
+    _defaultSamplerNearest.create(static_cast<VkDevice>(device), &sampl, nullptr);
 
     sampl.magFilter = VK_FILTER_LINEAR;
     sampl.minFilter = VK_FILTER_LINEAR;
-    _defaultSamplerLinear.create(getRawDevice(), &sampl, nullptr);
+    _defaultSamplerLinear.create(static_cast<VkDevice>(device), &sampl, nullptr);
 
     GLTFMetallic_Roughness::MaterialResources materialResources{};
     // default the material textures
@@ -286,23 +301,23 @@ void VulkanEngine::init_descriptors() {
             {VK_DESCRIPTOR_TYPE_STORAGE_IMAGE, 1},
             {VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 1}};
 
-    globalDescriptorAllocator.init(getRawDevice(), 10, sizes);
+    globalDescriptorAllocator.init(static_cast<VkDevice>(device), 10, sizes);
 
     // make the descriptor set layout for our compute draw
-    _drawImageDescriptorLayout.create(getRawDevice(), VK_SHADER_STAGE_COMPUTE_BIT, {{0, VK_DESCRIPTOR_TYPE_STORAGE_IMAGE}});
-    _gpuSceneDataDescriptorLayout.create(getRawDevice(), VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, {{0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER}});
-    _singleImageDescriptorLayout.create(getRawDevice(), VK_SHADER_STAGE_FRAGMENT_BIT, {{0, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER}});
+    _drawImageDescriptorLayout.create(static_cast<VkDevice>(device), VK_SHADER_STAGE_COMPUTE_BIT, {{0, VK_DESCRIPTOR_TYPE_STORAGE_IMAGE}});
+    _gpuSceneDataDescriptorLayout.create(static_cast<VkDevice>(device), VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, {{0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER}});
+    _singleImageDescriptorLayout.create(static_cast<VkDevice>(device), VK_SHADER_STAGE_FRAGMENT_BIT, {{0, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER}});
 
     // allocate a descriptor set for our draw image
     _drawImageDescriptors = globalDescriptorAllocator.allocate(
-            getRawDevice(), _drawImageDescriptorLayout.set);
+            static_cast<VkDevice>(device), _drawImageDescriptorLayout.set);
 
     DescriptorWriter writer;
     writer.write_image(0, _drawImage->imageView(), VK_NULL_HANDLE,
                        VK_IMAGE_LAYOUT_GENERAL,
                        VK_DESCRIPTOR_TYPE_STORAGE_IMAGE);
 
-    writer.update_set(getRawDevice(), _drawImageDescriptors);
+    writer.update_set(static_cast<VkDevice>(device), _drawImageDescriptors);
 
     for (auto& _frame : command_buffers_container._frames) {
         // create a descriptor pool
@@ -314,14 +329,14 @@ void VulkanEngine::init_descriptors() {
         };
 
         _frame._frameDescriptors = DescriptorAllocatorGrowable{};
-        _frame._frameDescriptors.init(getRawDevice(), 1000, frame_sizes);
+        _frame._frameDescriptors.init(static_cast<VkDevice>(device), 1000, frame_sizes);
 
         // No need for deletion queue - frame descriptors will be cleaned up in cleanup()
     }
 }
 
 void VulkanEngine::init_pipelines() {
-    pipelines.init(getRawDevice(), _singleImageDescriptorLayout.set, _drawImageDescriptorLayout.set, _drawImage->get());
+    pipelines.init(static_cast<VkDevice>(device), _singleImageDescriptorLayout.set, _drawImageDescriptorLayout.set, _drawImage->get());
     // Pipeline cleanup is handled automatically by the Pipelines object
     metalRoughMaterial.build_pipelines(this);
 }
@@ -338,7 +353,7 @@ VulkanEngine::VulkanEngine(Camera& camera) : mainCamera(&camera) {
     command_buffers_container.init_sync_structures(this);
     init_descriptors();
     init_pipelines();
-    _imgui.init(getRawDevice(), _window.ptr, static_cast<VkInstance>(instance), _chosenGPU, _graphicsQueue, &_swapchainImageFormat);
+    _imgui.init(static_cast<VkDevice>(device), _window.ptr, static_cast<VkInstance>(instance), _chosenGPU, _graphicsQueue, &_swapchainImageFormat);
     init_default_data();
 
     mainCamera->velocity = glm::vec3(0.f);
@@ -414,10 +429,10 @@ void VulkanEngine::init_vulkan() {
     const vkb::PhysicalDevice& physical_device = physical_device_ret.value();
 
     // Get the VkDevice handle used in the rest of a vulkan application
-    _device.init(physical_device);
+    device.init(physical_device);
     _chosenGPU = physical_device.physical_device;
 
-    auto queue_ret = _device.device.get_queue(vkb::QueueType::graphics);
+    auto queue_ret = static_cast<vkb::Device>(device).get_queue(vkb::QueueType::graphics);
     if (!queue_ret) {
         LOGE("Failed to retrieve graphics queue. Error: {}",
              queue_ret.error().message());
@@ -425,7 +440,7 @@ void VulkanEngine::init_vulkan() {
 
     _graphicsQueue = queue_ret.value();
 
-    auto queue_family_ret = _device.device.get_queue_index(vkb::QueueType::graphics);
+    auto queue_family_ret = static_cast<vkb::Device>(device).get_queue_index(vkb::QueueType::graphics);
     if (!queue_family_ret) {
         LOGE("Failed to retrieve graphics queue family. Error: {}",
              queue_family_ret.error().message());
@@ -436,7 +451,7 @@ void VulkanEngine::init_vulkan() {
     // initialize the memory allocator
     VmaAllocatorCreateInfo allocatorInfo = {};
     allocatorInfo.physicalDevice = _chosenGPU;
-    allocatorInfo.device = getRawDevice();
+    allocatorInfo.device = static_cast<VkDevice>(device);
     allocatorInfo.instance = static_cast<VkInstance>(instance);
     allocatorInfo.flags = VMA_ALLOCATOR_CREATE_BUFFER_DEVICE_ADDRESS_BIT;
     // // vmaCreateAllocator(&allocatorInfo, &_a._allocator);
@@ -447,7 +462,7 @@ void VulkanEngine::init_vulkan() {
 
 
 void VulkanEngine::create_swapchain(uint32_t width, uint32_t height) {
-    vkb::SwapchainBuilder swapchainBuilder{_chosenGPU, getRawDevice(), _surface};
+    vkb::SwapchainBuilder swapchainBuilder{_chosenGPU, static_cast<VkDevice>(device), _surface};
 
     _swapchainImageFormat = VK_FORMAT_B8G8R8A8_UNORM;
 
@@ -515,11 +530,11 @@ void VulkanEngine::init_swapchain() {
             drawImageFormat, drawImageData.image,
             VK_IMAGE_ASPECT_COLOR_BIT);
 
-    VK_CHECK(vkCreateImageView(getRawDevice(), &rview_info, nullptr,
+    VK_CHECK(vkCreateImageView(static_cast<VkDevice>(device), &rview_info, nullptr,
                                &drawImageData.imageView));
 
     // Create smart pointer for automatic cleanup
-    _drawImage = std::make_unique<VulkanImage>(_a._allocator, getRawDevice(), drawImageData);
+    _drawImage = std::make_unique<VulkanImage>(_a._allocator, static_cast<VkDevice>(device), drawImageData);
 
     // Create depth image
     VkExtent3D depthImageExtent = {
@@ -552,19 +567,19 @@ void VulkanEngine::init_swapchain() {
     VkImageViewCreateInfo dview_info = vkinit::imageview_create_info(
         depthFormat, depthImageData.image, VK_IMAGE_ASPECT_DEPTH_BIT);
 
-    VK_CHECK(vkCreateImageView(getRawDevice(), &dview_info, nullptr,
+    VK_CHECK(vkCreateImageView(static_cast<VkDevice>(device), &dview_info, nullptr,
                                &depthImageData.imageView));
 
     // Create smart pointer for automatic cleanup
-    _depthImage = std::make_unique<VulkanImage>(_a._allocator, getRawDevice(), depthImageData);
+    _depthImage = std::make_unique<VulkanImage>(_a._allocator, static_cast<VkDevice>(device), depthImageData);
 }
 
 void VulkanEngine::destroy_swapchain() {
-    vkDestroySwapchainKHR(getRawDevice(), _swapchain, nullptr);
+    vkDestroySwapchainKHR(static_cast<VkDevice>(device), _swapchain, nullptr);
 
     // destroy swapchain resources
     for (const auto& _swapchainImageView : _swapchainImageViews) {
-        vkDestroyImageView(getRawDevice(), _swapchainImageView, nullptr);
+        vkDestroyImageView(static_cast<VkDevice>(device), _swapchainImageView, nullptr);
     }
 }
 
@@ -572,7 +587,7 @@ void VulkanEngine::destroy_swapchain() {
  {
     if (_isInitialized) {
         // make sure the gpu has stopped doing its things
-        vkDeviceWaitIdle(getRawDevice());
+        vkDeviceWaitIdle(static_cast<VkDevice>(device));
 
         loadedScenes.clear();
 
@@ -580,9 +595,9 @@ void VulkanEngine::destroy_swapchain() {
 
         for (auto& _frame : command_buffers_container._frames) {
             // Destroy frame descriptors manually
-            _frame._frameDescriptors.destroy_pools(getRawDevice());
+            _frame._frameDescriptors.destroy_pools(static_cast<VkDevice>(device));
         }
-        globalDescriptorAllocator.destroy_pools(getRawDevice());
+        globalDescriptorAllocator.destroy_pools(static_cast<VkDevice>(device));
 
         destroy_swapchain();
 
@@ -641,7 +656,7 @@ GPUMeshBuffers VulkanEngine::uploadMesh(std::span<uint32_t> indices,
             .sType = VK_STRUCTURE_TYPE_BUFFER_DEVICE_ADDRESS_INFO,
             .buffer = newSurface.vertexBuffer.buffer};
     newSurface.vertexBufferAddress =
-            vkGetBufferDeviceAddress(getRawDevice(), &deviceAddressInfo);
+            vkGetBufferDeviceAddress(static_cast<VkDevice>(device), &deviceAddressInfo);
 
     // create index buffer
     newSurface.indexBuffer = create_buffer(
@@ -734,12 +749,12 @@ void VulkanEngine::draw_geometry(VkCommandBuffer cmd) {
     // create a descriptor set that binds that buffer and update it
     VkDescriptorSet globalDescriptor =
             get_current_frame()._frameDescriptors.allocate(
-                    getRawDevice(), _gpuSceneDataDescriptorLayout.set);
+                    static_cast<VkDevice>(device), _gpuSceneDataDescriptorLayout.set);
 
     DescriptorWriter writer;
     writer.write_buffer(0, gpuSceneDataBuffer.buffer, sizeof(GPUSceneData), 0,
                         VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER);
-    writer.update_set(getRawDevice(), globalDescriptor);
+    writer.update_set(static_cast<VkDevice>(device), globalDescriptor);
 
     VkRenderingAttachmentInfo colorAttachment = vkinit::attachment_info(
             _drawImage->imageView(), nullptr, VK_IMAGE_LAYOUT_GENERAL);
@@ -771,13 +786,13 @@ void VulkanEngine::draw_geometry(VkCommandBuffer cmd) {
 
     // bind a texture
     VkDescriptorSet imageSet = get_current_frame()._frameDescriptors.allocate(
-            getRawDevice(), _singleImageDescriptorLayout.set);
+            static_cast<VkDevice>(device), _singleImageDescriptorLayout.set);
     DescriptorWriter single_image_writer;
     single_image_writer.write_image(0, _errorCheckerboardImage->imageView(),
                                     _defaultSamplerNearest.sampler,
                                     VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
                                     VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER);
-    single_image_writer.update_set(getRawDevice(), imageSet);
+    single_image_writer.update_set(static_cast<VkDevice>(device), imageSet);
 
     pipelines.meshPipeline->bindDescriptorSets(cmd, &imageSet, 1);
 
@@ -812,19 +827,19 @@ void VulkanEngine::draw() {
 
     // wait until the gpu has finished rendering the last frame. Timeout of 1
     // second
-    VK_CHECK(vkWaitForFences(getRawDevice(), 1, get_current_frame()._renderFence->getPtr(),
+    VK_CHECK(vkWaitForFences(static_cast<VkDevice>(device), 1, get_current_frame()._renderFence->getPtr(),
                              true, 1000000000));
 
     // Clear frame buffers instead of flushing deletion queue
     get_current_frame()._frameBuffers.clear();
-    get_current_frame()._frameDescriptors.clear_pools(getRawDevice());
+    get_current_frame()._frameDescriptors.clear_pools(static_cast<VkDevice>(device));
 
-    VK_CHECK(vkResetFences(getRawDevice(), 1, get_current_frame()._renderFence->getPtr()));
+    VK_CHECK(vkResetFences(static_cast<VkDevice>(device), 1, get_current_frame()._renderFence->getPtr()));
 
     // request image from the swapchain
     uint32_t swapchainImageIndex;
     const VkResult e =
-            vkAcquireNextImageKHR(getRawDevice(), _swapchain, 1000000000,
+            vkAcquireNextImageKHR(static_cast<VkDevice>(device), _swapchain, 1000000000,
                                   get_current_frame()._swapchainSemaphore->get(),
                                   nullptr, &swapchainImageIndex);
     if (e == VK_ERROR_OUT_OF_DATE_KHR) {
@@ -949,7 +964,7 @@ void VulkanEngine::draw() {
 }
 
 void VulkanEngine::resize_swapchain() {
-    vkDeviceWaitIdle(getRawDevice());
+    vkDeviceWaitIdle(static_cast<VkDevice>(device));
 
     destroy_swapchain();
 
@@ -1007,7 +1022,7 @@ AllocatedImage VulkanEngine::create_image(VkExtent3D size, VkFormat format,
             vkinit::imageview_create_info(format, newImage.image, aspectFlag);
     view_info.subresourceRange.levelCount = img_info.mipLevels;
 
-    VK_CHECK(vkCreateImageView(getRawDevice(), &view_info, nullptr,
+    VK_CHECK(vkCreateImageView(static_cast<VkDevice>(device), &view_info, nullptr,
                                &newImage.imageView));
 
     return newImage;

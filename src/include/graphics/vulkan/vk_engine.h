@@ -77,20 +77,15 @@ public:
     Instance instance;
 
     struct Device {
-        vkb::Device device;
-        void init(const vkb::PhysicalDevice& physical_device) {
-            const vkb::DeviceBuilder device_builder{physical_device};
-            auto dev_ret = device_builder.build();
-            if (!dev_ret) {
-                LOGE("Failed to create logical device. Error: {}",
-                     dev_ret.error().message());
-            }
-            device = dev_ret.value();
-        }
-        ~Device() {vkb::destroy_device(device);}
+        explicit operator VkDevice() const;
+        explicit operator vkb::Device() const;
+        void init(const vkb::PhysicalDevice& physical_device);
+        ~Device();
+    private:
+        vkb::Device _device;
     };
-    Device _device;
-    VkDevice getRawDevice() const { return _device.device; }
+    Device device;
+
     struct Allocator {
         VmaAllocator _allocator{nullptr};
         void init(VmaAllocatorCreateInfo info) {vmaCreateAllocator(&info, &_allocator);} // move info inside
