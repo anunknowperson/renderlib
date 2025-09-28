@@ -77,7 +77,7 @@ public:
     struct Device {
         vkb::Device device;
         void init(const vkb::PhysicalDevice& physical_device) {
-            vkb::DeviceBuilder device_builder{physical_device};
+            const vkb::DeviceBuilder device_builder{physical_device};
             auto dev_ret = device_builder.build();
             if (!dev_ret) {
                 LOGE("Failed to create logical device. Error: {}",

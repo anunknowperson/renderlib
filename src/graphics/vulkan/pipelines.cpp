@@ -9,7 +9,7 @@ void GLTFMetallic_Roughness::build_pipelines(VulkanEngine* engine) {
 
     create_material_layout(engine);
     VkPipelineLayout newLayout = create_pipeline_layout(engine);
-
+    device = engine->getRawDevice();
     opaquePipeline.layout = newLayout;
     transparentPipeline.layout = newLayout;
 
@@ -83,7 +83,6 @@ void GLTFMetallic_Roughness::build_opaque_pipeline(VulkanEngine* engine,
     pipelineBuilder._pipelineLayout = layout;
 
     opaquePipeline.pipeline = pipelineBuilder.build_pipeline(engine->getRawDevice());
-    opaquePipeline._device = engine->getRawDevice();
 }
 
 void GLTFMetallic_Roughness::build_transparent_pipeline(
@@ -97,11 +96,10 @@ void GLTFMetallic_Roughness::build_transparent_pipeline(
 
     transparentPipeline.pipeline =
             pipelineBuilder.build_pipeline(engine->getRawDevice());
-    transparentPipeline._device = engine->getRawDevice();
 }
 
 MaterialInstance GLTFMetallic_Roughness::write_material(
-        VkDevice device, MaterialPass pass, const MaterialResources& resources,
+        MaterialPass pass, const MaterialResources& resources,
         DescriptorAllocatorGrowable& descriptorAllocator) {
     MaterialInstance matData{};
     matData.passType = pass;
