@@ -1,68 +1,73 @@
 #!/bin/bash
 
-function usage {
-    echo "Usage: $0 DIR..."
-    exit 1
-}
+# Script to recursively format all supported source files using clang-format
+# Usage: ./scripts/clang-format-all.sh [directory]
 
-if [ $# -eq 0 ]; then
-    usage
-fi
+set -e
 
-# Variable that will hold the name of the clang-format command
-FMT=""
+ROOT_DIR="${1:-.}"
 
-# Some distros just call it clang-format. Others (e.g. Ubuntu) are insistent
-# that the version number be part of the command. We prefer clang-format if
-# that's present, otherwise we work backwards from highest version to lowest
-# version.
-for clangfmt in clang-format{,-{4,3}.{9,8,7,6,5,4,3,2,1,0}}; do
-    if which "$clangfmt" &>/dev/null; then
-        FMT="$clangfmt"
-        break
-    fi
-done
+CLANG_FORMAT="clang-format"
 
-# Check if we found a working clang-format
-if [ -z "$FMT" ]; then
-    echo "failed to find clang-format"
+if ! command -v "$CLANG_FORMAT" &> /dev/null; then
+    echo "Error: $CLANG_FORMAT could not be found"
+    echo "Please install clang-format or set the correct path in this script"
     exit 1
 fi
 
-# Check all of the arguments first to make sure they're all directories
-for dir in "$@"; do
-    if [ ! -d "${dir}" ]; then
-        echo "${dir} is not a directory"
-        usage
+echo "Using $(command -v "$CLANG_FORMAT"): $($CLANG_FORMAT --version)"
+
+C_EXTS=(".c" ".h")
+CPP_EXTS=(".cpp" ".cc" ".cxx" ".hpp" ".hh" ".hxx" ".ipp" ".h" ".tpp")
+CUDA_EXTS=(".cu" ".cuh")
+OBJC_EXTS=(".m" ".mm")
+
+ALL_EXTS=("${C_EXTS[@]}" "${CPP_EXTS[@]}" "${CUDA_EXTS[@]}" "${OBJC_EXTS[@]}")
+
+FILE_PATTERN=""
+for EXT in "${ALL_EXTS[@]}"; do
+    if [ -z "$FILE_PATTERN" ]; then
+        FILE_PATTERN="-name \"*$EXT\""
+    else
+        FILE_PATTERN="$FILE_PATTERN -o -name \"*$EXT\""
     fi
 done
 
-# Find a dominating file, starting from a given directory and going up.
-find-dominating-file() {
-    if [ -r "$1"/"$2" ]; then
-        return 0
-    fi
-    if [ "$1" = "/" ]; then
-        return 1
-    fi
-    find-dominating-file "$(realpath "$1"/..)" "$2"
-    return $?
-}
+EXCLUDE_DIRS=(
+    "build"
+    "out"
+    "extern"
+    "third_party"
+    "ThirdParty"
+    "vendor"
+    ".git"
+    "node_modules"
+    "vcpkg"
+)
 
-# Run clang-format -i on all of the things
-for dir in "$@"; do
-    pushd "${dir}" &>/dev/null
-    if ! find-dominating-file . .clang-format; then
-        echo "Failed to find dominating .clang-format starting at $PWD"
-        continue
-    fi
-    find . \
-         \( -name '*.c' \
-         -o -name '*.cc' \
-         -o -name '*.cpp' \
-         -o -name '*.h' \
-         -o -name '*.hh' \
-         -o -name '*.hpp' \) \
-         -exec "${FMT}" -i '{}' \;
-    popd &>/dev/null
+EXCLUDE_PATTERN=""
+for DIR in "${EXCLUDE_DIRS[@]}"; do
+    EXCLUDE_PATTERN="$EXCLUDE_PATTERN -not -path \"*/$DIR/*\""
 done
+
+echo "Finding files to format..."
+FIND_CMD="find \"$ROOT_DIR\" -type f \( $FILE_PATTERN \) $EXCLUDE_PATTERN"
+FILES=($(eval "$FIND_CMD"))
+FILE_COUNT=${#FILES[@]}
+
+echo "Found $FILE_COUNT files to format"
+
+if [ $FILE_COUNT -eq 0 ]; then
+    echo "No files to format. Exiting."
+    exit 0
+fi
+
+echo "Formatting files..."
+for ((i = 0; i < FILE_COUNT; i++)); do
+    FILE="${FILES[$i]}"
+    echo -ne "[$((i+1))/$FILE_COUNT] Formatting: $FILE\033[0K\r"
+    "$CLANG_FORMAT" -i -style=file "$FILE"
+done
+
+echo -e "\nAll $FILE_COUNT files formatted successfully!"
+exit 0
