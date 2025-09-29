@@ -18,7 +18,8 @@ struct FrameData {
     std::unique_ptr<VulkanFence> _renderFence;
 
     DescriptorAllocatorGrowable _frameDescriptors;
-    std::vector<std::unique_ptr<VulkanBuffer>> _frameBuffers; // For per-frame temporary buffers
+    std::vector<std::unique_ptr<VulkanBuffer>>
+            _frameBuffers;  // For per-frame temporary buffers
 };
 
 class VulkanEngine;
@@ -30,7 +31,7 @@ public:
 
     // Frame management
     FrameData _frames[FRAME_OVERLAP];
-    
+
     FrameData& get_current_frame(unsigned int frameNumber) {
         return _frames[frameNumber % FRAME_OVERLAP];
     }

@@ -30,12 +30,12 @@
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/transform.hpp>
 
+#include "graphics/vulkan/vk_command_buffers.h"
 #include "graphics/vulkan/vk_images.h"
 #include "graphics/vulkan/vk_initializers.h"
 #include "graphics/vulkan/vk_loader.h"
 #include "graphics/vulkan/vk_pipelines.h"
 #include "graphics/vulkan/vk_types.h"
-#include "graphics/vulkan/vk_command_buffers.h"
 
 VulkanEngine* loadedEngine = nullptr;
 
@@ -122,19 +122,25 @@ void VulkanEngine::init_default_data() {
 
     // 3 default textures, white, grey, black. 1 pixel each
     const uint32_t white = glm::packUnorm4x8(glm::vec4(1, 1, 1, 1));
-    AllocatedImage whiteImageData = create_image(&white, VkExtent3D{1, 1, 1}, VK_FORMAT_R8G8B8A8_UNORM,
+    AllocatedImage whiteImageData =
+            create_image(&white, VkExtent3D{1, 1, 1}, VK_FORMAT_R8G8B8A8_UNORM,
                          VK_IMAGE_USAGE_SAMPLED_BIT);
-    _whiteImage = std::make_unique<VulkanImage>(_allocator, _device, whiteImageData);
+    _whiteImage =
+            std::make_unique<VulkanImage>(_allocator, _device, whiteImageData);
 
     const uint32_t grey = glm::packUnorm4x8(glm::vec4(0.66f, 0.66f, 0.66f, 1));
-    AllocatedImage greyImageData = create_image(&grey, VkExtent3D{1, 1, 1}, VK_FORMAT_R8G8B8A8_UNORM,
+    AllocatedImage greyImageData =
+            create_image(&grey, VkExtent3D{1, 1, 1}, VK_FORMAT_R8G8B8A8_UNORM,
                          VK_IMAGE_USAGE_SAMPLED_BIT);
-    _greyImage = std::make_unique<VulkanImage>(_allocator, _device, greyImageData);
+    _greyImage =
+            std::make_unique<VulkanImage>(_allocator, _device, greyImageData);
 
     const uint32_t black = glm::packUnorm4x8(glm::vec4(0, 0, 0, 0));
-    AllocatedImage blackImageData = create_image(&black, VkExtent3D{1, 1, 1}, VK_FORMAT_R8G8B8A8_UNORM,
+    AllocatedImage blackImageData =
+            create_image(&black, VkExtent3D{1, 1, 1}, VK_FORMAT_R8G8B8A8_UNORM,
                          VK_IMAGE_USAGE_SAMPLED_BIT);
-    _blackImage = std::make_unique<VulkanImage>(_allocator, _device, blackImageData);
+    _blackImage =
+            std::make_unique<VulkanImage>(_allocator, _device, blackImageData);
 
     // checkerboard image
     const uint32_t magenta = glm::packUnorm4x8(glm::vec4(1, 0, 1, 1));
@@ -144,9 +150,11 @@ void VulkanEngine::init_default_data() {
             pixels[y * 16 + x] = ((x % 2) ^ (y % 2)) ? magenta : black;
         }
     }
-    AllocatedImage errorImageData = create_image(pixels.data(), VkExtent3D{16, 16, 1},
+    AllocatedImage errorImageData =
+            create_image(pixels.data(), VkExtent3D{16, 16, 1},
                          VK_FORMAT_R8G8B8A8_UNORM, VK_IMAGE_USAGE_SAMPLED_BIT);
-    _errorCheckerboardImage = std::make_unique<VulkanImage>(_allocator, _device, errorImageData);
+    _errorCheckerboardImage =
+            std::make_unique<VulkanImage>(_allocator, _device, errorImageData);
 
     VkSamplerCreateInfo sampl = {.sType =
                                          VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO};
@@ -180,7 +188,8 @@ void VulkanEngine::init_default_data() {
     sceneUniformData->metal_rough_factors = glm::vec4{1, 0.5, 0, 0};
 
     // Store material constants buffer in managed buffers for automatic cleanup
-    _managedBuffers.push_back(std::make_unique<VulkanBuffer>(_allocator, materialConstants));
+    _managedBuffers.push_back(
+            std::make_unique<VulkanBuffer>(_allocator, materialConstants));
 
     materialResources.dataBuffer = materialConstants.buffer;
     materialResources.dataBufferOffset = 0;
@@ -249,9 +258,9 @@ void VulkanEngine::init_imgui() {
 
     ImGui_ImplVulkan_CreateFontsTexture();
 
-    // Store ImGui cleanup info - will be automatically handled when engine destructs
-    // Note: ImGui cleanup is now handled by storing the descriptor pool
-    // that will be automatically destroyed when the device is destroyed
+    // Store ImGui cleanup info - will be automatically handled when engine
+    // destructs Note: ImGui cleanup is now handled by storing the descriptor
+    // pool that will be automatically destroyed when the device is destroyed
 }
 
 void VulkanEngine::init_descriptors() {
@@ -308,12 +317,14 @@ void VulkanEngine::init_descriptors() {
         _frame._frameDescriptors = DescriptorAllocatorGrowable{};
         _frame._frameDescriptors.init(_device, 1000, frame_sizes);
 
-        // No need for deletion queue - frame descriptors will be cleaned up in cleanup()
+        // No need for deletion queue - frame descriptors will be cleaned up in
+        // cleanup()
     }
 }
 
 void VulkanEngine::init_pipelines() {
-    pipelines.init(_device, _singleImageDescriptorLayout, _drawImageDescriptorLayout, _drawImage->get());
+    pipelines.init(_device, _singleImageDescriptorLayout,
+                   _drawImageDescriptorLayout, _drawImage->get());
     // Pipeline cleanup is handled automatically by the Pipelines object
     metalRoughMaterial.build_pipelines(this);
 }
@@ -326,9 +337,9 @@ void VulkanEngine::init(SDL_Window* window) {
     loadedEngine = this;
     init_vulkan();
     init_swapchain();
-    
+
     command_buffers.init_commands(this);
-    
+
     command_buffers_container.init_sync_structures(this);
     init_descriptors();
     init_pipelines();
@@ -466,7 +477,6 @@ void VulkanEngine::init_vulkan() {
     // VMA allocator will be destroyed in cleanup() - no need for deletion queue
 }
 
-
 void VulkanEngine::create_swapchain(uint32_t width, uint32_t height) {
     vkb::SwapchainBuilder swapchainBuilder{_chosenGPU, _device, _surface};
 
@@ -528,56 +538,53 @@ void VulkanEngine::init_swapchain() {
     drawImageData.imageExtent = drawImageExtent;
 
     // allocate and create the image
-    vmaCreateImage(_allocator, &rimg_info, &rimg_allocinfo, &drawImageData.image,
-                   &drawImageData.allocation, nullptr);
+    vmaCreateImage(_allocator, &rimg_info, &rimg_allocinfo,
+                   &drawImageData.image, &drawImageData.allocation, nullptr);
 
     // build an image-view for the draw image to use for rendering
     const VkImageViewCreateInfo rview_info = vkinit::imageview_create_info(
-            drawImageFormat, drawImageData.image,
-            VK_IMAGE_ASPECT_COLOR_BIT);
+            drawImageFormat, drawImageData.image, VK_IMAGE_ASPECT_COLOR_BIT);
 
     VK_CHECK(vkCreateImageView(_device, &rview_info, nullptr,
                                &drawImageData.imageView));
 
     // Create smart pointer for automatic cleanup
-    _drawImage = std::make_unique<VulkanImage>(_allocator, _device, drawImageData);
+    _drawImage =
+            std::make_unique<VulkanImage>(_allocator, _device, drawImageData);
 
     // Create depth image
-    VkExtent3D depthImageExtent = {
-        _windowExtent.width,
-        _windowExtent.height,
-        1
-    };
+    VkExtent3D depthImageExtent = {_windowExtent.width, _windowExtent.height,
+                                   1};
 
     VkFormat depthFormat = VK_FORMAT_D32_SFLOAT;
 
     VkImageCreateInfo dimg_info = vkinit::image_create_info(
-        depthFormat,
-        VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT,
-        depthImageExtent);
+            depthFormat, VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT,
+            depthImageExtent);
 
     VmaAllocationCreateInfo dimg_allocinfo = {};
     dimg_allocinfo.usage = VMA_MEMORY_USAGE_GPU_ONLY;
     dimg_allocinfo.requiredFlags = static_cast<VkMemoryPropertyFlags>(
-        VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
+            VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
 
     AllocatedImage depthImageData{};
     depthImageData.imageFormat = depthFormat;
     depthImageData.imageExtent = depthImageExtent;
 
     // allocate and create the depth image
-    vmaCreateImage(_allocator, &dimg_info, &dimg_allocinfo, &depthImageData.image,
-                   &depthImageData.allocation, nullptr);
+    vmaCreateImage(_allocator, &dimg_info, &dimg_allocinfo,
+                   &depthImageData.image, &depthImageData.allocation, nullptr);
 
     // build an image-view for the depth image
     VkImageViewCreateInfo dview_info = vkinit::imageview_create_info(
-        depthFormat, depthImageData.image, VK_IMAGE_ASPECT_DEPTH_BIT);
+            depthFormat, depthImageData.image, VK_IMAGE_ASPECT_DEPTH_BIT);
 
     VK_CHECK(vkCreateImageView(_device, &dview_info, nullptr,
                                &depthImageData.imageView));
 
     // Create smart pointer for automatic cleanup
-    _depthImage = std::make_unique<VulkanImage>(_allocator, _device, depthImageData);
+    _depthImage =
+            std::make_unique<VulkanImage>(_allocator, _device, depthImageData);
 }
 
 void VulkanEngine::destroy_swapchain() {
@@ -602,7 +609,8 @@ void VulkanEngine::cleanup() {
             // Smart pointers automatically clean up sync objects
             // Manual cleanup only for command pools and command buffers
             if (_frame._commandPool) {
-                vkDestroyCommandPool(_device, _frame._commandPool->get(), nullptr);
+                vkDestroyCommandPool(_device, _frame._commandPool->get(),
+                                     nullptr);
             }
 
             // Destroy frame descriptors manually
@@ -692,28 +700,31 @@ GPUMeshBuffers VulkanEngine::uploadMesh(std::span<uint32_t> indices,
     // copy index buffer
     memcpy((char*)data + vertexBufferSize, indices.data(), indexBufferSize);
 
-    command_buffers.immediate_submit([&](VkCommandBuffer cmd) {
-        VkBufferCopy vertexCopy{0};
-        vertexCopy.dstOffset = 0;
-        vertexCopy.srcOffset = 0;
-        vertexCopy.size = vertexBufferSize;
+    command_buffers.immediate_submit(
+            [&](VkCommandBuffer cmd) {
+                VkBufferCopy vertexCopy{0};
+                vertexCopy.dstOffset = 0;
+                vertexCopy.srcOffset = 0;
+                vertexCopy.size = vertexBufferSize;
 
-        vkCmdCopyBuffer(cmd, staging.buffer, newSurface.vertexBuffer.buffer, 1,
-                        &vertexCopy);
+                vkCmdCopyBuffer(cmd, staging.buffer,
+                                newSurface.vertexBuffer.buffer, 1, &vertexCopy);
 
-        VkBufferCopy indexCopy{0};
-        indexCopy.dstOffset = 0;
-        indexCopy.srcOffset = vertexBufferSize;
-        indexCopy.size = indexBufferSize;
+                VkBufferCopy indexCopy{0};
+                indexCopy.dstOffset = 0;
+                indexCopy.srcOffset = vertexBufferSize;
+                indexCopy.size = indexBufferSize;
 
-        vkCmdCopyBuffer(cmd, staging.buffer, newSurface.indexBuffer.buffer, 1,
-                        &indexCopy);
+                vkCmdCopyBuffer(cmd, staging.buffer,
+                                newSurface.indexBuffer.buffer, 1, &indexCopy);
             },
             this);
 
     // Store mesh buffers in managed collections for automatic cleanup
-    _managedBuffers.push_back(std::make_unique<VulkanBuffer>(_allocator, newSurface.vertexBuffer));
-    _managedBuffers.push_back(std::make_unique<VulkanBuffer>(_allocator, newSurface.indexBuffer));
+    _managedBuffers.push_back(std::make_unique<VulkanBuffer>(
+            _allocator, newSurface.vertexBuffer));
+    _managedBuffers.push_back(
+            std::make_unique<VulkanBuffer>(_allocator, newSurface.indexBuffer));
     destroy_buffer(staging);
 
     return newSurface;
@@ -725,13 +736,13 @@ void VulkanEngine::draw_background(VkCommandBuffer cmd) const {
     pipelines.gradientPipeline->bind(cmd);
 
     // bind descriptor sets
-    pipelines.gradientPipeline->bindDescriptorSets(cmd, &_drawImageDescriptors, 1);
+    pipelines.gradientPipeline->bindDescriptorSets(cmd, &_drawImageDescriptors,
+                                                   1);
 
     // dispatch the compute shader
-    pipelines.gradientPipeline->dispatch(cmd,
-        static_cast<uint32_t>(std::ceil(_drawExtent.width / 16.0)),
-        static_cast<uint32_t>(std::ceil(_drawExtent.height / 16.0)),
-        1);
+    pipelines.gradientPipeline->dispatch(
+            cmd, static_cast<uint32_t>(std::ceil(_drawExtent.width / 16.0)),
+            static_cast<uint32_t>(std::ceil(_drawExtent.height / 16.0)), 1);
 }
 
 void VulkanEngine::draw_imgui(VkCommandBuffer cmd,
@@ -756,7 +767,7 @@ void VulkanEngine::draw_geometry(VkCommandBuffer cmd) {
 
     // add it to the current frame's managed buffers for automatic cleanup
     get_current_frame()._frameBuffers.push_back(
-        std::make_unique<VulkanBuffer>(_allocator, gpuSceneDataBuffer));
+            std::make_unique<VulkanBuffer>(_allocator, gpuSceneDataBuffer));
 
     // write the buffer
     auto* sceneUniformData =
@@ -844,21 +855,23 @@ void VulkanEngine::draw() {
 
     // wait until the gpu has finished rendering the last frame. Timeout of 1
     // second
-    VK_CHECK(vkWaitForFences(_device, 1, get_current_frame()._renderFence->getPtr(),
-                             true, 1000000000));
+    VK_CHECK(vkWaitForFences(_device, 1,
+                             get_current_frame()._renderFence->getPtr(), true,
+                             1000000000));
 
     // Clear frame buffers instead of flushing deletion queue
     get_current_frame()._frameBuffers.clear();
     get_current_frame()._frameDescriptors.clear_pools(_device);
 
-    VK_CHECK(vkResetFences(_device, 1, get_current_frame()._renderFence->getPtr()));
+    VK_CHECK(vkResetFences(_device, 1,
+                           get_current_frame()._renderFence->getPtr()));
 
     // request image from the swapchain
     uint32_t swapchainImageIndex;
-    const VkResult e =
-            vkAcquireNextImageKHR(_device, _swapchain, 1000000000,
-                                  get_current_frame()._swapchainSemaphore->get(),
-                                  nullptr, &swapchainImageIndex);
+    const VkResult e = vkAcquireNextImageKHR(
+            _device, _swapchain, 1000000000,
+            get_current_frame()._swapchainSemaphore->get(), nullptr,
+            &swapchainImageIndex);
     if (e == VK_ERROR_OUT_OF_DATE_KHR) {
         resize_requested = true;
         return;
@@ -891,7 +904,8 @@ void VulkanEngine::draw() {
     // transition our main draw image into general layout, so we can write into
     // it, we will overwrite it all, so we don't care about what was the older
     // layout
-    vkutil::transition_image(cmd, _drawImage->image(), VK_IMAGE_LAYOUT_UNDEFINED,
+    vkutil::transition_image(cmd, _drawImage->image(),
+                             VK_IMAGE_LAYOUT_UNDEFINED,
                              VK_IMAGE_LAYOUT_GENERAL);
 
     draw_background(cmd);
@@ -943,9 +957,9 @@ void VulkanEngine::draw() {
     const VkSemaphoreSubmitInfo waitInfo = vkinit::semaphore_submit_info(
             VK_PIPELINE_STAGE_2_COLOR_ATTACHMENT_OUTPUT_BIT_KHR,
             get_current_frame()._swapchainSemaphore->get());
-    const VkSemaphoreSubmitInfo signalInfo =
-            vkinit::semaphore_submit_info(VK_PIPELINE_STAGE_2_ALL_GRAPHICS_BIT,
-                                          get_current_frame()._renderSemaphore->get());
+    const VkSemaphoreSubmitInfo signalInfo = vkinit::semaphore_submit_info(
+            VK_PIPELINE_STAGE_2_ALL_GRAPHICS_BIT,
+            get_current_frame()._renderSemaphore->get());
 
     const VkSubmitInfo2 submit =
             vkinit::submit_info(&cmdinfo, &signalInfo, &waitInfo);
@@ -966,7 +980,8 @@ void VulkanEngine::draw() {
     presentInfo.pSwapchains = &_swapchain;
     presentInfo.swapchainCount = 1;
 
-    presentInfo.pWaitSemaphores = get_current_frame()._renderSemaphore->getPtr();
+    presentInfo.pWaitSemaphores =
+            get_current_frame()._renderSemaphore->getPtr();
     presentInfo.waitSemaphoreCount = 1;
 
     presentInfo.pImageIndices = &swapchainImageIndex;
@@ -1062,30 +1077,33 @@ AllocatedImage VulkanEngine::create_image(const void* data, VkExtent3D size,
                                  VK_IMAGE_USAGE_TRANSFER_SRC_BIT,
                          mipmapped);
 
-    command_buffers.immediate_submit([&](VkCommandBuffer cmd) {
-        vkutil::transition_image(cmd, new_image.image,
-                                 VK_IMAGE_LAYOUT_UNDEFINED,
-                                 VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
+    command_buffers.immediate_submit(
+            [&](VkCommandBuffer cmd) {
+                vkutil::transition_image(cmd, new_image.image,
+                                         VK_IMAGE_LAYOUT_UNDEFINED,
+                                         VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
 
-        VkBufferImageCopy copyRegion = {};
-        copyRegion.bufferOffset = 0;
-        copyRegion.bufferRowLength = 0;
-        copyRegion.bufferImageHeight = 0;
+                VkBufferImageCopy copyRegion = {};
+                copyRegion.bufferOffset = 0;
+                copyRegion.bufferRowLength = 0;
+                copyRegion.bufferImageHeight = 0;
 
-        copyRegion.imageSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-        copyRegion.imageSubresource.mipLevel = 0;
-        copyRegion.imageSubresource.baseArrayLayer = 0;
-        copyRegion.imageSubresource.layerCount = 1;
-        copyRegion.imageExtent = size;
+                copyRegion.imageSubresource.aspectMask =
+                        VK_IMAGE_ASPECT_COLOR_BIT;
+                copyRegion.imageSubresource.mipLevel = 0;
+                copyRegion.imageSubresource.baseArrayLayer = 0;
+                copyRegion.imageSubresource.layerCount = 1;
+                copyRegion.imageExtent = size;
 
-        // copy the buffer into the image
-        vkCmdCopyBufferToImage(cmd, uploadbuffer.buffer, new_image.image,
-                               VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1,
-                               &copyRegion);
+                // copy the buffer into the image
+                vkCmdCopyBufferToImage(
+                        cmd, uploadbuffer.buffer, new_image.image,
+                        VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &copyRegion);
 
-        vkutil::transition_image(cmd, new_image.image,
-                                 VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
-                                 VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+                vkutil::transition_image(
+                        cmd, new_image.image,
+                        VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+                        VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
             },
             (VulkanEngine*)this);
 

@@ -69,8 +69,7 @@ std::optional<std::vector<std::shared_ptr<MeshAsset>>> loadGltfMeshes(
     if (asset) {
         gltf = std::move(asset.get());
     } else {
-        LOGE("Failed to load glTF: {}",
-                      fastgltf::to_underlying(asset.error()));
+        LOGE("Failed to load glTF: {}", fastgltf::to_underlying(asset.error()));
         return {};
     }
 
@@ -207,7 +206,8 @@ VkSamplerMipmapMode extract_mipmap_mode(fastgltf::Filter filter) {
 
 std::optional<std::shared_ptr<LoadedGLTF>> loadGltf(VulkanEngine* engine,
                                                     std::string_view filePath) {
-    LOGI("Loading GLTF: {}", filePath);if (!std::filesystem::exists(filePath)) {
+    LOGI("Loading GLTF: {}", filePath);
+    if (!std::filesystem::exists(filePath)) {
         LOGW("File does not exist: {}", filePath);
     }
     auto scene = std::make_shared<LoadedGLTF>();
@@ -228,7 +228,8 @@ std::optional<std::shared_ptr<LoadedGLTF>> loadGltf(VulkanEngine* engine,
         if (load) {
             gltf = std::move(load.get());
         } else {
-            LOGE("Failed to load glTF: {} ", fastgltf::to_underlying(load.error()));
+            LOGE("Failed to load glTF: {} ",
+                 fastgltf::to_underlying(load.error()));
             return {};
         }
     } else if (type == fastgltf::GltfType::GLB) {
@@ -237,7 +238,8 @@ std::optional<std::shared_ptr<LoadedGLTF>> loadGltf(VulkanEngine* engine,
         if (load) {
             gltf = std::move(load.get());
         } else {
-            LOGE("Failed to load glTF: {} ", fastgltf::to_underlying(load.error()));
+            LOGE("Failed to load glTF: {} ",
+                 fastgltf::to_underlying(load.error()));
             return {};
         }
     } else {
@@ -350,7 +352,8 @@ std::optional<std::shared_ptr<LoadedGLTF>> loadGltf(VulkanEngine* engine,
 
         GLTFMetallic_Roughness::MaterialConstants constants = {};
         constants.colorFactors = glm::vec4(1.0f);  // White base color
-        constants.metal_rough_factors = glm::vec4(0.0f);  // Non-metallic, smooth
+        constants.metal_rough_factors =
+                glm::vec4(0.0f);  // Non-metallic, smooth
 
         sceneMaterialConstants[0] = constants;
 

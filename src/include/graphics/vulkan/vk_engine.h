@@ -13,22 +13,19 @@
 #include <vulkan/vk_platform.h>
 #include <vulkan/vulkan_core.h>
 
-#include "vk_descriptors.h"
-#include "vk_types.h"
-#include "vk_smart_wrappers.h"
-
-#include "pipelines.h"
 #include "ComputePipeline.h"
-
+#include "pipelines.h"
 #include "vk_command_buffers.h"
 #include "vk_command_buffers_container.h"
+#include "vk_descriptors.h"
+#include "vk_smart_wrappers.h"
+#include "vk_types.h"
 
 class Camera;
 class VulkanEngine;
 struct DrawContext;
 struct LoadedGLTF;
 struct MeshAsset;
-
 
 struct GPUSceneData {
     glm::mat4 view;
@@ -64,7 +61,6 @@ struct DrawContext {
 
 class VulkanEngine {
 public:
-
     Pipelines pipelines;
 
     CommandBuffers command_buffers;
@@ -141,7 +137,6 @@ public:
 
     VkDescriptorSet _drawImageDescriptors;
     VkDescriptorSetLayout _drawImageDescriptorLayout;
-
 
     GPUMeshBuffers rectangle;
 

@@ -1,8 +1,9 @@
 #pragma once
 
 #include <memory>
-#include <vulkan/vulkan_core.h>
 #include <vk_mem_alloc.h>
+#include <vulkan/vulkan_core.h>
+
 #include "vk_types.h"
 
 class VulkanEngine;
@@ -10,8 +11,9 @@ class VulkanEngine;
 // RAII wrapper for VkFence
 class VulkanFence {
 public:
-    VulkanFence(VkDevice device, VkFence fence) : device_(device), fence_(fence) {}
-    
+    VulkanFence(VkDevice device, VkFence fence)
+        : device_(device), fence_(fence) {}
+
     ~VulkanFence() {
         if (fence_ != VK_NULL_HANDLE) {
             vkDestroyFence(device_, fence_, nullptr);
@@ -19,7 +21,7 @@ public:
     }
 
     // Move constructor and assignment
-    VulkanFence(VulkanFence&& other) noexcept 
+    VulkanFence(VulkanFence&& other) noexcept
         : device_(other.device_), fence_(other.fence_) {
         other.fence_ = VK_NULL_HANDLE;
     }
@@ -40,9 +42,17 @@ public:
     VulkanFence(const VulkanFence&) = delete;
     VulkanFence& operator=(const VulkanFence&) = delete;
 
-    VkFence get() const { return fence_; }
-    VkFence* getPtr() { return &fence_; }
-    operator VkFence() const { return fence_; }
+    VkFence get() const {
+        return fence_;
+    }
+
+    VkFence* getPtr() {
+        return &fence_;
+    }
+
+    operator VkFence() const {
+        return fence_;
+    }
 
 private:
     VkDevice device_;
@@ -52,8 +62,9 @@ private:
 // RAII wrapper for VkSemaphore
 class VulkanSemaphore {
 public:
-    VulkanSemaphore(VkDevice device, VkSemaphore semaphore) : device_(device), semaphore_(semaphore) {}
-    
+    VulkanSemaphore(VkDevice device, VkSemaphore semaphore)
+        : device_(device), semaphore_(semaphore) {}
+
     ~VulkanSemaphore() {
         if (semaphore_ != VK_NULL_HANDLE) {
             vkDestroySemaphore(device_, semaphore_, nullptr);
@@ -61,7 +72,7 @@ public:
     }
 
     // Move constructor and assignment
-    VulkanSemaphore(VulkanSemaphore&& other) noexcept 
+    VulkanSemaphore(VulkanSemaphore&& other) noexcept
         : device_(other.device_), semaphore_(other.semaphore_) {
         other.semaphore_ = VK_NULL_HANDLE;
     }
@@ -82,9 +93,17 @@ public:
     VulkanSemaphore(const VulkanSemaphore&) = delete;
     VulkanSemaphore& operator=(const VulkanSemaphore&) = delete;
 
-    VkSemaphore get() const { return semaphore_; }
-    VkSemaphore* getPtr() { return &semaphore_; }
-    operator VkSemaphore() const { return semaphore_; }
+    VkSemaphore get() const {
+        return semaphore_;
+    }
+
+    VkSemaphore* getPtr() {
+        return &semaphore_;
+    }
+
+    operator VkSemaphore() const {
+        return semaphore_;
+    }
 
 private:
     VkDevice device_;
@@ -94,8 +113,9 @@ private:
 // RAII wrapper for VkCommandPool
 class VulkanCommandPool {
 public:
-    VulkanCommandPool(VkDevice device, VkCommandPool commandPool) : device_(device), commandPool_(commandPool) {}
-    
+    VulkanCommandPool(VkDevice device, VkCommandPool commandPool)
+        : device_(device), commandPool_(commandPool) {}
+
     ~VulkanCommandPool() {
         if (commandPool_ != VK_NULL_HANDLE) {
             vkDestroyCommandPool(device_, commandPool_, nullptr);
@@ -103,7 +123,7 @@ public:
     }
 
     // Move constructor and assignment
-    VulkanCommandPool(VulkanCommandPool&& other) noexcept 
+    VulkanCommandPool(VulkanCommandPool&& other) noexcept
         : device_(other.device_), commandPool_(other.commandPool_) {
         other.commandPool_ = VK_NULL_HANDLE;
     }
@@ -124,9 +144,17 @@ public:
     VulkanCommandPool(const VulkanCommandPool&) = delete;
     VulkanCommandPool& operator=(const VulkanCommandPool&) = delete;
 
-    VkCommandPool get() const { return commandPool_; }
-    VkCommandPool* getPtr() { return &commandPool_; }
-    operator VkCommandPool() const { return commandPool_; }
+    VkCommandPool get() const {
+        return commandPool_;
+    }
+
+    VkCommandPool* getPtr() {
+        return &commandPool_;
+    }
+
+    operator VkCommandPool() const {
+        return commandPool_;
+    }
 
 private:
     VkDevice device_;
@@ -136,8 +164,9 @@ private:
 // RAII wrapper for VkImageView
 class VulkanImageView {
 public:
-    VulkanImageView(VkDevice device, VkImageView imageView) : device_(device), imageView_(imageView) {}
-    
+    VulkanImageView(VkDevice device, VkImageView imageView)
+        : device_(device), imageView_(imageView) {}
+
     ~VulkanImageView() {
         if (imageView_ != VK_NULL_HANDLE) {
             vkDestroyImageView(device_, imageView_, nullptr);
@@ -145,7 +174,7 @@ public:
     }
 
     // Move constructor and assignment
-    VulkanImageView(VulkanImageView&& other) noexcept 
+    VulkanImageView(VulkanImageView&& other) noexcept
         : device_(other.device_), imageView_(other.imageView_) {
         other.imageView_ = VK_NULL_HANDLE;
     }
@@ -166,9 +195,17 @@ public:
     VulkanImageView(const VulkanImageView&) = delete;
     VulkanImageView& operator=(const VulkanImageView&) = delete;
 
-    VkImageView get() const { return imageView_; }
-    VkImageView* getPtr() { return &imageView_; }
-    operator VkImageView() const { return imageView_; }
+    VkImageView get() const {
+        return imageView_;
+    }
+
+    VkImageView* getPtr() {
+        return &imageView_;
+    }
+
+    operator VkImageView() const {
+        return imageView_;
+    }
 
 private:
     VkDevice device_;
@@ -178,9 +215,9 @@ private:
 // RAII wrapper for AllocatedBuffer
 class VulkanBuffer {
 public:
-    VulkanBuffer(VmaAllocator allocator, const AllocatedBuffer& buffer) 
+    VulkanBuffer(VmaAllocator allocator, const AllocatedBuffer& buffer)
         : allocator_(allocator), buffer_(buffer) {}
-    
+
     ~VulkanBuffer() {
         if (buffer_.buffer != VK_NULL_HANDLE) {
             vmaDestroyBuffer(allocator_, buffer_.buffer, buffer_.allocation);
@@ -188,7 +225,7 @@ public:
     }
 
     // Move constructor and assignment
-    VulkanBuffer(VulkanBuffer&& other) noexcept 
+    VulkanBuffer(VulkanBuffer&& other) noexcept
         : allocator_(other.allocator_), buffer_(other.buffer_) {
         other.buffer_.buffer = VK_NULL_HANDLE;
         other.buffer_.allocation = nullptr;
@@ -197,7 +234,8 @@ public:
     VulkanBuffer& operator=(VulkanBuffer&& other) noexcept {
         if (this != &other) {
             if (buffer_.buffer != VK_NULL_HANDLE) {
-                vmaDestroyBuffer(allocator_, buffer_.buffer, buffer_.allocation);
+                vmaDestroyBuffer(allocator_, buffer_.buffer,
+                                 buffer_.allocation);
             }
             allocator_ = other.allocator_;
             buffer_ = other.buffer_;
@@ -211,9 +249,17 @@ public:
     VulkanBuffer(const VulkanBuffer&) = delete;
     VulkanBuffer& operator=(const VulkanBuffer&) = delete;
 
-    const AllocatedBuffer& get() const { return buffer_; }
-    VkBuffer buffer() const { return buffer_.buffer; }
-    VmaAllocation allocation() const { return buffer_.allocation; }
+    const AllocatedBuffer& get() const {
+        return buffer_;
+    }
+
+    VkBuffer buffer() const {
+        return buffer_.buffer;
+    }
+
+    VmaAllocation allocation() const {
+        return buffer_.allocation;
+    }
 
 private:
     VmaAllocator allocator_;
@@ -223,9 +269,10 @@ private:
 // RAII wrapper for AllocatedImage
 class VulkanImage {
 public:
-    VulkanImage(VmaAllocator allocator, VkDevice device, const AllocatedImage& image) 
+    VulkanImage(VmaAllocator allocator, VkDevice device,
+                const AllocatedImage& image)
         : allocator_(allocator), device_(device), image_(image) {}
-    
+
     ~VulkanImage() {
         if (image_.imageView != VK_NULL_HANDLE) {
             vkDestroyImageView(device_, image_.imageView, nullptr);
@@ -236,8 +283,10 @@ public:
     }
 
     // Move constructor and assignment
-    VulkanImage(VulkanImage&& other) noexcept 
-        : allocator_(other.allocator_), device_(other.device_), image_(other.image_) {
+    VulkanImage(VulkanImage&& other) noexcept
+        : allocator_(other.allocator_),
+          device_(other.device_),
+          image_(other.image_) {
         other.image_.image = VK_NULL_HANDLE;
         other.image_.imageView = VK_NULL_HANDLE;
         other.image_.allocation = nullptr;
@@ -265,10 +314,21 @@ public:
     VulkanImage(const VulkanImage&) = delete;
     VulkanImage& operator=(const VulkanImage&) = delete;
 
-    const AllocatedImage& get() const { return image_; }
-    VkImage image() const { return image_.image; }
-    VkImageView imageView() const { return image_.imageView; }
-    VmaAllocation allocation() const { return image_.allocation; }
+    const AllocatedImage& get() const {
+        return image_;
+    }
+
+    VkImage image() const {
+        return image_.image;
+    }
+
+    VkImageView imageView() const {
+        return image_.imageView;
+    }
+
+    VmaAllocation allocation() const {
+        return image_.allocation;
+    }
 
 private:
     VmaAllocator allocator_;
@@ -277,7 +337,7 @@ private:
 };
 
 // Factory functions for creating smart pointers
-template<typename T, typename... Args>
+template <typename T, typename... Args>
 std::unique_ptr<T> make_vulkan_unique(Args&&... args) {
     return std::make_unique<T>(std::forward<Args>(args)...);
 }

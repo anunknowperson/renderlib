@@ -1,4 +1,5 @@
 #include "graphics/vulkan/pipelines.h"
+
 #include "graphics/vulkan/vk_engine.h"
 
 void GLTFMetallic_Roughness::build_pipelines(VulkanEngine* engine) {
@@ -78,7 +79,8 @@ void GLTFMetallic_Roughness::build_opaque_pipeline(VulkanEngine* engine,
     pipelineBuilder.set_multisampling_none();
     pipelineBuilder.disable_blending();
     pipelineBuilder.enable_depthtest(true, VK_COMPARE_OP_GREATER_OR_EQUAL);
-    pipelineBuilder.set_color_attachment_format(engine->_drawImage->get().imageFormat);
+    pipelineBuilder.set_color_attachment_format(
+            engine->_drawImage->get().imageFormat);
     pipelineBuilder.set_depth_format(engine->_depthImage->get().imageFormat);
     pipelineBuilder._pipelineLayout = layout;
 
@@ -156,7 +158,7 @@ void Pipelines::init(VkDevice device,
 
     trianglePipeline = std::make_unique<GraphicsPipeline>(triangleConfig);
     trianglePipeline->init(device);
-    
+
     // Mesh pipeline config
     GraphicsPipeline::GraphicsPipelineConfig meshConfig;
     meshConfig.vertexShaderPath = "./shaders/colored_triangle_mesh.vert.spv";
@@ -167,30 +169,30 @@ void Pipelines::init(VkDevice device,
     meshConfig.depthCompareOp = VK_COMPARE_OP_GREATER;
     meshConfig.cullMode = VK_CULL_MODE_NONE;
     meshConfig.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
-    
-    // Explicitly setup pipeline details via callback 
+
+    // Explicitly setup pipeline details via callback
     meshConfig.customPipelineSetup = [](PipelineBuilder& builder) {
         builder.enable_depthtest(true, VK_COMPARE_OP_GREATER);
         builder.set_multisampling_none();
         builder.set_polygon_mode(VK_POLYGON_MODE_FILL);
     };
-    
+
     VkPushConstantRange bufferRange{};
     bufferRange.offset = 0;
     bufferRange.size = sizeof(GPUDrawPushConstants);
     bufferRange.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
     meshConfig.pushConstants.push_back(bufferRange);
-    
+
     meshConfig.descriptorSetLayouts.push_back(_singleImageDescriptorLayout);
 
     meshPipeline = std::make_unique<GraphicsPipeline>(meshConfig);
     meshPipeline->init(device);
-    
+
     // Compute pipeline
     ComputePipeline::ComputePipelineConfig gradientConfig;
     gradientConfig.descriptorSetLayout = _drawImageDescriptorLayout;
     gradientConfig.shaderPath = "./shaders/gradient.comp.spv";
-    
+
     gradientPipeline = std::make_unique<ComputePipeline>(gradientConfig);
     gradientPipeline->init(device);
 
@@ -201,11 +203,11 @@ void Pipelines::destroy() {
     if (trianglePipeline) {
         trianglePipeline->destroy();
     }
-    
+
     if (meshPipeline) {
         meshPipeline->destroy();
     }
-    
+
     if (gradientPipeline) {
         gradientPipeline->destroy();
     }

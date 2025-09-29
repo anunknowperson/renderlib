@@ -1,12 +1,13 @@
 #pragma once
 
-#include "IPipeline.h"
-#include "vk_types.h"
-#include "vk_initializers.h"
-#include "vk_pipelines.h"
 #include <functional>
 #include <string>
 #include <vector>
+
+#include "IPipeline.h"
+#include "vk_initializers.h"
+#include "vk_pipelines.h"
+#include "vk_types.h"
 
 class GraphicsPipeline : public IPipeline {
 public:
@@ -27,19 +28,25 @@ public:
 
     GraphicsPipeline() = default;
     explicit GraphicsPipeline(const GraphicsPipelineConfig& config);
-    
+
     void init(VkDevice device) override;
     void bind(VkCommandBuffer cmd) override;
     void destroy() override;
-    
-    VkPipeline getPipeline() const override { return _pipeline; }
-    VkPipelineLayout getLayout() const override { return _pipelineLayout; }
+
+    VkPipeline getPipeline() const override {
+        return _pipeline;
+    }
+
+    VkPipelineLayout getLayout() const override {
+        return _pipelineLayout;
+    }
 
     // Graphics pipeline specific methods
     void bindDescriptorSets(VkCommandBuffer cmd,
                             const VkDescriptorSet* descriptorSets,
                             uint32_t setCount, uint32_t firstSet = 0);
-    void pushConstants(VkCommandBuffer cmd, VkShaderStageFlags stageFlags, uint32_t offset, uint32_t size, const void* data);
+    void pushConstants(VkCommandBuffer cmd, VkShaderStageFlags stageFlags,
+                       uint32_t offset, uint32_t size, const void* data);
 
 private:
     VkDevice _device = VK_NULL_HANDLE;

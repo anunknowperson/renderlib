@@ -34,7 +34,6 @@ void Mesh::remove_model() {
     }
 }
 
-
 void Mesh::set_transform(glm::mat4 t) {
     VulkanEngine &engine = VulkanEngine::Get();
 
