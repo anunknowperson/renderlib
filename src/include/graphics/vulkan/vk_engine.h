@@ -108,9 +108,6 @@ public:
     // initializes everything in the engine
     void init(struct SDL_Window* window);
 
-    // shuts down the engine
-    void cleanup();
-
     // draw loop
     void draw();
 
@@ -179,7 +176,7 @@ public:
 
     AllocatedBuffer create_buffer(size_t allocSize, VkBufferUsageFlags usage,
                                   VmaMemoryUsage memoryUsage) const;
-
+    ~VulkanEngine();
 private:
     struct Imgui {
         explicit Imgui(const VulkanEngine& engine);

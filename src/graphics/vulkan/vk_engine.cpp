@@ -590,7 +590,8 @@ void VulkanEngine::destroy_swapchain() {
     }
 }
 
-void VulkanEngine::cleanup() {
+ VulkanEngine::~VulkanEngine()
+ {
     if (_isInitialized) {
         // make sure the gpu has stopped doing its things
         vkDeviceWaitIdle(_device);
@@ -1094,10 +1095,6 @@ AllocatedImage VulkanEngine::create_image(const void* data, VkExtent3D size,
     return new_image;
 }
 
-void VulkanEngine::destroy_image(const AllocatedImage& img) const {
-    vkDestroyImageView(_device, img.imageView, nullptr);
-    vmaDestroyImage(_allocator, img.image, img.allocation);
-}
 
 void MeshNode::Draw(const glm::mat4& topMatrix, DrawContext& ctx) {
     const glm::mat4 nodeMatrix = topMatrix * worldTransform;
