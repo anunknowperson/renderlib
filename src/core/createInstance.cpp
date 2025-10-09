@@ -2,7 +2,6 @@
 #include "core/Controller.h"
 #include "core/Model.h"
 #include "core/View.h"
-#include "interfaces/IModel.h"
 
 IController::Ptr createInstance() {
     const auto model = createModel();

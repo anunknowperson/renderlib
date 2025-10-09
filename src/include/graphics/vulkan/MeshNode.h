@@ -1,9 +1,12 @@
 #pragma once
 
+#include <glm/ext/matrix_float4x4.hpp>
+#include <memory>
 #include "graphics/vulkan/vk_types.h"
-#include "scene/Mesh.h"
 
-#include <glm/glm.hpp>
+namespace Mesh::GLTF {
+struct MeshAsset;
+}
 
 struct MeshNode final : ENode {
     std::shared_ptr<Mesh::GLTF::MeshAsset> mesh;

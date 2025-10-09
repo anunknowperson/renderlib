@@ -3,6 +3,7 @@
 #include <filesystem>
 
 #include "graphics/vulkan/vk_descriptors.h"
+#include "graphics/vulkan/vk_types.h"
 
 class VulkanEngine;
 
@@ -46,5 +47,5 @@ struct LoadedGLTF {
 
     VulkanEngine* creator;
 };
-}
-};
+}  // namespace GLTF
+};  // namespace Mesh

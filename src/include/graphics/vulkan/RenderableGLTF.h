@@ -1,9 +1,9 @@
 ﻿#pragma once
 
-#include <filesystem>
-
-#include "vk_types.h"
+#include <glm/ext/matrix_float4x4.hpp>
+#include <memory>
 #include "scene/Mesh.h"
+#include "vk_types.h"
 
 class RenderableGLTF : public IRenderable {
 public:
@@ -15,5 +15,3 @@ public:
 private:
     std::shared_ptr<const Mesh::GLTF::LoadedGLTF> _gltf;
 };
-
-

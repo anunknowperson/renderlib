@@ -1,16 +1,13 @@
 #include "core/ControllerImpl.h"
 
-#include <cassert>
-#include <chrono>
-#include <iostream>
+#include <graphics/vulkan/vk_engine.h>
 #include <utility>
 
-#include <core/View.h>
-#include <graphics/vulkan/vk_engine.h>
+#include "core/MeshController.h"
+#include "scene/Camera.h"
 
 ControllerImpl::ControllerImpl(IModel::Ptr model, IView::Ptr view)
-    : _model(std::move(model)), _view(std::move(view)) {
-}
+    : _model(std::move(model)), _view(std::move(view)) {}
 
 void ControllerImpl::update() {
     _model->get_engine().update(_model);
@@ -32,4 +29,3 @@ void ControllerImpl::process_event(const SDL_Event& e) {
     _model->getCamera()->processSDLEvent(e);
     _view->process_event(e);
 }
-

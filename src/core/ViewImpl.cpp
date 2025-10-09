@@ -1,13 +1,12 @@
 #include "core/ViewImpl.h"
 
 #include <SDL2/SDL.h>
-#include <SDL2/SDL_vulkan.h>
-#include <charconv>
+#include <SDL_events.h>
+#include <SDL_video.h>
+
 #include <chrono>
-#include <iomanip>
-#include <iostream>
-#include <limits>
-#include <stdexcept>
+#include <memory>
+#include <string>
 #include <thread>
 #include <utility>
 #include <variant>
@@ -17,15 +16,16 @@
 #include "imgui_impl_sdl2.h"
 #include "imgui_impl_vulkan.h"
 
-ViewImpl::ViewImpl(IModel::Ptr model)
-    : _model(std::move(model)) {
+namespace {
+constexpr auto kWindowFlags =
+        static_cast<uint32_t>(SDL_WINDOW_VULKAN | SDL_WINDOW_RESIZABLE);
+}
+
+ViewImpl::ViewImpl(IModel::Ptr model) : _model(std::move(model)) {
     SDL_Init(SDL_INIT_VIDEO);
 
-    auto window_flags =
-            (SDL_WindowFlags)(SDL_WINDOW_VULKAN | SDL_WINDOW_RESIZABLE);
-
     window = SDL_CreateWindow("engine", SDL_WINDOWPOS_UNDEFINED,
-                              SDL_WINDOWPOS_UNDEFINED, 1700, 900, window_flags);
+                              SDL_WINDOWPOS_UNDEFINED, 1700, 900, kWindowFlags);
     _model->registerWindow(window);
 }
 
@@ -36,7 +36,7 @@ void ViewImpl::run() const {
     ImGui::NewFrame();
 
     if (ImGui::Begin("background")) {
-        VulkanEngine &engine = VulkanEngine::Get();
+        VulkanEngine& engine = VulkanEngine::Get();
         ImGui::SliderFloat("Render Scale", &engine.renderScale, 0.3f, 1.f);
         // other code
     }

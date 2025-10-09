@@ -1,14 +1,14 @@
 #include "core/MeshController.h"
-
-#include <graphics/vulkan/vk_engine.h>
+#include <glm/detail/qualifier.hpp>
+#include <memory>
 #include <ranges>
-
+#include <utility>
 #include "scene/Mesh.h"
 
 MeshController::MeshController(IModel::Ptr model) : _model(std::move(model)) {}
 
-Mesh::rid_t MeshController::create_mesh(const std::filesystem::path& file_path) const {
-        //TODO: вернуть возвращемое значение
+Mesh::rid_t MeshController::create_mesh(
+        const std::filesystem::path& file_path) const {
     return _model->createMesh(file_path);
 }
 

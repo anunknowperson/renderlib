@@ -36,7 +36,8 @@ public:
      * \brief Gets a controller to interact with meshes
      * \return Pointer to the MeshController
      */
-    [[nodiscard]] virtual std::weak_ptr<const MeshController> getMeshController() = 0;
+    [[nodiscard]] virtual std::weak_ptr<const MeshController>
+    getMeshController() = 0;
     /*!
      * \brief Handles user actions (SDL events)
      * @param e SDL event

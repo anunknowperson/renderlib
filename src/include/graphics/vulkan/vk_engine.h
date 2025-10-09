@@ -1,14 +1,17 @@
 ﻿#pragma once
 
 #include <random>
+#include <ranges>
 
-#include "interfaces/IModel.h"
-#include "scene/Mesh.h"
-#include "scene/Camera.h"
-#include "vk_descriptors.h"
 #include "RenderableGLTF.h"
+#include "interfaces/IModel.h"
+#include "scene/Camera.h"
+#include "scene/Mesh.h"
+#include "vk_descriptors.h"
 #include "vk_pipelines.h"
 #include "vk_types.h"
+
+struct MeshAsset;
 
 constexpr unsigned int FRAME_OVERLAP = 2;
 
@@ -54,8 +57,8 @@ struct DeletionQueue {
 
     void flush() {
         // reverse iterate the deletion queue to execute all the functions
-        for (auto it = deletors.rbegin(); it != deletors.rend(); it++) {
-            (*it)();  // call functors
+        for (auto& deletor : std::ranges::reverse_view(deletors)) {
+            deletor();  // call functors
         }
 
         deletors.clear();
@@ -99,7 +102,9 @@ struct DrawContext {
 
 class VulkanEngine {
 public:
-    std::unordered_map<std::string, std::shared_ptr<const Mesh::GLTF::LoadedGLTF>> loadedScenes;
+    std::unordered_map<std::string,
+                       std::shared_ptr<const Mesh::GLTF::LoadedGLTF>>
+            loadedScenes;
 
     Camera* mainCamera;
 
@@ -118,7 +123,7 @@ public:
     uint32_t _graphicsQueueFamily;
 
     bool _isInitialized{false};
-    int _frameNumber{0};
+    unsigned int _frameNumber{0};
     bool stop_rendering{false};
     VkExtent2D _windowExtent{2560, 1440};
 
@@ -181,9 +186,12 @@ public:
 
     GPUMeshBuffers rectangle;
 
-    void immediate_submit(std::function<void(VkCommandBuffer cmd)>&& function);
+    void immediate_submit(
+            std::function<void(VkCommandBuffer cmd)>&& function) const;
     GPUMeshBuffers uploadMesh(std::span<uint32_t> indices,
                               std::span<Vertex> vertices);
+
+    std::vector<std::shared_ptr<MeshAsset>> testMeshes;
 
     bool resize_requested;
 
@@ -194,9 +202,9 @@ public:
     AllocatedImage create_image(VkExtent3D size, VkFormat format,
                                 VkImageUsageFlags usage,
                                 bool mipmapped = false) const;
-    AllocatedImage create_image(void* data, VkExtent3D size, VkFormat format,
-                                VkImageUsageFlags usage,
-                                bool mipmapped = false);
+    AllocatedImage create_image(const void* data, VkExtent3D size,
+                                VkFormat format, VkImageUsageFlags usage,
+                                bool mipmapped = false) const;
     void destroy_image(const AllocatedImage& img) const;
 
     AllocatedImage _whiteImage;
@@ -230,7 +238,7 @@ private:
     void create_swapchain(uint32_t width, uint32_t height);
     void destroy_swapchain();
 
-    void draw_background(VkCommandBuffer cmd);
+    void draw_background(VkCommandBuffer cmd) const;
 
     void init_descriptors();
 

@@ -1,13 +1,15 @@
 #include "core/ModelImpl.h"
-#include "core/config.h"
-#include "graphics/vulkan/MeshNode.h"
 
+#include <SDL_video.h>
 #include <cassert>
 #include <cstring>
-#include <iostream>
 #include <fastgltf/core.hpp>
 #include <fastgltf/glm_element_traits.hpp>
 #include <fastgltf/tools.hpp>
+#include <iostream>
+
+#include "core/config.h"
+#include "graphics/vulkan/MeshNode.h"
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/quaternion.hpp>
 
@@ -90,7 +92,11 @@ void init_descriptor_pool(const VulkanEngine& engine,
             {VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 3},
             {VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 1}};
 
-    file.descriptorPool.init(engine._device, static_cast<uint32_t>(gltf.materials.size()), sizes);
+    file.descriptorPool.init(
+            engine._device,
+            static_cast<uint32_t>(
+                    std::max(gltf.materials.size(), static_cast<size_t>(1))),
+            sizes);
 }
 
 void load_samplers(const VulkanEngine& engine, Mesh::GLTF::LoadedGLTF& file,
@@ -99,12 +105,12 @@ void load_samplers(const VulkanEngine& engine, Mesh::GLTF::LoadedGLTF& file,
         VkSamplerCreateInfo sample = {
                 .sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO,
                 .pNext = nullptr,
-                .magFilter =
-                    extract_filter(magFilter.value_or(fastgltf::Filter::Nearest)),
-                .minFilter =
-                    extract_filter(minFilter.value_or(fastgltf::Filter::Nearest)),
-            .mipmapMode = extract_mipmap_mode(
-                minFilter.value_or(fastgltf::Filter::Nearest)),
+                .magFilter = extract_filter(
+                        magFilter.value_or(fastgltf::Filter::Nearest)),
+                .minFilter = extract_filter(
+                        minFilter.value_or(fastgltf::Filter::Nearest)),
+                .mipmapMode = extract_mipmap_mode(
+                        minFilter.value_or(fastgltf::Filter::Nearest)),
                 .minLod = 0,
                 .maxLod = VK_LOD_CLAMP_NONE};
 
@@ -117,6 +123,7 @@ void load_samplers(const VulkanEngine& engine, Mesh::GLTF::LoadedGLTF& file,
 
 void load_all_textures(const VulkanEngine& engine, fastgltf::Asset& gltf,
                        std::vector<AllocatedImage>& images) {
+    images.reserve(gltf.images.size());
     for ([[maybe_unused]] fastgltf::Image& image : gltf.images) {
         images.push_back(engine._errorCheckerboardImage);
     }
@@ -125,9 +132,10 @@ void load_all_textures(const VulkanEngine& engine, fastgltf::Asset& gltf,
 void create_material_data_buffer(const VulkanEngine& engine,
                                  Mesh::GLTF::LoadedGLTF& file,
                                  const fastgltf::Asset& gltf) {
+    const size_t material_сount =
+            !gltf.materials.empty() ? gltf.materials.size() : 1;
     file.materialDataBuffer = engine.create_buffer(
-            sizeof(GLTFMetallic_Roughness::MaterialConstants) *
-                    gltf.materials.size(),
+            sizeof(GLTFMetallic_Roughness::MaterialConstants) * material_сount,
             VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VMA_MEMORY_USAGE_CPU_TO_GPU);
 }
 
@@ -158,26 +166,26 @@ void load_material_data(
             static_cast<GLTFMetallic_Roughness::MaterialConstants*>(
                     file.materialDataBuffer.info.pMappedData);
 
-    for (size_t data_index{}; fastgltf::Material& mat : gltf.materials) {
+    for (size_t data_index{}; fastgltf::Material & mat : gltf.materials) {
         auto newMat = std::make_shared<Mesh::GLTF::GLTFMaterial>();
         materials.push_back(newMat);
         file.materials[mat.name.c_str()] = newMat;
 
         // write material parameters to buffer
         sceneMaterialConstants[data_index] = {
-            .colorFactors{
-                mat.pbrData.baseColorFactor[0],
-                mat.pbrData.baseColorFactor[1],
-                mat.pbrData.baseColorFactor[2],
-                mat.pbrData.baseColorFactor[3],
-            },
-            .metal_rough_factors{
-                mat.pbrData.metallicFactor,
-                mat.pbrData.roughnessFactor,
-                {},
-                {},
-        },
-};
+                .colorFactors{
+                        mat.pbrData.baseColorFactor[0],
+                        mat.pbrData.baseColorFactor[1],
+                        mat.pbrData.baseColorFactor[2],
+                        mat.pbrData.baseColorFactor[3],
+                },
+                .metal_rough_factors{
+                        mat.pbrData.metallicFactor,
+                        mat.pbrData.roughnessFactor,
+                        {},
+                        {},
+                },
+        };
 
         auto passType = MaterialPass::MainColor;
         if (mat.alphaMode == fastgltf::AlphaMode::Blend) {
@@ -186,23 +194,43 @@ void load_material_data(
 
         GLTFMetallic_Roughness::MaterialResources materialResources{
                 // default the material textures
-                engine._whiteImage,
-                engine._defaultSamplerLinear,
-                engine._whiteImage,
-                engine._defaultSamplerLinear,
+                engine._whiteImage, engine._defaultSamplerLinear,
+                engine._whiteImage, engine._defaultSamplerLinear,
                 // set the uniform buffer for the material data
                 file.materialDataBuffer.buffer,
-                static_cast<uint32_t>(data_index * sizeof(GLTFMetallic_Roughness::MaterialConstants))
-        };
+                static_cast<uint32_t>(
+                        data_index *
+                        sizeof(GLTFMetallic_Roughness::MaterialConstants))};
 
-        grab_textures_from_GLTF(file, gltf, mat,
-                                                  materialResources, images);
+        grab_textures_from_GLTF(file, gltf, mat, materialResources, images);
         // build material
         newMat->data = engine.metalRoughMaterial.write_material(
                 engine._device, passType, materialResources,
                 file.descriptorPool);
 
         ++data_index;
+    }
+
+    // Add a fallback material if no materials were defined in the GLTF
+    if (materials.empty()) {
+        auto default_mat = std::make_shared<Mesh::GLTF::GLTFMaterial>();
+        materials.push_back(default_mat);
+        GLTFMetallic_Roughness::MaterialConstants constants = {};
+        constants = {
+                .colorFactors = glm::vec4(1.0f),         // White base color
+                .metal_rough_factors = glm::vec4(0.0f),  // Non-metallic, smooth
+        };
+        sceneMaterialConstants[0] = constants;
+        GLTFMetallic_Roughness::MaterialResources resources{};
+        resources = {.colorImage = engine._whiteImage,
+                     .colorSampler = engine._defaultSamplerLinear,
+                     .metalRoughImage = engine._whiteImage,
+                     .metalRoughSampler = engine._defaultSamplerLinear,
+                     .dataBuffer = file.materialDataBuffer.buffer,
+                     .dataBufferOffset = 0};
+        default_mat->data = engine.metalRoughMaterial.write_material(
+                engine._device, MaterialPass::MainColor, resources,
+                file.descriptorPool);
     }
 }
 
@@ -319,16 +347,12 @@ void upload_mesh_to_engine(
             const size_t initial_vtx = vertices.size();
 
             load_indexes(gltf, indices, p, initial_vtx);
-            load_vertex_positions(gltf, vertices, p,
-                                                      initial_vtx);
-            load_vertex_normals(gltf, vertices, p,
-                                                    initial_vtx);
+            load_vertex_positions(gltf, vertices, p, initial_vtx);
+            load_vertex_normals(gltf, vertices, p, initial_vtx);
 
             load_UVs(gltf, vertices, p, initial_vtx);
-            load_vertex_colors(gltf, vertices, p,
-                                                   initial_vtx);
-            define_new_surface_material(newSurface, p,
-                                                            materials);
+            load_vertex_colors(gltf, vertices, p, initial_vtx);
+            define_new_surface_material(newSurface, p, materials);
             newmesh->surfaces.push_back(newSurface);
         }
 
@@ -408,7 +432,7 @@ void setup_nodes_relationships(Mesh::GLTF::LoadedGLTF& file,
 }
 
 std::optional<const std::shared_ptr<const Mesh::GLTF::LoadedGLTF>> loadGLTF(
-            VulkanEngine& engine, std::string_view filePath) {
+        VulkanEngine& engine, std::string_view filePath) {
     fmt::print("Loading GLTF: {}", filePath);
 
     auto scene = std::make_shared<Mesh::GLTF::LoadedGLTF>();
@@ -441,7 +465,7 @@ std::optional<const std::shared_ptr<const Mesh::GLTF::LoadedGLTF>> loadGLTF(
     setup_nodes_relationships(file, gltf, nodes);
     return scene;
 }
-} // unnamed namespace
+}  // unnamed namespace
 
 ModelImpl::~ModelImpl() {
     _engine.cleanup();
@@ -449,7 +473,7 @@ ModelImpl::~ModelImpl() {
 
 ModelImpl::ModelImpl() = default;
 
-void ModelImpl::registerWindow(struct SDL_Window* window) {
+void ModelImpl::registerWindow(SDL_Window* window) {
     _engine.mainCamera = &_camera;
     _engine.init(window);
 }
@@ -463,10 +487,8 @@ Camera* ModelImpl::getCamera() {
     return &_camera;
 }
 
-Mesh::rid_t registerMesh(
-        VulkanEngine& engine,
-        ModelImpl::MeshMap& meshes,
-        const std::filesystem::path& filePath) {
+Mesh::rid_t registerMesh(VulkanEngine& engine, ModelImpl::MeshMap& meshes,
+                         const std::filesystem::path& filePath) {
     std::random_device rd;
 
     // Use the Mersenne Twister engine for high-quality random numbers
@@ -478,8 +500,7 @@ Mesh::rid_t registerMesh(
     // Generate and print a random int64_t value
     const Mesh::rid_t random_rid_t = distribution(generator);
 
-    std::string structurePath = {std::string(ASSETS_DIR) +
-                                 filePath.string()};
+    std::string structurePath = {std::string(ASSETS_DIR) + filePath.string()};
     auto structureFile = loadGLTF(engine, structurePath);
 
     assert(structureFile.has_value());
@@ -499,18 +520,19 @@ Mesh::rid_t ModelImpl::createMesh(const std::filesystem::path& file_path) {
 }
 
 void ModelImpl::setMeshTransform(Mesh::rid_t rid, glm::mat4x4 transform) {
-    _meshes[rid].transform = transform;
+    _meshes.at(rid).transform = transform;
 }
 
 glm::mat4 ModelImpl::get_mesh_transform(Mesh::rid_t rid) {
-    return _meshes[rid].transform;
+    return _meshes.at(rid).transform;
 }
 
 void ModelImpl::delete_mesh(Mesh::rid_t rid) {
-    _meshes.erase(rid);
+    if (!_meshes.erase(rid)) {
+        throw std::invalid_argument("Invalid id of the mesh");
+    }
 }
 
 const ModelImpl::MeshMap& ModelImpl::get_meshes() {
     return _meshes;
 }
-
