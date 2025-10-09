@@ -191,12 +191,11 @@ void load_material_data(
                 .colorSampler{engine._defaultSamplerLinear},
                 .metalRoughImage{engine._whiteImage},
                 .metalRoughSampler{engine._defaultSamplerLinear},
+                // set the uniform buffer for the material data
+                .dataBuffer{file.materialDataBuffer.buffer},
+                //TODO: the place should be checked because of cast u64 -> u32
+                .dataBufferOffset{static_cast<uint32_t>(data_index * sizeof(GLTFMetallic_Roughness::MaterialConstants))}
         };
-
-        // set the uniform buffer for the material data
-        materialResources.dataBuffer = file.materialDataBuffer.buffer;
-        materialResources.dataBufferOffset =
-                data_index * sizeof(GLTFMetallic_Roughness::MaterialConstants);
 
         grab_textures_from_GLTF(file, gltf, mat,
                                                   materialResources, images);
