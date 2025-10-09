@@ -17,6 +17,8 @@ public:
 
     void set_transform(Mesh::rid_t id, glm::mat4 t) const;
     [[nodiscard]] glm::mat4 get_transform(Mesh::rid_t id) const;
+
+    [[nodiscard]] std::vector<Mesh::rid_t> get_meshes() const;
 private:
     IModel::Ptr _model;
 };
