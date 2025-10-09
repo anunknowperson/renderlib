@@ -158,8 +158,7 @@ void load_material_data(
             static_cast<GLTFMetallic_Roughness::MaterialConstants*>(
                     file.materialDataBuffer.info.pMappedData);
 
-    size_t data_index{0};
-    for (fastgltf::Material& mat : gltf.materials) {
+    for (size_t data_index{}; fastgltf::Material& mat : gltf.materials) {
         auto newMat = std::make_shared<Mesh::GLTF::GLTFMaterial>();
         materials.push_back(newMat);
         file.materials[mat.name.c_str()] = newMat;
