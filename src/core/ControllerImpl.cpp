@@ -7,22 +7,23 @@
 
 #define GLM_ENABLE_EXPERIMENTAL
 #include <core/View.h>
+#include <glm/gtx/string_cast.hpp>
 #include <glm/gtx/transform.hpp>
 #include <graphics/vulkan/vk_engine.h>
-#include <glm/gtx/string_cast.hpp>
+#include <ranges>
 
 ControllerImpl::ControllerImpl(IModel::Ptr model, IView::Ptr view)
     : _model(std::move(model)), _view(std::move(view)), _mesh_controller(_model) {}
 
 double getCurrentGlobalTime() {
     // Get the current time point
-    auto now = std::chrono::system_clock::now();
+    const auto now = std::chrono::system_clock::now();
 
     // Cast to a time duration since the epoch
-    auto durationSinceEpoch = now.time_since_epoch();
+    const auto durationSinceEpoch = now.time_since_epoch();
 
     // Convert to seconds in double precision
-    std::chrono::duration<double> seconds = durationSinceEpoch;
+    const std::chrono::duration<double> seconds = durationSinceEpoch;
 
     // Return the double value
     return seconds.count();
@@ -39,7 +40,7 @@ void updateCube(const MeshController& mesh_controller, Mesh::rid_t rid, int8_t i
 
 void updateCubes(const IModel::Ptr& model, const MeshController& mesh_controller) {
     auto meshes = model->get_meshes();
-    for (int8_t i {}; const auto& [key, value] : meshes) {
+    for (int8_t i {}; const auto& key : std::views::keys(meshes)) {
         updateCube(mesh_controller, key, i);
         ++i;
     }
@@ -53,10 +54,6 @@ void update(const IModel::Ptr& model, const MeshController& mesh_controller) {
     updateCubes(model, mesh_controller);
 }
 
-// void ControllerImpl::processEvent(SDL_Event &e) const {
-//     _model->getCamera()->processSDLEvent(e);
-// }
-//
 void createCubes(const MeshController& mesh_controller) {
     for (int i = 0; i < 5; i++) {
         mesh_controller.create_mesh("/basicmesh.glb");

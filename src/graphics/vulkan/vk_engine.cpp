@@ -2,6 +2,10 @@
 
 #include "core/config.h"
 
+#include <fastgltf/core.hpp>
+#include <fastgltf/tools.hpp>
+#include <iostream>
+
 #define VMA_IMPLEMENTATION
 #include "SDL_vulkan.h"
 #include "VkBootstrap.h"
@@ -74,153 +78,6 @@ VKAPI_ATTR VkBool32 VKAPI_CALL VulkanEngine::debugCallback(
 
     return VK_FALSE;
 }
-
-#include <fastgltf/core.hpp>
-#include <fastgltf/tools.hpp>
-#include <iostream>
-
-// std::optional<std::vector<std::shared_ptr<Mesh::GLTF::MeshAsset>>> loadGltfMeshes(
-//         VulkanEngine* engine, std::filesystem::path filePath) {
-//     if (!std::filesystem::exists(filePath)) {
-//         std::cout << "Failed to find " << filePath << '\n';
-//         return {};
-//     }
-//
-//     std::cout << "Loading " << filePath << '\n';
-//
-//     fastgltf::Asset gltf;
-//
-//     // Parse the glTF file and get the constructed asset
-//
-//     static constexpr auto supportedExtensions =
-//             fastgltf::Extensions::KHR_mesh_quantization |
-//             fastgltf::Extensions::KHR_texture_transform |
-//             fastgltf::Extensions::KHR_materials_variants;
-//
-//     fastgltf::Parser parser(supportedExtensions);
-//
-//     auto path = std::filesystem::path{filePath};
-//
-//     constexpr auto gltfOptions =
-//             fastgltf::Options::DontRequireValidAssetMember |
-//             fastgltf::Options::AllowDouble | fastgltf::Options::LoadGLBBuffers |
-//             fastgltf::Options::LoadExternalBuffers |
-//             fastgltf::Options::LoadExternalImages |
-//             fastgltf::Options::GenerateMeshIndices;
-//
-//     fastgltf::GltfDataBuffer data;
-//     data.loadFromFile(path);
-//
-//     auto asset = parser.loadGltf(&data, path.parent_path(), gltfOptions);
-//
-//     if (asset) {
-//         gltf = std::move(asset.get());
-//     } else {
-//         fmt::print("Failed to load glTF: {} \n",
-//                    fastgltf::to_underlying(asset.error()));
-//         return {};
-//     }
-//
-//     std::vector<std::shared_ptr<Mesh::GLTF::MeshAsset>> meshes;
-//
-//     // use the same vectors for all meshes so that the memory doesnt reallocate
-//     // as often
-//     std::vector<uint32_t> indices;
-//     std::vector<Vertex> vertices;
-//     for (fastgltf::Mesh& mesh : gltf.meshes) {
-//         Mesh::GLTF::MeshAsset newmesh;
-//
-//         newmesh.name = mesh.name;
-//
-//         // clear the mesh arrays each mesh, we dont want to merge them by error
-//         indices.clear();
-//         vertices.clear();
-//
-//         for (auto&& p : mesh.primitives) {
-//             Mesh::GLTF::GeoSurface newSurface;
-//             newSurface.startIndex = (uint32_t)indices.size();
-//             newSurface.count =
-//                     (uint32_t)gltf.accessors[p.indicesAccessor.value()].count;
-//
-//             size_t initial_vtx = vertices.size();
-//
-//             // load indexes
-//             {
-//                 fastgltf::Accessor& indexaccessor =
-//                         gltf.accessors[p.indicesAccessor.value()];
-//                 indices.reserve(indices.size() + indexaccessor.count);
-//
-//                 fastgltf::iterateAccessor<std::uint32_t>(
-//                         gltf, indexaccessor, [&](std::uint32_t idx) {
-//                             indices.push_back(idx + initial_vtx);
-//                         });
-//             }
-//
-//             // load vertex positions
-//             {
-//                 fastgltf::Accessor& posAccessor =
-//                         gltf.accessors[p.findAttribute("POSITION")->second];
-//                 vertices.resize(vertices.size() + posAccessor.count);
-//
-//                 fastgltf::iterateAccessorWithIndex<glm::vec3>(
-//                         gltf, posAccessor, [&](glm::vec3 v, size_t index) {
-//                             Vertex newvtx;
-//                             newvtx.position = v;
-//                             newvtx.normal = {1, 0, 0};
-//                             newvtx.color = glm::vec4{1.f};
-//                             newvtx.uv_x = 0;
-//                             newvtx.uv_y = 0;
-//                             vertices[initial_vtx + index] = newvtx;
-//                         });
-//             }
-//
-//             // load vertex normals
-//             auto normals = p.findAttribute("NORMAL");
-//             if (normals != p.attributes.end()) {
-//                 fastgltf::iterateAccessorWithIndex<glm::vec3>(
-//                         gltf, gltf.accessors[(*normals).second],
-//                         [&](glm::vec3 v, size_t index) {
-//                             vertices[initial_vtx + index].normal = v;
-//                         });
-//             }
-//
-//             // load UVs
-//             auto uv = p.findAttribute("TEXCOORD_0");
-//             if (uv != p.attributes.end()) {
-//                 fastgltf::iterateAccessorWithIndex<glm::vec2>(
-//                         gltf, gltf.accessors[(*uv).second],
-//                         [&](glm::vec2 v, size_t index) {
-//                             vertices[initial_vtx + index].uv_x = v.x;
-//                             vertices[initial_vtx + index].uv_y = v.y;
-//                         });
-//             }
-//
-//             // load vertex colors
-//             auto colors = p.findAttribute("COLOR_0");
-//             if (colors != p.attributes.end()) {
-//                 fastgltf::iterateAccessorWithIndex<glm::vec4>(
-//                         gltf, gltf.accessors[(*colors).second],
-//                         [&](glm::vec4 v, size_t index) {
-//                             vertices[initial_vtx + index].color = v;
-//                         });
-//             }
-//             newmesh.surfaces.push_back(newSurface);
-//         }
-//
-//         // display the vertex normals
-//         constexpr bool OverrideColors = true;
-//         if (OverrideColors) {
-//             for (Vertex& vtx : vertices) {
-//                 vtx.color = glm::vec4(vtx.normal, 1.f);
-//             }
-//         }
-//         newmesh.meshBuffers = engine->uploadMesh(indices, vertices);
-//
-//         meshes.emplace_back(std::make_shared<Mesh::GLTF::MeshAsset>(std::move(newmesh)));
-//     }
-//
-//     return meshes;
-// }
 
 void VulkanEngine::init_default_data() {
     std::array<Vertex, 4> rect_vertices{};
@@ -641,13 +498,6 @@ void VulkanEngine::init(struct SDL_Window* window) {
 
     mainCamera->pitch = 0;
     mainCamera->yaw = 0;
-
-    // TODO: возможно, здесь вылезет проблема
-    // std::string structurePath = {std::string(ASSETS_DIR) + "/basicmesh.glb"};
-    // auto structureFile = loadGltf(this, structurePath);
-    //
-    // assert(structureFile.has_value());
-    // loadedScenes["structure"] = *structureFile;
 
     _isInitialized = true;
 }
@@ -1589,39 +1439,6 @@ void VulkanEngine::update_scene(const IModel::Ptr& model) {
     auto meshes = model->get_meshes();
     for (const auto& [id, mesh_info] : meshes) {
         const auto renderable_gltf = createRenderableGLTF(mesh_info.ptr);
-        // const std::shared_ptr<const Mesh::GLTF::LoadedGLTF> loadedMesh = mesh_info.ptr;
         renderable_gltf->Draw(mesh_info.transform, mainDrawContext);
     }
 }
-
-// Mesh::rid_t VulkanEngine::registerMesh(std::string_view filePath) {
-//     std::random_device rd;
-//
-//     // Use the Mersenne Twister engine for high-quality random numbers
-//     std::mt19937_64 generator(rd());
-//
-//     // Create a uniform distribution for int64_t
-//     std::uniform_int_distribution<Mesh::rid_t> distribution;
-//
-//     // Generate and print a random int64_t value
-//     Mesh::rid_t random_rid_t = distribution(generator);
-//
-//     std::string structurePath = {std::string(ASSETS_DIR) + std::string(filePath)};
-//     auto structureFile = loadGltf(this, structurePath);
-//
-//     assert(structureFile.has_value());
-//
-//     meshes[random_rid_t] = *structureFile;
-//     transforms[random_rid_t] = glm::mat4(1.0f);
-//
-//     return random_rid_t;
-// }
-
-// void VulkanEngine::unregisterMesh(int64_t id) {
-//     meshes.erase(id);
-//     transforms.erase(id);
-// }
-
-// void VulkanEngine::setMeshTransform(int64_t id, glm::mat4 mat) {
-//     transforms[id] = mat;
-// }

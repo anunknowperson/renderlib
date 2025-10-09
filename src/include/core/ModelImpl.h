@@ -28,7 +28,6 @@ public:
 
     void registerWindow(struct SDL_Window *window) override;
 
-    // Mesh::rid_t registerMesh(std::string_view file_path);
     void createMesh(VulkanEngine& engine, std::string_view file_path) final;
     void delete_mesh(Mesh::rid_t rid) final;
 
@@ -42,9 +41,6 @@ public:
     VulkanEngine& get_engine() final;
 
 private:
-    // std::unordered_map<Mesh::rid_t, std::shared_ptr<Mesh>> _meshes;
-
-  // TODO: move meshes and transforms to one map
     MeshMap _meshes;
 
     VulkanEngine _engine;

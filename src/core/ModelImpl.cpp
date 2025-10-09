@@ -1,4 +1,6 @@
 #include "core/ModelImpl.h"
+#include "core/config.h"
+#include "scene/LoaderGLTF.h"
 
 #include <cassert>
 #include <cstring>
@@ -24,9 +26,6 @@ VulkanEngine& ModelImpl::get_engine() {
 Camera* ModelImpl::getCamera() {
     return &_camera;
 }
-
-#include "core/config.h"
-#include "scene/LoaderGLTF.h"
 
 Mesh::rid_t registerMesh(
         VulkanEngine& engine,
@@ -58,20 +57,9 @@ Mesh::rid_t registerMesh(
 
 void ModelImpl::createMesh(VulkanEngine& engine, std::string_view file_path) {
     assert(_engine._isInitialized);
-    Mesh::rid_t rid = registerMesh(engine, _meshes, file_path);
-
-    // auto mesh = std::make_shared<Mesh>("/basicmesh.glb");
-
-    constexpr glm::mat4 transform{1.};
-    _meshes[rid].transform = transform;
-    // engine.setMeshTransform(rid, transform);
-
-    // mesh->set_transform(glm::mat4(1.0f));
-
-    // Mesh::rid_t rid = registerMesh(file_path);
-
-    // _meshes[name] = mesh;
-
+    const Mesh::rid_t rid = registerMesh(engine, _meshes, file_path);
+    _meshes[rid].transform = 1.;
+// TODO вернуть возвращаемое значение
     // return rid;
 }
 
