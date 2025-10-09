@@ -178,7 +178,7 @@ void load_material_data(
                 {},
                 {},
         },
-};;
+};
 
         auto passType = MaterialPass::MainColor;
         if (mat.alphaMode == fastgltf::AlphaMode::Blend) {
