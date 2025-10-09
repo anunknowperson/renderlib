@@ -17,7 +17,7 @@ public:
     /*! \brief Adds a mesh to the ones to be rendered
      * \param file_path The path to the mesh
      */
-    void create_mesh(std::string_view file_path) const;
+    void create_mesh(std::filesystem::path file_path) const;
     /*! \brief Removes meshes from those to be rendered
      * \param id Render-id of the mesh
      */

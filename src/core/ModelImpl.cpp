@@ -467,7 +467,7 @@ Camera* ModelImpl::getCamera() {
 Mesh::rid_t registerMesh(
         VulkanEngine& engine,
         ModelImpl::MeshMap& meshes,
-        std::string_view filePath) {
+        const std::filesystem::path& filePath) {
     std::random_device rd;
 
     // Use the Mersenne Twister engine for high-quality random numbers
@@ -480,7 +480,7 @@ Mesh::rid_t registerMesh(
     const Mesh::rid_t random_rid_t = distribution(generator);
 
     std::string structurePath = {std::string(ASSETS_DIR) +
-                                 std::string(filePath)};
+                                 filePath.string()};
     auto structureFile = loadGLTF(engine, structurePath);
 
     assert(structureFile.has_value());
@@ -492,7 +492,7 @@ Mesh::rid_t registerMesh(
     return random_rid_t;
 }
 
-void ModelImpl::createMesh(std::string_view file_path) {
+void ModelImpl::createMesh(const std::filesystem::path& file_path) {
     assert(_engine._isInitialized);
     const Mesh::rid_t rid = registerMesh(_engine, _meshes, file_path);
     _meshes[rid].transform = 1.;
