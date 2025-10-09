@@ -163,9 +163,9 @@ void VulkanEngine::init_default_data() {
     GLTFMetallic_Roughness::MaterialResources materialResources{};
     // default the material textures
     materialResources.colorImage = _whiteImage->get();
-    materialResources.colorSampler = _defaultSamplerLinear;
+    materialResources.colorSampler = _defaultSamplerLinear.sampler;
     materialResources.metalRoughImage = _whiteImage->get();
-    materialResources.metalRoughSampler = _defaultSamplerLinear;
+    materialResources.metalRoughSampler = _defaultSamplerLinear.sampler;
 
     // set the uniform buffer for the material data
     const AllocatedBuffer materialConstants = create_buffer(
@@ -806,7 +806,7 @@ void VulkanEngine::draw_geometry(VkCommandBuffer cmd) {
             _device, _singleImageDescriptorLayout);
     DescriptorWriter single_image_writer;
     single_image_writer.write_image(0, _errorCheckerboardImage->imageView(),
-                                    _defaultSamplerNearest,
+                                    _defaultSamplerNearest.sampler,
                                     VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
                                     VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER);
     single_image_writer.update_set(_device, imageSet);
