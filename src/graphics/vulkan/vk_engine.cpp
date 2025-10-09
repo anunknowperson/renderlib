@@ -248,10 +248,11 @@ void VulkanEngine::init_imgui() {
     ImGui_ImplVulkan_Init(&init_info);
 
     ImGui_ImplVulkan_CreateFontsTexture();
+}
 
-    // Store ImGui cleanup info - will be automatically handled when engine destructs
-    // Note: ImGui cleanup is now handled by storing the descriptor pool
-    // that will be automatically destroyed when the device is destroyed
+VulkanEngine::Imgui::~Imgui() {
+    ImGui_ImplVulkan_Shutdown();
+    vkDestroyDescriptorPool(_device, _imguiPool, nullptr);
 }
 
 void VulkanEngine::init_descriptors() {
