@@ -186,7 +186,7 @@ void VulkanEngine::init_default_data() {
     materialResources.dataBufferOffset = 0;
 
     defaultData = metalRoughMaterial.write_material(
-            _device, MaterialPass::MainColor, materialResources,
+            MaterialPass::MainColor, materialResources,
             globalDescriptorAllocator);
 }
 

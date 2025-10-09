@@ -338,7 +338,7 @@ std::optional<std::shared_ptr<LoadedGLTF>> loadGltf(VulkanEngine* engine,
         }
 
         newMat->data = engine->metalRoughMaterial.write_material(
-                engine->_device, passType, materialResources,
+                passType, materialResources,
                 file.descriptorPool);
         data_index++;
     }
@@ -363,7 +363,7 @@ std::optional<std::shared_ptr<LoadedGLTF>> loadGltf(VulkanEngine* engine,
         resources.dataBufferOffset = 0;
 
         defaultMat->data = engine->metalRoughMaterial.write_material(
-                engine->_device, MaterialPass::MainColor, resources,
+                MaterialPass::MainColor, resources,
                 file.descriptorPool);
     }
 
