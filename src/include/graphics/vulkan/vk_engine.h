@@ -13,10 +13,9 @@
 #include <vulkan/vk_platform.h>
 #include <vulkan/vulkan_core.h>
 
-#include "vk_descriptors.h"
-#include "vk_types.h"
-#include "vk_smart_wrappers.h"
-
+#include "ComputePipeline.h"
+#include "DescriptorSetLayout.h"
+#include "core/ModelImpl.h"
 #include "pipelines.h"
 #include "ComputePipeline.h"
 
@@ -140,7 +139,8 @@ public:
     DescriptorAllocatorGrowable globalDescriptorAllocator;
 
     VkDescriptorSet _drawImageDescriptors;
-    VkDescriptorSetLayout _drawImageDescriptorLayout;
+
+    DescriptorSetLayout _drawImageDescriptorLayout;
 
 
     GPUMeshBuffers rectangle;
