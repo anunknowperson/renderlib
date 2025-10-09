@@ -49,6 +49,25 @@ constexpr bool bUseValidationLayers = false;
 constexpr bool bUseValidationLayers = true;
 #endif
 
+void VulkanEngine::Instance::init() {
+    vkb::InstanceBuilder builder;
+    auto inst_ret = builder.set_app_name("TODO: PUT APP NAME HERE")
+                            .set_engine_name("rainsystem")
+                            .request_validation_layers(bUseValidationLayers)
+                            .set_debug_callback(debugCallback)
+                            .require_api_version(1, 3, 0)
+                            .build();
+    if (!inst_ret) {
+        LOGE("Failed to create Vulkan instance. Error: {}",
+             inst_ret.error().message());
+    }
+    instance = inst_ret.value();
+}
+
+VulkanEngine::Instance::~Instance() {
+    vkb::destroy_instance(instance);
+}
+
 VKAPI_ATTR VkBool32 VKAPI_CALL VulkanEngine::debugCallback(
         VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
         VkDebugUtilsMessageTypeFlagsEXT messageType,
