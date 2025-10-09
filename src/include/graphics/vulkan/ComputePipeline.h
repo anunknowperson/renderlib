@@ -20,7 +20,9 @@ public:
     void init(VkDevice device) override;
     void bind(VkCommandBuffer cmd) override;
     void destroy() override;
-    
+    ~ComputePipeline() override {
+        ComputePipeline::destroy();
+    }
     VkPipeline getPipeline() const override { return _pipeline; }
     VkPipelineLayout getLayout() const override { return _pipelineLayout; }
 

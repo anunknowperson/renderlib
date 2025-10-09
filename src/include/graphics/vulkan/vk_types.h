@@ -65,6 +65,15 @@ enum class MaterialPass : uint8_t { MainColor, Transparent, Other };
 struct MaterialPipeline {
     VkPipeline pipeline;
     VkPipelineLayout layout;
+    VkDevice _device = VK_NULL_HANDLE;
+    ~MaterialPipeline() {
+        if (_device != VK_NULL_HANDLE) {
+            vkDestroyPipelineLayout(_device, layout, nullptr);
+            vkDestroyPipeline(_device, pipeline, nullptr);
+            pipeline = VK_NULL_HANDLE;
+            layout = VK_NULL_HANDLE;
+        }
+    }
 };
 
 struct MaterialInstance {
