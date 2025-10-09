@@ -82,12 +82,6 @@ struct GPUSceneData {
     glm::vec4 sunlightColor;
 };
 
-struct MeshNode : public ENode {
-    std::shared_ptr<Mesh::GLTF::MeshAsset> mesh;
-
-    virtual void Draw(const glm::mat4& topMatrix, DrawContext& ctx) override;
-};
-
 struct RenderObject {
     uint32_t indexCount;
     uint32_t firstIndex;

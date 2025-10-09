@@ -5,6 +5,7 @@
 #include <fastgltf/core.hpp>
 #include <fastgltf/tools.hpp>
 #include <iostream>
+#include <ranges>
 
 #define VMA_IMPLEMENTATION
 #include "SDL_vulkan.h"
@@ -1394,25 +1395,6 @@ MaterialInstance GLTFMetallic_Roughness::write_material(
     return matData;
 }
 
-void MeshNode::Draw(const glm::mat4& topMatrix, DrawContext& ctx) {
-    glm::mat4 nodeMatrix = topMatrix * worldTransform;
-
-    for (auto& s : mesh->surfaces) {
-        RenderObject def{};
-        def.indexCount = s.count;
-        def.firstIndex = s.startIndex;
-        def.indexBuffer = mesh->meshBuffers.indexBuffer.buffer;
-        def.material = &s.material->data;
-
-        def.transform = nodeMatrix;
-        def.vertexBufferAddress = mesh->meshBuffers.vertexBufferAddress;
-
-        ctx.OpaqueSurfaces.push_back(def);
-    }
-
-    ENode::Draw(topMatrix, ctx);
-}
-
 void VulkanEngine::update_scene(const IModel::Ptr& model) {
     mainCamera->update();
 
@@ -1437,7 +1419,7 @@ void VulkanEngine::update_scene(const IModel::Ptr& model) {
     sceneData.sunlightDirection = glm::vec4(0, 1, 0.5, 1.f);
 
     auto meshes = model->get_meshes();
-    for (const auto& [id, mesh_info] : meshes) {
+    for (const auto& mesh_info : std::views::values(meshes)) {
         const auto renderable_gltf = createRenderableGLTF(mesh_info.ptr);
         renderable_gltf->Draw(mesh_info.transform, mainDrawContext);
     }
