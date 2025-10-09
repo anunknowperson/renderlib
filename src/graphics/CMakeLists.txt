@@ -1,15 +1,11 @@
 target_sources(${PROJECT_NAME}
         PRIVATE
-        vulkan/vk_command_buffers.cpp
-        vulkan/vk_command_buffers_container.cpp
+        vulkan/RenderableGLTF.cpp
         vulkan/vk_descriptors.cpp
         vulkan/vk_engine.cpp
         vulkan/vk_images.cpp
         vulkan/vk_initializers.cpp
         vulkan/vk_loader.cpp
         vulkan/vk_pipelines.cpp
-        vulkan/pipelines.cpp
-        vulkan/ComputePipeline.cpp
-        vulkan/GraphicsPipeline.cpp
         Graphics.cpp
 )

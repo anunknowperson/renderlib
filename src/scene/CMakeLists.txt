@@ -5,4 +5,5 @@ target_sources(${PROJECT_NAME}
         Node.cpp
         ParentSystem.cpp
         TransformSystem.cpp
+        LoaderGLTF.cpp
 )
