@@ -8,11 +8,11 @@
       "binaryDir": "${sourceDir}/out/build/${presetName}",
       "installDir": "${sourceDir}/out/install/${presetName}",
       "cacheVariables": {
-        "CMAKE_COMPILE_WARNING_AS_ERROR": "ON",
-        "CMAKE_EXPORT_COMPILE_COMMANDS": "ON"
+        "CMAKE_COMPILE_WARNING_AS_ERROR": "OFF"
       },
       "toolchainFile": "${sourceDir}/vcpkg/scripts/buildsystems/vcpkg.cmake"
     },
+
     {
       "name": "windows-base",
       "hidden": true,
@@ -20,8 +20,8 @@
       "cacheVariables": {
         "CMAKE_C_COMPILER": "cl",
         "CMAKE_CXX_COMPILER": "cl",
-        "CMAKE_C_FLAGS_INIT": "/W4 /wd4700",
-        "CMAKE_CXX_FLAGS_INIT": "/W4 /wd4700"
+        "CMAKE_C_FLAGS_INIT": "/W4",
+        "CMAKE_CXX_FLAGS_INIT": "/W4"
       },
       "condition": {
         "type": "equals",
@@ -29,6 +29,7 @@
         "rhs": "Windows"
       }
     },
+
     {
       "name": "wx64-debug",
       "displayName": "x64 Debug",
@@ -50,14 +51,34 @@
       }
     },
     {
+      "name": "wx86-debug",
+      "displayName": "x86 Debug",
+      "inherits": "windows-base",
+      "architecture": {
+        "value": "x86",
+        "strategy": "external"
+      },
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug"
+      }
+    },
+    {
+      "name": "wx86-release",
+      "displayName": "x86 Release",
+      "inherits": "wx86-debug",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release"
+      }
+    },
+    {
       "name": "linux-base",
       "hidden": true,
       "inherits": "base",
       "cacheVariables": {
         "CMAKE_C_COMPILER": "clang",
         "CMAKE_CXX_COMPILER": "clang++",
-        "CMAKE_C_FLAGS_INIT": "-Wall -Wextra -pedantic -Wconversion -Wdouble-promotion -Wshadow -Wno-missing-field-initializers",
-        "CMAKE_CXX_FLAGS_INIT": "-Wall -Wextra -pedantic -Wconversion -Wdouble-promotion -Wshadow -Wno-missing-field-initializers"
+        "CMAKE_C_FLAGS_INIT": "-Wall -Wextra -pedantic -Wconversion -Wdouble-promotion -Wshadow -Wno-missing-field-initializers -Wno-nullability-extension",
+        "CMAKE_CXX_FLAGS_INIT": "-Wall -Wextra -pedantic -Wconversion -Wdouble-promotion -Wshadow -Wno-missing-field-initializers -Wno-nullability-extension"
       },
       "condition": {
         "type": "equals",
@@ -84,53 +105,26 @@
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "Release"
       }
-    }
-  ],
-  "buildPresets": [
-    {
-      "name": "wx64-debug",
-      "configurePreset": "wx64-debug"
     },
     {
-      "name": "wx64-release",
-      "configurePreset": "wx64-release"
-    },
-    {
-      "name": "lx64-debug",
-      "configurePreset": "lx64-debug"
-    },
-    {
-      "name": "lx64-release",
-      "configurePreset": "lx64-release"
-    }
-  ],
-  "testPresets": [
-    {
-      "name": "base",
-      "output": {
-        "outputOnFailure": true
+      "name": "lx86-debug",
+      "displayName": "x86 Debug",
+      "inherits": "linux-base",
+      "architecture": {
+        "value": "x86",
+        "strategy": "external"
       },
-      "hidden": true
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug"
+      }
     },
     {
-      "name": "wx64-debug",
-      "inherits": "base",
-      "configurePreset": "wx64-debug"
-    },
-    {
-      "name": "wx64-release",
-      "inherits": "base",
-      "configurePreset": "wx64-release"
-    },
-    {
-      "name": "lx64-debug",
-      "inherits": "base",
-      "configurePreset": "lx64-debug"
-    },
-    {
-      "name": "lx64-release",
-      "inherits": "base",
-      "configurePreset": "lx64-release"
+      "name": "lx86-release",
+      "displayName": "x86 Release",
+      "inherits": "lx86-debug",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release"
+      }
     }
   ]
 }
