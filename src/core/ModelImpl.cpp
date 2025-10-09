@@ -492,9 +492,9 @@ Mesh::rid_t registerMesh(
     return random_rid_t;
 }
 
-void ModelImpl::createMesh(VulkanEngine& engine, std::string_view file_path) {
+void ModelImpl::createMesh(std::string_view file_path) {
     assert(_engine._isInitialized);
-    const Mesh::rid_t rid = registerMesh(engine, _meshes, file_path);
+    const Mesh::rid_t rid = registerMesh(_engine, _meshes, file_path);
     _meshes[rid].transform = 1.;
 // TODO вернуть возвращаемое значение
     // return rid;

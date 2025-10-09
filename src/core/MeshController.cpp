@@ -8,9 +8,7 @@
 MeshController::MeshController(IModel::Ptr model) : _model(std::move(model)) {}
 
 void MeshController::create_mesh(std::string_view file_path) const {
-    VulkanEngine& engine = _model->get_engine();
-
-    _model->createMesh(engine, file_path);
+    _model->createMesh(file_path);
         //TODO: вернуть возвращемое значение
     // return rid;
 }
