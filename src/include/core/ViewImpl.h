@@ -1,6 +1,7 @@
 #pragma once
 
-#include "IController.h"
+#include <memory>
+
 #include "interfaces/IModel.h"
 #include "interfaces/IView.h"
 
@@ -13,7 +14,6 @@ public:
     void process_event(const SDL_Event& e) final;
 
 private:
-    // IController::Ptr _controller;
     IModel::Ptr _model;
 
     struct SDL_Window* window{nullptr};

@@ -50,6 +50,8 @@ public:
      */
     virtual void createMesh(VulkanEngine& engine, std::string_view file_path) = 0;
 
+    virtual void delete_mesh(Mesh::rid_t rid) = 0;
+
     /*!
      * \brief Sets the transformation matrix for a mesh.
      *
@@ -59,9 +61,6 @@ public:
      * This method sets the transformation matrix for the mesh identified by the
      * provided name.
      */
-
-    virtual void delete_mesh(Mesh::rid_t rid) = 0;
-
     virtual void setMeshTransform(Mesh::rid_t rid, glm::mat4x4 transform) = 0;
 
     virtual glm::mat4 get_mesh_transform(Mesh::rid_t) = 0;
@@ -84,28 +83,6 @@ public:
     [[nodiscard]] virtual Camera* getCamera() = 0;
 
      virtual VulkanEngine& get_engine() = 0;
-
-    /*! \brief
-     * Gets the chip handler from HIDAPI required to change the settings by the
-     * Controller
-     * @return
-     * Returns the device handler in case, can't be nullptr
-     */
-    //[[nodiscard]] virtual hid_device* getChipHandler() const = 0;
-
-    /*! \brief
-     * Requests from chip the level of brightness
-     * @return
-     * Returns the level of brightness [0; 100]
-     */
-    // virtual uint8_t getBrightness() = 0;
-
-    /*! \brief
-     * Requests RGB values from the chip
-     * @return
-     * Returns the struct with .R, .G, .B fields
-     */
-    // virtual Color getRGB() = 0;
 
     using Ptr = std::shared_ptr<IModel>;
 };

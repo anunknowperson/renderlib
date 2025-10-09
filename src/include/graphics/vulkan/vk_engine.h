@@ -99,15 +99,6 @@ struct DrawContext {
 
 class VulkanEngine {
 public:
-    // они теперь в модели или контроллере
-    // Mesh::rid_t registerMesh(std::string_view filePath);
-    // void unregisterMesh(int64_t id);
-
-    // void setMeshTransform(int64_t id, glm::mat4 mat);
-    // std::unordered_map<int64_t, std::shared_ptr<LoadedGLTF>> meshes;
-    //
-    // std::unordered_map<int64_t, glm::mat4> transforms;
-
     std::unordered_map<std::string, std::shared_ptr<const Mesh::GLTF::LoadedGLTF>> loadedScenes;
 
     Camera* mainCamera;
@@ -193,8 +184,6 @@ public:
     void immediate_submit(std::function<void(VkCommandBuffer cmd)>&& function);
     GPUMeshBuffers uploadMesh(std::span<uint32_t> indices,
                               std::span<Vertex> vertices);
-
-    // std::vector<std::shared_ptr<Mesh::GLTF::MeshAsset>> testMeshes;
 
     bool resize_requested;
 
