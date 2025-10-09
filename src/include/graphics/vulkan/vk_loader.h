@@ -52,14 +52,10 @@ public:
     // VulkanEngine* creator;
     using LoadedGltfPtr = std::shared_ptr<const Mesh::GLTF::LoadedGLTF>;
     explicit RenderableGLTF(LoadedGltfPtr gltf);
-    virtual ~RenderableGLTF() {
-        clearAll();
-    };
 
     void Draw(const glm::mat4& topMatrix, DrawContext& ctx) final;
 
 private:
-    void clearAll();
     std::shared_ptr<const Mesh::GLTF::LoadedGLTF> _gltf;
 };
 

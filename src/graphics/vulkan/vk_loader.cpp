@@ -22,5 +22,3 @@ void RenderableGLTF::Draw(const glm::mat4& topMatrix, DrawContext& ctx) {
         n->Draw(topMatrix, ctx);
     }
 }
-
-void RenderableGLTF::clearAll() {}

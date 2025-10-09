@@ -1420,7 +1420,7 @@ void VulkanEngine::update_scene(const IModel::Ptr& model) {
 
     auto meshes = model->get_meshes();
     for (const auto& mesh_info : std::views::values(meshes)) {
-        const auto renderable_gltf = createRenderableGLTF(mesh_info.ptr);
-        renderable_gltf->Draw(mesh_info.transform, mainDrawContext);
+        auto renderable_gltf{RenderableGLTF(mesh_info.ptr)};
+        renderable_gltf.Draw(mesh_info.transform, mainDrawContext);
     }
 }
