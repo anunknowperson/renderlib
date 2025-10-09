@@ -1,22 +1,16 @@
-﻿#pragma once
+#pragma once
 
-#include <cstdint>
 #include <filesystem>
-#include <glm/ext/matrix_float4x4.hpp>
-#include <memory>
-#include <optional>
-#include <string>
-#include <string_view>
-#include <unordered_map>
-#include <vector>
-#include <vulkan/vulkan_core.h>
 
-#include "vk_descriptors.h"
-#include "vk_types.h"
+#include "graphics/vulkan/vk_descriptors.h"
+#include "graphics/vulkan/vk_types.h"
 
 class VulkanEngine;
-struct DrawContext;
 
+namespace Mesh {
+using rid_t = int64_t;
+
+namespace GLTF {
 struct GLTFMaterial {
     MaterialInstance data;
 };
@@ -34,12 +28,7 @@ struct MeshAsset {
     GPUMeshBuffers meshBuffers;
 };
 
-std::optional<std::vector<std::shared_ptr<MeshAsset>>> loadGltfMeshes(
-        VulkanEngine* engine, const std::filesystem::path& filePath);
-
-struct LoadedGLTF final : public IRenderable {
-    LoadedGLTF() = default;
-
+struct LoadedGLTF {
     // storage for all the data on a given glTF file
     std::unordered_map<std::string, std::shared_ptr<MeshAsset>> meshes;
     std::unordered_map<std::string, std::shared_ptr<ENode>> nodes;
@@ -57,16 +46,6 @@ struct LoadedGLTF final : public IRenderable {
     AllocatedBuffer materialDataBuffer;
 
     VulkanEngine* creator;
-
-    ~LoadedGLTF() {
-        clearAll();
-    };
-
-    void Draw(const glm::mat4& topMatrix, DrawContext& ctx);
-
-private:
-    void clearAll();
 };
-
-std::optional<std::shared_ptr<LoadedGLTF>> loadGltf(VulkanEngine* engine,
-                                                    std::string_view filePath);
+}  // namespace GLTF
+};  // namespace Mesh
