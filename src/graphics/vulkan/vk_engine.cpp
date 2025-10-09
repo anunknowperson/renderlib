@@ -190,68 +190,69 @@ void VulkanEngine::init_default_data() {
             globalDescriptorAllocator);
 }
 
-void VulkanEngine::init_imgui() {
+ void VulkanEngine::Imgui::initImguiPool(const VkDevice& device) {
     // 1: create descriptor pool for IMGUI
     //  the size of the pool is very oversize, but it's copied from imgui demo
     //  itself.
     const VkDescriptorPoolSize pool_sizes[] = {
-            {VK_DESCRIPTOR_TYPE_SAMPLER, 1000},
-            {VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1000},
-            {VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE, 1000},
-            {VK_DESCRIPTOR_TYPE_STORAGE_IMAGE, 1000},
-            {VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER, 1000},
-            {VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER, 1000},
-            {VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 1000},
-            {VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 1000},
-            {VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC, 1000},
-            {VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC, 1000},
-            {VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT, 1000}};
+        {VK_DESCRIPTOR_TYPE_SAMPLER, 1000},
+        {VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1000},
+        {VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE, 1000},
+        {VK_DESCRIPTOR_TYPE_STORAGE_IMAGE, 1000},
+        {VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER, 1000},
+        {VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER, 1000},
+        {VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 1000},
+        {VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 1000},
+        {VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC, 1000},
+        {VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC, 1000},
+        {VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT, 1000}};
+    VkDescriptorPoolCreateInfo pool_info = {    .sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO,
+        .flags = VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT,
+        .maxSets = 1000,
+        .poolSizeCount = (uint32_t)std::size(pool_sizes),
+        .pPoolSizes = pool_sizes};
+    VK_CHECK(vkCreateDescriptorPool(device, &pool_info, nullptr, &_imguiPool));
+}
 
-    VkDescriptorPoolCreateInfo pool_info = {};
-    pool_info.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
-    pool_info.flags = VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT;
-    pool_info.maxSets = 1000;
-    pool_info.poolSizeCount = (uint32_t)std::size(pool_sizes);
-    pool_info.pPoolSizes = pool_sizes;
-
-    VkDescriptorPool imguiPool;
-    VK_CHECK(vkCreateDescriptorPool(_device, &pool_info, nullptr, &imguiPool));
-
+ VulkanEngine::Imgui::Imgui(const VulkanEngine& engine) : _imguiPool{}, _device{engine._device} {
+    initImguiPool(engine._device);
     // 2: initialize imgui library
-
     // this initializes the core structures of imgui
     ImGui::CreateContext();
-
     // this initializes imgui for SDL
-    ImGui_ImplSDL2_InitForVulkan(_window);
-
+    ImGui_ImplSDL2_InitForVulkan(engine._window);
     // this initializes imgui for Vulkan
-    ImGui_ImplVulkan_InitInfo init_info = {};
-    init_info.Instance = _instance;
-    init_info.PhysicalDevice = _chosenGPU;
-    init_info.Device = _device;
-    init_info.Queue = _graphicsQueue;
-    init_info.DescriptorPool = imguiPool;
-    init_info.MinImageCount = 3;
-    init_info.ImageCount = 3;
-    init_info.UseDynamicRendering = true;
+    ImGui_ImplVulkan_InitInfo init_info = {.Instance = engine._instance,
+                                           .PhysicalDevice = engine._chosenGPU,
+                                           .Device = engine._device,
+                                           .Queue = engine._graphicsQueue,
+                                           .DescriptorPool = _imguiPool,
+                                           .MinImageCount = 3,
+                                           .ImageCount = 3,
+                                           .UseDynamicRendering = true};
 
     // dynamic rendering parameters for imgui to use
     init_info.PipelineRenderingCreateInfo = {
             .sType = VK_STRUCTURE_TYPE_PIPELINE_RENDERING_CREATE_INFO};
     init_info.PipelineRenderingCreateInfo.colorAttachmentCount = 1;
     init_info.PipelineRenderingCreateInfo.pColorAttachmentFormats =
-            &_swapchainImageFormat;
+            &engine._swapchainImageFormat;
 
     init_info.MSAASamples = VK_SAMPLE_COUNT_1_BIT;
 
     ImGui_ImplVulkan_Init(&init_info);
 
     ImGui_ImplVulkan_CreateFontsTexture();
+}
 
-    // Store ImGui cleanup info - will be automatically handled when engine destructs
-    // Note: ImGui cleanup is now handled by storing the descriptor pool
-    // that will be automatically destroyed when the device is destroyed
+VulkanEngine::Imgui::~Imgui() {
+    vkDestroyDescriptorPool(_device, _imguiPool, nullptr);
+    ImGui_ImplVulkan_Shutdown();
+}
+
+
+void VulkanEngine::init_imgui() {
+    _imgui = std::make_unique<Imgui>(*this);
 }
 
 void VulkanEngine::init_descriptors() {
@@ -589,7 +590,8 @@ void VulkanEngine::destroy_swapchain() {
     }
 }
 
-void VulkanEngine::cleanup() {
+ VulkanEngine::~VulkanEngine()
+ {
     if (_isInitialized) {
         // make sure the gpu has stopped doing its things
         vkDeviceWaitIdle(_device);
@@ -616,7 +618,6 @@ void VulkanEngine::cleanup() {
 
         vkb::destroy_debug_utils_messenger(_instance, _debug_messenger);
         vkDestroyInstance(_instance, nullptr);
-
         // VMA allocator cleanup
         vmaDestroyAllocator(_allocator);
     }
@@ -1094,10 +1095,6 @@ AllocatedImage VulkanEngine::create_image(const void* data, VkExtent3D size,
     return new_image;
 }
 
-void VulkanEngine::destroy_image(const AllocatedImage& img) const {
-    vkDestroyImageView(_device, img.imageView, nullptr);
-    vmaDestroyImage(_allocator, img.image, img.allocation);
-}
 
 void MeshNode::Draw(const glm::mat4& topMatrix, DrawContext& ctx) {
     const glm::mat4 nodeMatrix = topMatrix * worldTransform;

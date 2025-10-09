@@ -17,7 +17,6 @@ public:
      * throws std::runtime_error()
      */
     ModelImpl();
-    ~ModelImpl() override;
 
     ModelImpl(const ModelImpl &) = delete;
     ModelImpl &operator=(const ModelImpl &) = delete;

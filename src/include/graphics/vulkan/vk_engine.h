@@ -108,9 +108,6 @@ public:
     // initializes everything in the engine
     void init(struct SDL_Window* window);
 
-    // shuts down the engine
-    void cleanup();
-
     // draw loop
     void draw();
 
@@ -179,8 +176,17 @@ public:
 
     AllocatedBuffer create_buffer(size_t allocSize, VkBufferUsageFlags usage,
                                   VmaMemoryUsage memoryUsage) const;
-
+    ~VulkanEngine();
 private:
+    struct Imgui {
+        explicit Imgui(const VulkanEngine& engine);
+        ~Imgui();
+    private:
+        VkDescriptorPool _imguiPool;
+        void initImguiPool(const VkDevice& device);
+        const VkDevice _device;
+    };
+    std::unique_ptr<Imgui> _imgui;
     // Smart pointer collections for automatic cleanup
     std::vector<std::unique_ptr<VulkanBuffer>> _managedBuffers;
     std::vector<std::unique_ptr<VulkanImage>> _managedImages;
