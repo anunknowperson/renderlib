@@ -64,6 +64,34 @@ struct DrawContext {
 
 class VulkanEngine {
 public:
+    struct Instance {
+        explicit operator VkInstance() const;
+        explicit operator vkb::Instance() const;
+        void init();
+        ~Instance();
+    private:
+        vkb::Instance _instance;
+    };
+    Instance instance;
+
+    struct Device {
+        explicit operator VkDevice() const;
+        explicit operator vkb::Device() const;
+        void init(const vkb::PhysicalDevice& physical_device);
+        ~Device();
+    private:
+        vkb::Device _device;
+    };
+    Device device;
+
+    struct Allocator {
+        explicit operator VmaAllocator() const;
+        void init(const VkPhysicalDevice& gpu, const VkDevice& device, const VkInstance& instance);
+        ~Allocator();
+    private:
+        VmaAllocator _allocator{VK_NULL_HANDLE};
+    };
+    Allocator allocator;
 
     Pipelines pipelines;
 
@@ -169,8 +197,19 @@ public:
     std::unique_ptr<VulkanImage> _greyImage;
     std::unique_ptr<VulkanImage> _errorCheckerboardImage;
 
-    VkSampler _defaultSamplerLinear;
-    VkSampler _defaultSamplerNearest;
+    struct Sampler {
+        explicit operator VkSampler() const;
+        void create(const VkDevice& pDevice,
+            const VkSamplerCreateInfo* pCreateInfo,
+            const VkAllocationCallbacks* pAllocator);
+        ~Sampler();
+    private:
+        VkSampler _sampler{VK_NULL_HANDLE};
+        VkDevice _device{VK_NULL_HANDLE};
+        const VkAllocationCallbacks* _allocator{VK_NULL_HANDLE};
+    };
+    Sampler _defaultSamplerLinear;
+    Sampler _defaultSamplerNearest;
 
     VkDescriptorSetLayout _singleImageDescriptorLayout;
 
@@ -181,6 +220,17 @@ public:
                                   VmaMemoryUsage memoryUsage) const;
 
 private:
+    struct Imgui {
+        void init(const VkDevice& dev, SDL_Window* w,
+     const VkInstance& pInstance, const VkPhysicalDevice& physicalDevice,
+     const VkQueue& queue, const VkFormat* format);
+        ~Imgui();
+    private:
+        void initImguiPool();
+        VkDevice _device{nullptr};
+        VkDescriptorPool _imguiPool{nullptr};
+    };
+    Imgui _imgui;
     // Smart pointer collections for automatic cleanup
     std::vector<std::unique_ptr<VulkanBuffer>> _managedBuffers;
     std::vector<std::unique_ptr<VulkanImage>> _managedImages;
