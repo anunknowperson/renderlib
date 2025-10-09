@@ -608,6 +608,7 @@ void VulkanEngine::cleanup() {
             // Destroy frame descriptors manually
             _frame._frameDescriptors.destroy_pools(_device);
         }
+        globalDescriptorAllocator.destroy_pools(_device);
 
         destroy_swapchain();
 
