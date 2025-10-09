@@ -243,7 +243,7 @@ void load_vertex_positions(const fastgltf::Asset& gltf,
 void load_vertex_normals(const fastgltf::Asset& gltf,
                          std::vector<Vertex>& vertices, fastgltf::Primitive& p,
                          size_t initial_vtx) {
-    auto normals = p.findAttribute("NORMAL");
+    const auto normals = p.findAttribute("NORMAL");
     if (normals != p.attributes.end()) {
         fastgltf::iterateAccessorWithIndex<glm::vec3>(
                 gltf, gltf.accessors[normals->second],
@@ -255,7 +255,7 @@ void load_vertex_normals(const fastgltf::Asset& gltf,
 
 void load_UVs(const fastgltf::Asset& gltf, std::vector<Vertex>& vertices,
               fastgltf::Primitive& p, size_t initial_vtx) {
-    auto uv = p.findAttribute("TEXCOORD_0");
+    const auto uv = p.findAttribute("TEXCOORD_0");
     if (uv != p.attributes.end()) {
         fastgltf::iterateAccessorWithIndex<glm::vec2>(
                 gltf, gltf.accessors[uv->second],
@@ -269,7 +269,7 @@ void load_UVs(const fastgltf::Asset& gltf, std::vector<Vertex>& vertices,
 void load_vertex_colors(const fastgltf::Asset& gltf,
                         std::vector<Vertex>& vertices, fastgltf::Primitive& p,
                         size_t initial_vtx) {
-    auto colors = p.findAttribute("COLOR_0");
+    const auto colors = p.findAttribute("COLOR_0");
     if (colors != p.attributes.end()) {
         fastgltf::iterateAccessorWithIndex<glm::vec4>(
                 gltf, gltf.accessors[colors->second],
@@ -317,7 +317,7 @@ void upload_mesh_to_engine(
             newSurface.count = static_cast<uint32_t>(
                     gltf.accessors[p.indicesAccessor.value()].count);
 
-            size_t initial_vtx = vertices.size();
+            const size_t initial_vtx = vertices.size();
 
             load_indexes(gltf, indices, p, initial_vtx);
             load_vertex_positions(gltf, vertices, p,
