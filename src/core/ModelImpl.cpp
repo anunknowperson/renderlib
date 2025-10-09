@@ -70,20 +70,15 @@ bool load_file(fastgltf::Asset& gltf, std::string_view filePath) {
     const auto type = fastgltf::determineGltfFileType(&data);
     if (type == fastgltf::GltfType::glTF) {
         auto load = parser.loadGltf(&data, path.parent_path(), kOptionsGLTF);
-        if (!check_parser_result(gltf, load)) {
-            return false;
-        }
-    } else if (type == fastgltf::GltfType::GLB) {
+        return check_parser_result(gltf, load);
+    }
+    if (type == fastgltf::GltfType::GLB) {
         auto load =
                 parser.loadGltfBinary(&data, path.parent_path(), kOptionsGLTF);
-        if (!check_parser_result(gltf, load)) {
-            return false;
-        }
-    } else {
-        std::cerr << "Failed to determine glTF container" << std::endl;
-        return false;
+        return check_parser_result(gltf, load);
     }
-    return true;
+    std::cerr << "Failed to determine glTF container" << std::endl;
+    return false;
 }
 
 void init_descriptor_pool(const VulkanEngine& engine,
