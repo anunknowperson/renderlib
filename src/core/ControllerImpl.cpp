@@ -13,7 +13,8 @@
 #include <ranges>
 
 ControllerImpl::ControllerImpl(IModel::Ptr model, IView::Ptr view)
-    : _model(std::move(model)), _view(std::move(view)), _mesh_controller(_model) {}
+    : _model(std::move(model)), _view(std::move(view)) {
+}
 
 double getCurrentGlobalTime() {
     // Get the current time point
@@ -29,16 +30,21 @@ double getCurrentGlobalTime() {
     return seconds.count();
 }
 
-void updateCube(const MeshController& mesh_controller, Mesh::rid_t rid, int8_t i) {
+void updateCube(const std::weak_ptr<const MeshController>& mesh_controller, Mesh::rid_t rid, int8_t i) {
     const double sinValue = std::sin(getCurrentGlobalTime() + static_cast<double>(i)) * 5.0f;
 
     const glm::mat4 scale = glm::scale(glm::vec3{0.2});
     const glm::mat4 translation = glm::translate(glm::vec3{static_cast<float>(i) - 2.5f, sinValue, 0});
 
-    mesh_controller.set_transform(rid, scale * translation);
+    if (const auto sp = mesh_controller.lock()) {
+        sp->set_transform(rid, scale * translation);
+    } else {
+        throw std::runtime_error("Cubes could not be transformed");
+    }
 }
 
-void updateCubes(const IModel::Ptr& model, const MeshController& mesh_controller) {
+void updateCubes(const IModel::Ptr& model,
+                 const std::weak_ptr<const MeshController>& mesh_controller) {
     auto meshes = model->get_meshes();
     for (int8_t i {}; const auto& key : std::views::keys(meshes)) {
         updateCube(mesh_controller, key, i);
@@ -46,7 +52,7 @@ void updateCubes(const IModel::Ptr& model, const MeshController& mesh_controller
     }
 }
 
-void update(const IModel::Ptr& model, const MeshController& mesh_controller) {
+void update(const IModel::Ptr& model, const std::weak_ptr<const MeshController>& mesh_controller) {
     model->get_engine().update(model);
 
     model->getCamera()->update();
@@ -54,9 +60,13 @@ void update(const IModel::Ptr& model, const MeshController& mesh_controller) {
     updateCubes(model, mesh_controller);
 }
 
-void createCubes(const MeshController& mesh_controller) {
+void createCubes(const std::weak_ptr<const MeshController>& mesh_controller) {
     for (int i = 0; i < 5; i++) {
-        mesh_controller.create_mesh("/basicmesh.glb");
+        if (const auto sp = mesh_controller.lock()) {
+            sp->create_mesh("/basicmesh.glb");
+        } else {
+            throw std::runtime_error("Cubes could not be created");
+        }
     }
 }
 
@@ -101,6 +111,9 @@ void ControllerImpl::init() {
 }
 
 
-MeshController& ControllerImpl::getMeshController() {
+std::weak_ptr<const MeshController> ControllerImpl::getMeshController() {
+    if (!_mesh_controller) {
+        _mesh_controller = std::make_shared<MeshController>(_model);
+    }
     return _mesh_controller;
 }
