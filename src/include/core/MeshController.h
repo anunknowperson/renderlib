@@ -18,7 +18,7 @@ public:
      * \param file_path The path to the mesh
      * \return Returns render-id of the added mesh
      */
-    Mesh::rid_t create_mesh(std::filesystem::path file_path) const;
+    Mesh::rid_t create_mesh(const std::filesystem::path& file_path) const;
     /*! \brief Removes meshes from those to be rendered
      * \param id Render-id of the mesh
      */

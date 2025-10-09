@@ -14,9 +14,6 @@ class Mesh;
 
 class ModelImpl : public IModel {
 public:
-
-
-    using MeshMap = std::unordered_map<Mesh::rid_t, MeshPair>;
     /*! \brief
      * throws std::runtime_error()
      */

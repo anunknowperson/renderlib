@@ -90,7 +90,7 @@ void init_descriptor_pool(const VulkanEngine& engine,
             {VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 3},
             {VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 1}};
 
-    file.descriptorPool.init(engine._device, gltf.materials.size(), sizes);
+    file.descriptorPool.init(engine._device, static_cast<uint32_t>(gltf.materials.size()), sizes);
 }
 
 void load_samplers(const VulkanEngine& engine, Mesh::GLTF::LoadedGLTF& file,
@@ -186,14 +186,13 @@ void load_material_data(
 
         GLTFMetallic_Roughness::MaterialResources materialResources{
                 // default the material textures
-                .colorImage{engine._whiteImage},
-                .colorSampler{engine._defaultSamplerLinear},
-                .metalRoughImage{engine._whiteImage},
-                .metalRoughSampler{engine._defaultSamplerLinear},
+                engine._whiteImage,
+                engine._defaultSamplerLinear,
+                engine._whiteImage,
+                engine._defaultSamplerLinear,
                 // set the uniform buffer for the material data
-                .dataBuffer{file.materialDataBuffer.buffer},
-                //TODO: the place should be checked because of cast u64 -> u32
-                .dataBufferOffset{static_cast<uint32_t>(data_index * sizeof(GLTFMetallic_Roughness::MaterialConstants))}
+                file.materialDataBuffer.buffer,
+                static_cast<uint32_t>(data_index * sizeof(GLTFMetallic_Roughness::MaterialConstants))
         };
 
         grab_textures_from_GLTF(file, gltf, mat,
@@ -216,7 +215,7 @@ void load_indexes(const fastgltf::Asset& gltf, std::vector<uint32_t>& indices,
 
         fastgltf::iterateAccessor<std::uint32_t>(
                 gltf, indexaccessor, [&](std::uint32_t idx) {
-                    indices.push_back(idx + initial_vtx);
+                    indices.push_back(idx + static_cast<uint32_t>(initial_vtx));
                 });
     }
 }
@@ -389,7 +388,7 @@ void setup_nodes_relationships(Mesh::GLTF::LoadedGLTF& file,
                                fastgltf::Asset& gltf,
                                std::vector<std::shared_ptr<ENode>>& nodes) {
     // run loop again to set up transform hierarchy
-    for (int i = 0; i < gltf.nodes.size(); i++) {
+    for (size_t i = 0; i < gltf.nodes.size(); i++) {
         fastgltf::Node& node = gltf.nodes[i];
         const std::shared_ptr<ENode>& sceneNode = nodes[i];
 
