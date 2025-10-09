@@ -492,12 +492,11 @@ Mesh::rid_t registerMesh(
     return random_rid_t;
 }
 
-void ModelImpl::createMesh(const std::filesystem::path& file_path) {
+Mesh::rid_t ModelImpl::createMesh(const std::filesystem::path& file_path) {
     assert(_engine._isInitialized);
     const Mesh::rid_t rid = registerMesh(_engine, _meshes, file_path);
     _meshes[rid].transform = 1.;
-// TODO вернуть возвращаемое значение
-    // return rid;
+    return rid;
 }
 
 void ModelImpl::setMeshTransform(Mesh::rid_t rid, glm::mat4x4 transform) {
